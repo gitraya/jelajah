@@ -1,5 +1,7 @@
 import { Link } from "react-router";
 
+import { Button } from "@/components/ui/button";
+
 export default function Home() {
   return (
     <main className="w-screen min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-white to-blue-100 px-4 text-center">
@@ -12,17 +14,11 @@ export default function Home() {
       </p>
 
       <div className="flex gap-4">
-        <Link
-          to="/trips"
-          className="px-6 py-3 bg-blue-600 text-white! rounded-xl shadow hover:bg-blue-700 transition"
-        >
-          Jelajahi Trip
+        <Link to="/trips">
+          <Button size="lg">Jelajahi Trip</Button>
         </Link>
-        <Link
-          to="/trips/new"
-          className="px-6 py-3 bg-white border border-blue-600 text-blue-600 rounded-xl hover:bg-blue-50 transition"
-        >
-          Buat Trip Baru
+        <Link to="/trips/new">
+          <Button size="lg">Buat Trip Baru</Button>
         </Link>
       </div>
     </main>
