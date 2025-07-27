@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from "react-router";
 
+import { InviteMemberDialog } from "@/components/InviteMemberDialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -85,7 +86,14 @@ export default function TripDetail() {
             </AlertDialog>
           </div>
 
-          <Button onClick={() => navigate("/trips")} className="mt-4">
+          <InviteMemberDialog
+            onInvite={(email) => {
+              console.log("Undang", email);
+              // nanti update backend atau simpan di trip.members
+            }}
+          />
+
+          <Button onClick={() => navigate("/trips")} className="mt-4 ml-4">
             Kembali ke Daftar Trip
           </Button>
         </CardContent>
