@@ -17,3 +17,13 @@ export async function getAPIData(endpoint) {
     throw error;
   }
 }
+
+export async function postAPIData(endpoint, data) {
+  try {
+    const response = await axios.post(`${API_URL}/${endpoint}`, data);
+    return response.data;
+  } catch (error) {
+    console.error("Error posting data to API:", error);
+    throw error;
+  }
+}

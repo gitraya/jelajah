@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { postAPIData } from "@/lib/utils";
 
 export default function NewTrip() {
   const navigate = useNavigate();
@@ -15,13 +16,14 @@ export default function NewTrip() {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
-    const tripData = {
-      ...data,
-      members: data.members.split(",").map((m) => m.trim()),
-    };
+  const onSubmit = async (data) => {
+    delete data.members;
+    delete data.notes;
 
-    console.log("Trip baru:", tripData);
+    data.owner = 2; // Hardcoded owner ID for now
+    await postAPIData("trips/", data);
+
+    console.log("Trip baru:", data);
 
     // TODO: kirim ke backend nanti
     navigate("/trips");
@@ -53,15 +55,28 @@ export default function NewTrip() {
             </div>
 
             <div>
-              <Label htmlFor="date" className="mb-2">
-                Tanggal
+              <Label htmlFor="start_date" className="mb-2">
+                Tanggal Mulai
               </Label>
               <Input
-                id="date"
+                id="start_date"
                 type="date"
-                {...register("date", { required: true })}
+                {...register("start_date", { required: true })}
               />
-              {errors.date && (
+              {errors.start_date && (
+                <p className="text-red-500 text-sm mt-1">Tanggal wajib diisi</p>
+              )}
+            </div>
+            <div>
+              <Label htmlFor="end_date" className="mb-2">
+                Tanggal Selesai
+              </Label>
+              <Input
+                id="end_date"
+                type="date"
+                {...register("end_date", { required: true })}
+              />
+              {errors.end_date && (
                 <p className="text-red-500 text-sm mt-1">Tanggal wajib diisi</p>
               )}
             </div>
