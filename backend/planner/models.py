@@ -7,7 +7,7 @@ class User(AbstractUser):
 
 class Trip(models.Model):
     owner = models.ForeignKey("User", on_delete=models.CASCADE, related_name='trips')
-    name = models.CharField(max_length=100)
+    title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     create_date = models.DateField(auto_now_add=True)
     update_date = models.DateField(auto_now=True)
@@ -17,4 +17,4 @@ class Trip(models.Model):
     members = models.ManyToManyField("User", related_name='trip_members', blank=True)
 
     def __str__(self):
-        return self.name
+        return self.title
