@@ -3,30 +3,17 @@ import { Link } from "react-router";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getAPIData } from "@/lib/utils";
 
 export default function Trips() {
   const [trips, setTrips] = useState([]);
 
   useEffect(() => {
-    // Simulasi fetch trip dari server
-    const dummyTrips = [
-      {
-        id: 1,
-        title: "Trip ke Bali",
-        location: "Bali",
-        date: "2025-08-10",
-        members: ["Kamu", "Ibnu", "Alya"],
-      },
-      {
-        id: 2,
-        title: "Pendakian Semeru",
-        location: "Lumajang, Jatim",
-        date: "2025-09-15",
-        members: ["Kamu ", "Moerdowo"],
-      },
-    ];
-
-    setTrips(dummyTrips);
+    getAPIData("trips")
+      .then((data) => setTrips(data))
+      .catch((error) => {
+        console.error("Failed to fetch trips:", error);
+      });
   }, []);
 
   return (
@@ -49,7 +36,7 @@ export default function Trips() {
                 Lokasi: {trip.location}
               </p>
               <p className="text-sm text-muted-foreground">
-                Tanggal: {trip.date}
+                Tanggal: {trip.start_date}
               </p>
               <p className="text-sm text-muted-foreground">
                 Peserta: {trip.members.join(", ")}
