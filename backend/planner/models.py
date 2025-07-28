@@ -13,6 +13,8 @@ class Trip(models.Model):
     update_date = models.DateField(auto_now=True)
     start_date = models.DateField()
     end_date = models.DateField()
+    location = models.CharField(max_length=255)
+    members = models.ManyToManyField("User", related_name='trip_members', blank=True)
 
     def __str__(self):
         return self.name
