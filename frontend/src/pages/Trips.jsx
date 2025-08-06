@@ -17,7 +17,7 @@ export default function Trips() {
   }, []);
 
   return (
-    <div className="container py-8">
+    <div className="container py-8 px-4">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold">My Trips</h1>
         <Button asChild>
@@ -41,7 +41,7 @@ export default function Trips() {
               <p className="text-sm text-muted-foreground">
                 Participants: {trip.members.join(", ")}
               </p>
-              <Button variant="link" asChild className="mt-2 p-0">
+              <Button variant="link" asChild className="mt-2 p-0 text-blue-800">
                 <Link to={`/trips/${trip.id}`}>View Details</Link>
               </Button>
             </CardContent>

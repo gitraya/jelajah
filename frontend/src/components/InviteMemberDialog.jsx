@@ -17,9 +17,7 @@ export function InviteMemberDialog({ onInvite }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" className="text-white hover:text-white">
-          Invite Friends
-        </Button>
+        <Button variant="outline">Invite Friends</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

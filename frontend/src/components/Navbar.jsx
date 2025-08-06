@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router";
 
-import { buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -16,8 +16,8 @@ export default function Navbar() {
 
   return (
     <header className="w-full flex justify-center border-b bg-background sticky top-0 z-50">
-      <div className="container flex items-center justify-between h-16">
-        <Link to="/" className="text-xl font-bold text-primary">
+      <div className="container flex flex-col sm:flex-row items-center justify-between gap-3 py-3 sm:py-0 sm:px-4 sm:h-16">
+        <Link to="/" className="text-xl font-bold text-blue-800">
           Jelajah
         </Link>
 
@@ -29,8 +29,8 @@ export default function Navbar() {
                 className={cn(
                   "text-sm transition-colors",
                   isActive("/trips")
-                    ? "text-primary font-medium"
-                    : "text-muted-foreground hover:text-primary"
+                    ? "text-blue-800 font-medium"
+                    : "text-muted-foreground hover:text-blue-800"
                 )}
               >
                 <Link to="/trips">Trip</Link>
@@ -39,14 +39,10 @@ export default function Navbar() {
 
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
-                <Link
-                  to="/trips/new"
-                  className={cn(
-                    buttonVariants({ variant: "default", size: "sm" }),
-                    "rounded-md text-white!"
-                  )}
-                >
-                  + New Trip
+                <Link to="/trips/new" className="hover:bg-transparent">
+                  <Button size="sm" className="rounded-md">
+                    + New Trip
+                  </Button>
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>

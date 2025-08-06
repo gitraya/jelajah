@@ -35,7 +35,7 @@ export default function TripDetail() {
   };
 
   return (
-    <div className="container max-w-xl py-8">
+    <div className="container max-w-xl py-8 px-4">
       <Card>
         <CardHeader>
           <CardTitle>{trip.title}</CardTitle>
@@ -75,9 +75,7 @@ export default function TripDetail() {
                   </AlertDialogTitle>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel className="text-white hover:text-white">
-                    Cancel
-                  </AlertDialogCancel>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction onClick={handleDelete}>
                     Yes, Delete
                   </AlertDialogAction>

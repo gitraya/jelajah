@@ -39,7 +39,7 @@ export default function NewTrip() {
   ];
 
   return (
-    <div className="container py-8 max-w-xl">
+    <div className="container py-8 px-4 max-w-xl">
       <Card>
         <CardHeader>
           <CardTitle>Create New Trip</CardTitle>
