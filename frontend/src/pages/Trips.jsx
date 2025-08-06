@@ -19,9 +19,9 @@ export default function Trips() {
   return (
     <div className="container py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold">Trip Saya</h1>
+        <h1 className="text-2xl font-semibold">My Trips</h1>
         <Button asChild>
-          <Link to="/trips/new">+ Buat Trip</Link>
+          <Link to="/trips/new">+ Create Trip</Link>
         </Button>
       </div>
 
@@ -33,16 +33,16 @@ export default function Trips() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Lokasi: {trip.location}
+                Location: {trip.location}
               </p>
               <p className="text-sm text-muted-foreground">
-                Tanggal: {trip.start_date}
+                Date: {trip.start_date}
               </p>
               <p className="text-sm text-muted-foreground">
-                Peserta: {trip.members.join(", ")}
+                Participants: {trip.members.join(", ")}
               </p>
               <Button variant="link" asChild className="mt-2 p-0">
-                <Link to={`/trips/${trip.id}`}>Lihat Detail</Link>
+                <Link to={`/trips/${trip.id}`}>View Details</Link>
               </Button>
             </CardContent>
           </Card>

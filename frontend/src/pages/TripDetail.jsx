@@ -18,19 +18,19 @@ export default function TripDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // Dummy data (nanti diganti fetch backend)
+  // Dummy data (will be replaced with backend fetch)
   const trip = {
     id,
-    title: "Trip ke Bali",
+    title: "Trip to Bali",
     location: "Bali, Indonesia",
     date: "2025-08-10",
     members: ["Raka", "Ibnu", "Dina"],
-    notes: "Jangan lupa bawa sunblock dan kamera.",
+    notes: "Don't forget to bring sunblock and camera.",
   };
 
   const handleDelete = () => {
-    // hapus trip logic (dummy dulu)
-    console.log("Hapus trip id:", id);
+    // delete trip logic (dummy for now)
+    console.log("Delete trip id:", id);
     navigate("/trips");
   };
 
@@ -42,13 +42,13 @@ export default function TripDetail() {
         </CardHeader>
         <CardContent className="space-y-4">
           <p>
-            <strong>Lokasi:</strong> {trip.location}
+            <strong>Location:</strong> {trip.location}
           </p>
           <p>
-            <strong>Tanggal:</strong> {trip.date}
+            <strong>Date:</strong> {trip.date}
           </p>
           <div>
-            <strong>Peserta:</strong>
+            <strong>Participants:</strong>
             <ul className="list-disc list-inside">
               {trip.members.map((member, index) => (
                 <li key={index}>{member}</li>
@@ -57,7 +57,7 @@ export default function TripDetail() {
           </div>
           {trip.notes && (
             <p>
-              <strong>Catatan:</strong> {trip.notes}
+              <strong>Notes:</strong> {trip.notes}
             </p>
           )}
 
@@ -66,20 +66,20 @@ export default function TripDetail() {
 
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive">Hapus</Button>
+                <Button variant="destructive">Delete</Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>
-                    Yakin ingin menghapus trip ini?
+                    Are you sure you want to delete this trip?
                   </AlertDialogTitle>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel className="text-white hover:text-white">
-                    Batal
+                    Cancel
                   </AlertDialogCancel>
                   <AlertDialogAction onClick={handleDelete}>
-                    Ya, Hapus
+                    Yes, Delete
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -88,13 +88,13 @@ export default function TripDetail() {
 
           <InviteMemberDialog
             onInvite={(email) => {
-              console.log("Undang", email);
-              // nanti update backend atau simpan di trip.members
+              console.log("Invite", email);
+              // later update backend or save in trip.members
             }}
           />
 
           <Button onClick={() => navigate("/trips")} className="mt-4 ml-4">
-            Kembali ke Daftar Trip
+            Back to Trip List
           </Button>
         </CardContent>
       </Card>

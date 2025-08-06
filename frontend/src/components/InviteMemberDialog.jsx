@@ -18,21 +18,21 @@ export function InviteMemberDialog({ onInvite }) {
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" className="text-white hover:text-white">
-          Undang Teman
+          Invite Friends
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Undang Teman ke Trip Ini</DialogTitle>
+          <DialogTitle>Invite Friends to This Trip</DialogTitle>
         </DialogHeader>
         <Input
           type="email"
-          placeholder="Email teman"
+          placeholder="Friend's email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
         <DialogFooter>
-          <Button onClick={() => onInvite(email)}>Kirim Undangan</Button>
+          <Button onClick={() => onInvite(email)}>Send Invitation</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

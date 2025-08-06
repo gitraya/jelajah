@@ -46,7 +46,7 @@ export default function Navbar() {
                     "rounded-md text-white!"
                   )}
                 >
-                  + Buat Trip
+                  + New Trip
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>

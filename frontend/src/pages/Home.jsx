@@ -9,16 +9,16 @@ export default function Home() {
         Jelajah
       </h1>
       <p className="text-lg md:text-xl text-gray-600 max-w-xl mb-8">
-        Rencanakan liburan bareng teman atau keluarga. Kolaborasi, diskusi, dan
-        sharing semua destinasi dalam satu tempat.
+        Plan your vacation with friends or family. Collaborate, discuss, and
+        share all destinations in one place.
       </p>
 
       <div className="flex gap-4">
         <Link to="/trips">
-          <Button size="lg">Jelajahi Trip</Button>
+          <Button size="lg">Explore Trips</Button>
         </Link>
         <Link to="/trips/new">
-          <Button size="lg">Buat Trip Baru</Button>
+          <Button size="lg">Create New Trip</Button>
         </Link>
       </div>
     </main>

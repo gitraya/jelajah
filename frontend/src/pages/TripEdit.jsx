@@ -9,9 +9,9 @@ export default function TripEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // Dummy data, nanti ambil dari backend
+  // Dummy data, will be fetched from backend later
   const dummyData = {
-    title: "Trip ke Bali",
+    title: "Trip to Bali",
     location: "Bali",
     date: "2025-08-10",
   };
@@ -21,7 +21,7 @@ export default function TripEdit() {
   });
 
   const onSubmit = (data) => {
-    console.log("Trip berhasil diedit:", data);
+    console.log("Trip successfully edited:", data);
     navigate(`/trips/${id}`);
   };
 
@@ -31,23 +31,23 @@ export default function TripEdit() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
           <Label htmlFor="title" className="mb-2">
-            Judul
+            Title
           </Label>
           <Input id="title" {...register("title")} />
         </div>
         <div>
           <Label htmlFor="location" className="mb-2">
-            Lokasi
+            Location
           </Label>
           <Input id="location" {...register("location")} />
         </div>
         <div>
           <Label htmlFor="date" className="mb-2">
-            Tanggal
+            Date
           </Label>
           <Input type="date" id="date" {...register("date")} />
         </div>
-        <Button type="submit">Simpan Perubahan</Button>
+        <Button type="submit">Save Changes</Button>
       </form>
     </div>
   );
