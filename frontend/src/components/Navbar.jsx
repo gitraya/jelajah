@@ -43,7 +43,7 @@ export default function Navbar() {
                   to="/trips/new"
                   className={cn(
                     buttonVariants({ variant: "default", size: "sm" }),
-                    "rounded-md"
+                    "rounded-md text-white!"
                   )}
                 >
                   + Buat Trip
