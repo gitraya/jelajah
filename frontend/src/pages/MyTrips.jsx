@@ -5,11 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getAPIData } from "@/lib/utils";
 
-export default function Trips() {
+export default function MyTrips() {
   const [trips, setTrips] = useState([]);
 
   useEffect(() => {
-    getAPIData("trips")
+    getAPIData("trips/my")
       .then((data) => setTrips(data))
       .catch((error) => {
         console.error("Failed to fetch trips:", error);
@@ -19,7 +19,7 @@ export default function Trips() {
   return (
     <div className="container py-8 px-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold">All Trips</h1>
+        <h1 className="text-2xl font-semibold">My Trips</h1>
         <Button asChild>
           <Link to="/trips/new">+ Create Trip</Link>
         </Button>
