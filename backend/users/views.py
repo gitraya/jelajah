@@ -34,7 +34,7 @@ class CookieTokenObtainPairView(TokenObtainPairView):
                 value=','.join([response.data['access'], response.data['refresh']]),
                 httponly=True,
                 secure=True,
-                samesite='Strict' if os.getenv('DJANGO_ENV') == "production" else 'Lax',
+                samesite='Strict' if os.getenv('DJANGO_ENV') == "production" else 'None',
                 max_age=3600 * 24 * 7  # 1 week
             )
             response.data = {'message': 'Login successful'}
@@ -49,7 +49,7 @@ class CookieTokenRefreshView(TokenRefreshView):
                 value=','.join([response.data['access'], response.data['refresh']]),
                 httponly=True,
                 secure=True,
-                samesite='Strict' if os.getenv('DJANGO_ENV') == "production" else 'Lax',
+                samesite='Strict' if os.getenv('DJANGO_ENV') == "production" else 'None',
                 max_age=3600 * 24 * 7  # 1 week
             )
             response.data = {'message': 'Token refreshed successfully'}

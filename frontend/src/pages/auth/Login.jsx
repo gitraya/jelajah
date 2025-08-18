@@ -23,7 +23,7 @@ export default function Register() {
 
   const onSubmit = async (data) => {
     try {
-      await postAPIData("auth/token/", data);
+      await postAPIData("auth/token/", data, { withCredentials: true });
       navigate(redirectPath);
     } catch (error) {
       setError(
