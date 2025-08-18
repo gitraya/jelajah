@@ -1,122 +1,99 @@
-import { Controller, useForm } from "react-hook-form";
-import { useNavigate } from "react-router";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { useLocation, useNavigate } from "react-router";
 
+import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MultiSelect } from "@/components/ui/multi-select";
-import { Textarea } from "@/components/ui/textarea";
-import { postAPIData } from "@/lib/utils";
+import { postAPIData, validator } from "@/lib/utils";
 
-export default function Login() {
+export default function Register() {
   const navigate = useNavigate();
+  const { search } = useLocation();
   const {
     register,
     handleSubmit,
     formState: { errors },
-    control,
   } = useForm();
+  const [error, setError] = useState(null);
+
+  const redirectPath = new URLSearchParams(search).get("redirect") || "/trips";
 
   const onSubmit = async (data) => {
-    delete data.members;
-    delete data.notes;
-
-    data.owner = 2; // Hardcoded owner ID for now
-    await postAPIData("trips/", data);
-
-    console.log("New Trip:", data);
-
-    // TODO: send to backend later
-    navigate("/trips");
+    try {
+      await postAPIData("auth/token/", data);
+      navigate(redirectPath);
+    } catch (error) {
+      setError(
+        error.response?.data?.[Object.keys(error.response.data)[0]]?.[0] ||
+          "Something went wrong"
+      );
+    }
   };
-
-  const memberOptions = [
-    { value: "1", label: "Alice" },
-    { value: "2", label: "Bob" },
-    { value: "3", label: "Charlie" },
-    { value: "4", label: "Diana" },
-  ];
 
   return (
     <div className="container py-8 px-4 max-w-xl">
       <Card>
         <CardHeader>
-          <CardTitle>Create New Trip</CardTitle>
+          <CardTitle>Login to Your Account</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
-              <Label htmlFor="title" className="mb-2">
-                Title
-              </Label>
-              <Input id="title" {...register("title", { required: true })} />
-              {errors.title && (
-                <p className="text-red-500 text-sm mt-1">Title is required</p>
-              )}
-            </div>
-
-            <div>
-              <Label htmlFor="location" className="mb-2">
-                Location
-              </Label>
-              <Input id="location" {...register("location")} />
-            </div>
-
-            <div>
-              <Label htmlFor="start_date" className="mb-2">
-                Start Date
+              <Label htmlFor="username" className="mb-2">
+                Username*
               </Label>
               <Input
-                id="start_date"
-                type="date"
-                {...register("start_date", { required: true })}
+                id="username"
+                aria-invalid={errors.username ? "true" : "false"}
+                {...register("username", {
+                  required: validator.required,
+                  pattern: validator.username,
+                })}
               />
-              {errors.start_date && (
-                <p className="text-red-500 text-sm mt-1">Date is required</p>
+              {errors.username && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.username.message}
+                </p>
               )}
             </div>
+
             <div>
-              <Label htmlFor="end_date" className="mb-2">
-                End Date
+              <Label htmlFor="password" className="mb-1">
+                Password*
               </Label>
+              <div className="mb-2 text-xs *:text-muted-foreground">
+                <small>
+                  Password must be at least 8 characters long and contain at
+                  least one uppercase letter, one lowercase letter, and one
+                  number.
+                </small>
+              </div>
               <Input
-                id="end_date"
-                type="date"
-                {...register("end_date", { required: true })}
+                id="password"
+                type="password"
+                aria-invalid={errors.password ? "true" : "false"}
+                {...register("password", {
+                  required: validator.required,
+                  pattern: validator.password,
+                })}
               />
-              {errors.end_date && (
-                <p className="text-red-500 text-sm mt-1">Date is required</p>
+              {errors.password && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.password.message}
+                </p>
               )}
             </div>
 
-            <div>
-              <Label htmlFor="members" className="mb-2">
-                Participants
-              </Label>
-              <Controller
-                name="members"
-                control={control}
-                defaultValue={[]}
-                render={({ field }) => (
-                  <MultiSelect
-                    options={memberOptions}
-                    placeholder="Select participants"
-                    selected={field.value}
-                    onChange={field.onChange}
-                  />
-                )}
-              />
-            </div>
+            {error && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertTitle>{error}</AlertTitle>
+              </Alert>
+            )}
 
-            <div>
-              <Label htmlFor="notes" className="mb-2">
-                Notes
-              </Label>
-              <Textarea id="notes" {...register("notes")} />
-            </div>
-
-            <Button type="submit">Save Trip</Button>
+            <Button type="submit">Login</Button>
           </form>
         </CardContent>
       </Card>

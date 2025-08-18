@@ -18,9 +18,9 @@ export async function getAPIData(endpoint) {
   }
 }
 
-export async function postAPIData(endpoint, data) {
+export async function postAPIData(endpoint, data, config) {
   try {
-    const response = await axios.post(`${API_URL}/${endpoint}`, data);
+    const response = await axios.post(`${API_URL}/${endpoint}`, data, config);
     return response.data;
   } catch (error) {
     console.error("Error posting data to API:", error);

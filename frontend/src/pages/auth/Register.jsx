@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { postAPIData, validator } from "@/lib/utils";
 
 export default function Register() {
   const navigate = useNavigate();
+  const { search } = useLocation();
   const {
     register,
     watch,
@@ -19,11 +20,17 @@ export default function Register() {
   } = useForm();
   const [error, setError] = useState(null);
 
+  const redirectPath = new URLSearchParams(search).get("redirect") || "/trips";
+
   const onSubmit = async (data) => {
     try {
       await postAPIData("auth/register/", data);
-
-      navigate("/trips");
+      await postAPIData(
+        "auth/token/",
+        { username: data.username, password: data.password },
+        { withCredentials: true }
+      );
+      navigate(redirectPath);
     } catch (error) {
       setError(
         error.response?.data?.[Object.keys(error.response.data)[0]]?.[0] ||
