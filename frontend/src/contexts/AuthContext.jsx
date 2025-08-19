@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       setLoading(true);
 
-      const response = await getAPIData("/auth/me");
+      const response = await getAPIData("/auth/me/");
 
       setUser(response.data);
       return true;
@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
 
-      await postAPIData("/auth/token", {
+      await postAPIData("/auth/token/", {
         username,
         password,
       });
@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
 
-      await postAPIData("/auth/token/blacklist");
+      await postAPIData("/auth/token/blacklist/");
 
       setUser(null);
       return true;
