@@ -41,7 +41,7 @@ export const useApi = () => {
 
   const refreshToken = async () => {
     try {
-      const response = await postAPIData("/token/refresh");
+      const response = await postAPIData("/auth/token/refresh");
 
       if (response.status === 200) {
         await checkAuth();

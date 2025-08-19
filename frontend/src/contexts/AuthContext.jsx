@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       setLoading(true);
 
-      const response = await getAPIData("/me");
+      const response = await getAPIData("/auth/me");
 
       if (response.status === 200) {
         const userData = response.data;
