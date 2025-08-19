@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'expenses',
     'packing',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 MIDDLEWARE = [

@@ -1,6 +1,6 @@
 import os
-from rest_framework import generics, permissions
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework import generics, permissions, status
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenBlacklistView
 from django.contrib.auth import get_user_model
 from .serializers import UserSerializer, UserDetailSerializer, RegisterSerializer
 from django.conf import settings
@@ -29,7 +29,7 @@ class UserProfileView(generics.RetrieveAPIView):
 class CookieTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
-        if response.status_code == 200:
+        if response.status_code == status.HTTP_200_OK:
             response.set_cookie(
                 key=settings.SIMPLE_JWT['AUTH_COOKIE'],
                 value=response.data['access'],
@@ -73,7 +73,6 @@ class CookieTokenRefreshView(TokenRefreshView):
         return super().finalize_response(request, response, *args, **kwargs)
     
     def post(self, request, *args, **kwargs):
-        # Get refresh token from cookie
         refresh_token = request.COOKIES.get(settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH'])
         
         # If no token in cookie, try to get from body
@@ -81,6 +80,30 @@ class CookieTokenRefreshView(TokenRefreshView):
             return super().post(request, *args, **kwargs)
             
         # Set the token in the request data for the parent class to process
-        request.data['refresh'] = refresh_token
+        data = request.data.copy() if hasattr(request.data, 'copy') else {}
+        data['refresh'] = refresh_token
+        request._full_data = data
         
+        return super().post(request, *args, **kwargs)
+
+class CookieTokenBlacklistView(TokenBlacklistView):
+    def finalize_response(self, request, response, *args, **kwargs):
+        if response.status_code == status.HTTP_200_OK:
+            response.delete_cookie(settings.SIMPLE_JWT['AUTH_COOKIE'])
+            response.delete_cookie(settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH'])
+            response.data = {'message': 'Successfully logged out'}
+
+        return super().finalize_response(request, response, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        refresh_token = request.COOKIES.get(settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH'])
+
+        # If no token in cookie, try to get from body
+        if refresh_token is None:
+            return super().post(request, *args, **kwargs)
+        # Set the token in the request data for the parent class to process
+        data = request.data.copy() if hasattr(request.data, 'copy') else {}
+        data['refresh'] = refresh_token
+        request._full_data = data
+
         return super().post(request, *args, **kwargs)
