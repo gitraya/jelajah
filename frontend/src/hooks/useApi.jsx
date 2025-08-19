@@ -6,49 +6,42 @@ export const useApi = () => {
   const { checkAuth } = useAuth();
 
   const getRequest = async (endpoint, config) => {
-    const response = await getAPIData(endpoint, config);
+    try {
+      const response = await getAPIData(endpoint, config);
+      return response;
+    } catch (error) {
+      if (error.response.status === 401) {
+        const refreshSuccess = await refreshToken();
 
-    // If we got a 401 Unauthorized, try to refresh the token
-    if (response.status === 401) {
-      const refreshSuccess = await refreshToken();
-
-      if (refreshSuccess) {
-        return getRequest(endpoint, config);
-      } else {
-        throw new Error("Authentication failed");
+        if (refreshSuccess) {
+          return getRequest(endpoint, config);
+        }
       }
+      throw error;
     }
-
-    return response;
   };
 
   const postRequest = async (endpoint, data, config) => {
-    const response = await postAPIData(endpoint, data, config);
+    try {
+      const response = await postAPIData(endpoint, data, config);
+      return response;
+    } catch (error) {
+      if (error.response.status === 401) {
+        const refreshSuccess = await refreshToken();
 
-    // If we got a 401 Unauthorized, try to refresh the token
-    if (response.status === 401) {
-      const refreshSuccess = await refreshToken();
-
-      if (refreshSuccess) {
-        return postRequest(endpoint, data, config);
-      } else {
-        throw new Error("Authentication failed");
+        if (refreshSuccess) {
+          return postRequest(endpoint, data, config);
+        }
       }
+      throw error;
     }
-
-    return response;
   };
 
   const refreshToken = async () => {
     try {
-      const response = await postAPIData("/auth/token/refresh");
-
-      if (response.status === 200) {
-        await checkAuth();
-        return true;
-      } else {
-        return false;
-      }
+      await postAPIData("/auth/token/refresh/");
+      await checkAuth();
+      return true;
     } catch (error) {
       console.error("Token refresh error:", error);
       return false;

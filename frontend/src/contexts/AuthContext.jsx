@@ -15,13 +15,8 @@ export const AuthProvider = ({ children }) => {
 
       const response = await getAPIData("/auth/me");
 
-      if (response.status === 200) {
-        const userData = response.data;
-        setUser(userData);
-        return true;
-      } else {
-        throw new Error("Failed to authenticate");
-      }
+      setUser(response.data);
+      return true;
     } catch {
       setError("Failed to check authentication status");
       setUser(null);
@@ -35,17 +30,13 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
 
-      const response = await postAPIData("/auth/token", {
+      await postAPIData("/auth/token", {
         username,
         password,
       });
 
-      if (response.status == 200) {
-        await checkAuth();
-        return true;
-      } else {
-        throw new Error("Login failed");
-      }
+      await checkAuth();
+      return true;
     } catch (error) {
       setError(
         error.response?.data?.[Object.keys(error.response.data)[0]]?.[0] ||
@@ -59,14 +50,10 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
 
-      const response = await postAPIData("/auth/token/blacklist");
+      await postAPIData("/auth/token/blacklist");
 
-      if (response.status === 200) {
-        setUser(null);
-        return true;
-      } else {
-        throw new Error("Logout failed");
-      }
+      setUser(null);
+      return true;
     } catch (error) {
       setError(error.message);
       return false;
