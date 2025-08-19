@@ -23,7 +23,7 @@ export default function NewTrip() {
     delete data.notes;
 
     data.owner = 2; // Hardcoded owner ID for now
-    await postAPIData("trips/", data);
+    await postAPIData("/trips/", data);
 
     console.log("New Trip:", data);
 

@@ -9,7 +9,7 @@ export default function MyTrips() {
   const [trips, setTrips] = useState([]);
 
   useEffect(() => {
-    getAPIData("trips/my")
+    getAPIData("/trips/my")
       .then((data) => setTrips(data))
       .catch((error) => {
         console.error("Failed to fetch trips:", error);

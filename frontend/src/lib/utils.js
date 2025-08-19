@@ -2,7 +2,8 @@ import axios from "axios";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-const API_URL = import.meta.env.VITE_BACKEND_URL;
+axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
+axios.defaults.withCredentials = true;
 
 export function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -16,8 +17,8 @@ export function getAuthConfig() {
 
 export async function getAPIData(endpoint, config) {
   try {
-    const response = await axios.get(`${API_URL}/${endpoint}`, config);
-    return response.data;
+    const response = await axios.get(endpoint, config);
+    return response;
   } catch (error) {
     console.error("Error fetching data from API:", error);
     throw error;
@@ -26,8 +27,8 @@ export async function getAPIData(endpoint, config) {
 
 export async function postAPIData(endpoint, data, config) {
   try {
-    const response = await axios.post(`${API_URL}/${endpoint}`, data, config);
-    return response.data;
+    const response = await axios.post(endpoint, data, config);
+    return response;
   } catch (error) {
     console.error("Error posting data to API:", error);
     throw error;
