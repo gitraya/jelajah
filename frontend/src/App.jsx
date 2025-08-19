@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router";
 
 import Layout from "@/components/Layout";
+import { AuthProvider } from "@/contexts/AuthContext";
 import Login from "@/pages/auth/Login";
 import Register from "@/pages/auth/Register";
 import Home from "@/pages/Home";
@@ -13,20 +14,22 @@ import Trips from "@/pages/Trips";
 
 export default function App() {
   return (
-    <Routes>
-      <Route index element={<Home />} />
-      <Route element={<Layout />}>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+    <AuthProvider>
+      <Routes>
+        <Route index element={<Home />} />
+        <Route element={<Layout />}>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-        <Route path="/trips" element={<Trips />} />
-        <Route path="/trips/my" element={<MyTrips />} />
-        <Route path="/trips/new" element={<NewTrip />} />
-        <Route path="/trips/:id" element={<TripDetail />} />
-        <Route path="/trips/:id/edit" element={<TripEdit />} />
+          <Route path="/trips" element={<Trips />} />
+          <Route path="/trips/my" element={<MyTrips />} />
+          <Route path="/trips/new" element={<NewTrip />} />
+          <Route path="/trips/:id" element={<TripDetail />} />
+          <Route path="/trips/:id/edit" element={<TripEdit />} />
 
-        <Route path="*" element={<NotFound />} />
-      </Route>
-    </Routes>
+          <Route path="*" element={<NotFound />} />
+        </Route>
+      </Routes>
+    </AuthProvider>
   );
 }
