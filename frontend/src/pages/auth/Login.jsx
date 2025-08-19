@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router";
 
@@ -7,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { postAPIData, validator } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
+import { validator } from "@/lib/utils";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -17,19 +17,14 @@ export default function Register() {
     handleSubmit,
     formState: { errors },
   } = useForm();
-  const [error, setError] = useState(null);
+  const { login, error } = useAuth();
 
   const redirectPath = new URLSearchParams(search).get("redirect") || "/trips";
 
   const onSubmit = async (data) => {
-    try {
-      await postAPIData("auth/token/", data, { withCredentials: true });
+    await login(data);
+    if (!error) {
       navigate(redirectPath);
-    } catch (error) {
-      setError(
-        error.response?.data?.[Object.keys(error.response.data)[0]]?.[0] ||
-          "Something went wrong"
-      );
     }
   };
 

@@ -10,6 +10,7 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     try {
+      setError(null);
       setLoading(true);
 
       const response = await getAPIData("/me");
@@ -32,6 +33,8 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
+      setError(null);
+
       const response = await postAPIData("/auth/token", {
         username,
         password,
@@ -54,6 +57,8 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
+      setError(null);
+
       const response = await postAPIData("/auth/token/blacklist");
 
       if (response.status === 200) {

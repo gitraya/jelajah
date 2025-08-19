@@ -24,9 +24,9 @@ export default function Register() {
 
   const onSubmit = async (data) => {
     try {
-      await postAPIData("/auth/register/", data);
+      await postAPIData("/auth/register", data);
       await postAPIData(
-        "/auth/token/",
+        "/auth/token",
         { username: data.username, password: data.password },
         { withCredentials: true }
       );
