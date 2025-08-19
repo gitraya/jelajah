@@ -8,9 +8,15 @@ export function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 
-export async function getAPIData(endpoint) {
+export function getAuthConfig() {
+  return {
+    withCredentials: true,
+  };
+}
+
+export async function getAPIData(endpoint, config) {
   try {
-    const response = await axios.get(`${API_URL}/${endpoint}`);
+    const response = await axios.get(`${API_URL}/${endpoint}`, config);
     return response.data;
   } catch (error) {
     console.error("Error fetching data from API:", error);
