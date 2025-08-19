@@ -3,6 +3,7 @@ from rest_framework import generics, permissions
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.contrib.auth import get_user_model
 from .serializers import UserSerializer, UserDetailSerializer, RegisterSerializer
+from django.conf import settings
 
 User = get_user_model()
 
@@ -30,27 +31,56 @@ class CookieTokenObtainPairView(TokenObtainPairView):
         response = super().post(request, *args, **kwargs)
         if response.status_code == 200:
             response.set_cookie(
-                key='token',
-                value=','.join([response.data['access'], response.data['refresh']]),
-                httponly=True,
-                secure=True,
-                samesite='Strict' if os.getenv('DJANGO_ENV') == "production" else 'None',
-                max_age=3600 * 24 * 7  # 1 week
+                key=settings.SIMPLE_JWT['AUTH_COOKIE'],
+                value=response.data['access'],
+                httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+                secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+                samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
+                max_age=settings.SIMPLE_JWT['AUTH_COOKIE_MAX_AGE']
+            )
+            response.set_cookie(
+                key=settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH'],
+                value=response.data['refresh'],
+                httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+                secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+                samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
+                max_age=settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH_MAX_AGE']
             )
             response.data = {'message': 'Login successful'}
         return response
 
 class CookieTokenRefreshView(TokenRefreshView):
-    def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
-        if response.status_code == 200:
+    def finalize_response(self, request, response, *args, **kwargs):
+        if response.status_code == status.HTTP_200_OK and response.data.get('access'):
             response.set_cookie(
-                key='access_token',
-                value=','.join([response.data['access'], response.data['refresh']]),
-                httponly=True,
-                secure=True,
-                samesite='Strict' if os.getenv('DJANGO_ENV') == "production" else 'None',
-                max_age=3600 * 24 * 7  # 1 week
+                key=settings.SIMPLE_JWT['AUTH_COOKIE'],
+                value=response.data['access'],
+                httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+                secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+                samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
+                max_age=settings.SIMPLE_JWT['AUTH_COOKIE_MAX_AGE']
+            )
+            response.set_cookie(
+                key=settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH'],
+                value=response.data['refresh'],
+                httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+                secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+                samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
+                max_age=settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH_MAX_AGE']
             )
             response.data = {'message': 'Token refreshed successfully'}
-        return response
+            
+        return super().finalize_response(request, response, *args, **kwargs)
+    
+    def post(self, request, *args, **kwargs):
+        # Get refresh token from cookie
+        refresh_token = request.COOKIES.get(settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH'])
+        
+        # If no token in cookie, try to get from body
+        if refresh_token is None:
+            return super().post(request, *args, **kwargs)
+            
+        # Set the token in the request data for the parent class to process
+        request.data['refresh'] = refresh_token
+        
+        return super().post(request, *args, **kwargs)
