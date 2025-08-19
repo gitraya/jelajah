@@ -1,6 +1,6 @@
 import { getAPIData, postAPIData } from "@/lib/utils";
 
-import { useAuth } from "./authContext";
+import { useAuth } from "./useAuth";
 
 export const useApi = () => {
   const { checkAuth } = useAuth();
