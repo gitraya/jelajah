@@ -1,3 +1,4 @@
+import { LucideLogOut } from "lucide-react";
 import { Link, useLocation } from "react-router";
 
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ import { cn } from "@/lib/utils";
 
 export default function Navbar() {
   const { pathname } = useLocation();
-  const { logout } = useAuth();
+  const { logout, isAuthenticated } = useAuth();
 
   const isActive = (path) => pathname === path;
 
@@ -41,20 +42,30 @@ export default function Navbar() {
 
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
-                <Link to="/trips/new" className="hover:bg-transparent">
-                  <Button size="sm" className="rounded-md">
-                    + New Trip
+                {isAuthenticated ? (
+                  <Link to="/trips/new" className="hover:bg-transparent">
+                    <Button size="sm" className="rounded-md">
+                      + New Trip
+                    </Button>
+                  </Link>
+                ) : (
+                  <Link to="/login" className="hover:bg-transparent">
+                    <Button size="sm" className="rounded-md">
+                      Login
+                    </Button>
+                  </Link>
+                )}
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+            {isAuthenticated && (
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Button size="sm" className="rounded-md" onClick={logout}>
+                    <LucideLogOut color="white" />
                   </Button>
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Button size="sm" className="rounded-md" onClick={logout}>
-                  Logout
-                </Button>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            )}
           </NavigationMenuList>
         </NavigationMenu>
       </div>

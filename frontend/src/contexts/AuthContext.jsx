@@ -7,6 +7,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const checkAuth = async ({ disableError = false } = {}) => {
     try {
@@ -16,12 +17,14 @@ export const AuthProvider = ({ children }) => {
       const response = await getAPIData("/auth/me/");
 
       setUser(response.data);
+      setIsAuthenticated(true);
       return true;
     } catch {
       if (!disableError) {
         setError("Failed to check authentication status");
       }
       setUser(null);
+      setIsAuthenticated(false);
       return false;
     } finally {
       setLoading(false);
@@ -52,6 +55,7 @@ export const AuthProvider = ({ children }) => {
       await postAPIData("/auth/token/blacklist/");
 
       setUser(null);
+      setIsAuthenticated(false);
       return true;
     } catch (error) {
       setError(error.message);
@@ -66,7 +70,15 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, error, login, logout, checkAuth }}
+      value={{
+        user,
+        loading,
+        error,
+        login,
+        logout,
+        checkAuth,
+        isAuthenticated,
+      }}
     >
       {children}
     </AuthContext.Provider>

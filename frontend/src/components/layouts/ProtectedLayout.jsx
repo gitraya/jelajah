@@ -4,7 +4,7 @@ import Layout from "@/components/layouts/Layout";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function ProtectedLayout() {
-  const { user, loading } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -15,7 +15,7 @@ export default function ProtectedLayout() {
     );
   }
 
-  if (!user) {
+  if (!isAuthenticated) {
     return <Navigate to={`/login?redirect=${location.pathname}`} replace />;
   }
 
