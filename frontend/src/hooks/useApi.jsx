@@ -1,3 +1,4 @@
+import { IS_DEVELOPMENT } from "@/configs";
 import { getAPIData, postAPIData } from "@/lib/utils";
 
 import { useAuth } from "./useAuth";
@@ -43,7 +44,9 @@ export const useApi = () => {
       await checkAuth();
       return true;
     } catch (error) {
-      console.error("Token refresh error:", error);
+      if (IS_DEVELOPMENT) {
+        console.error("Token refresh error:", error);
+      }
       return false;
     }
   };

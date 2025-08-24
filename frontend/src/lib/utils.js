@@ -2,6 +2,8 @@ import axios from "axios";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
+import { IS_DEVELOPMENT } from "@/configs";
+
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
 axios.defaults.withCredentials = true;
 
@@ -20,7 +22,9 @@ export async function getAPIData(endpoint, config) {
     const response = await axios.get(endpoint, config);
     return response;
   } catch (error) {
-    console.error("Error fetching data from API:", error);
+    if (IS_DEVELOPMENT) {
+      console.error("Error fetching data from API:", error);
+    }
     throw error;
   }
 }
@@ -30,7 +34,9 @@ export async function postAPIData(endpoint, data, config) {
     const response = await axios.post(endpoint, data, config);
     return response;
   } catch (error) {
-    console.error("Error posting data to API:", error);
+    if (IS_DEVELOPMENT) {
+      console.error("Error posting data to API:", error);
+    }
     throw error;
   }
 }
