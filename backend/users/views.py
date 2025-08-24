@@ -89,8 +89,14 @@ class CookieTokenRefreshView(TokenRefreshView):
 class CookieTokenBlacklistView(TokenBlacklistView):
     def finalize_response(self, request, response, *args, **kwargs):
         if response.status_code == status.HTTP_200_OK:
-            response.delete_cookie(settings.SIMPLE_JWT['AUTH_COOKIE'])
-            response.delete_cookie(settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH'])
+            response.delete_cookie(
+                key=settings.SIMPLE_JWT['AUTH_COOKIE'],
+                samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
+            )
+            response.delete_cookie(
+                key=settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH'],
+                samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
+            )
             response.data = {'message': 'Successfully logged out'}
 
         return super().finalize_response(request, response, *args, **kwargs)

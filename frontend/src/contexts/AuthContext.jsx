@@ -8,7 +8,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const checkAuth = async () => {
+  const checkAuth = async ({ disableError = false } = {}) => {
     try {
       setError(null);
       setLoading(true);
@@ -18,7 +18,9 @@ export const AuthProvider = ({ children }) => {
       setUser(response.data);
       return true;
     } catch {
-      setError("Failed to check authentication status");
+      if (!disableError) {
+        setError("Failed to check authentication status");
+      }
       setUser(null);
       return false;
     } finally {
@@ -59,7 +61,7 @@ export const AuthProvider = ({ children }) => {
 
   // Check authentication status on mount
   useEffect(() => {
-    checkAuth();
+    checkAuth({ disableError: true });
   }, []);
 
   return (

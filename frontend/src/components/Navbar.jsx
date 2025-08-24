@@ -7,10 +7,12 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
+import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
 export default function Navbar() {
   const { pathname } = useLocation();
+  const { logout } = useAuth();
 
   const isActive = (path) => pathname === path;
 
@@ -44,6 +46,13 @@ export default function Navbar() {
                     + New Trip
                   </Button>
                 </Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild>
+                <Button size="sm" className="rounded-md" onClick={logout}>
+                  Logout
+                </Button>
               </NavigationMenuLink>
             </NavigationMenuItem>
           </NavigationMenuList>
