@@ -22,10 +22,8 @@ export default function Register() {
   const redirectPath = new URLSearchParams(search).get("redirect") || "/trips";
 
   const onSubmit = async (data) => {
-    await login(data);
-    if (!error) {
-      navigate(redirectPath);
-    }
+    const isLoggedIn = await login(data.username, data.password);
+    if (isLoggedIn) navigate(redirectPath);
   };
 
   return (

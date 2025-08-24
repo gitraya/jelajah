@@ -76,3 +76,13 @@ export const validator = {
     message: `Must not exceed ${max} characters`,
   }),
 };
+
+export const getErrorMessage = (error) => {
+  let errorMessage = "Something went wrong";
+  if (error.response?.data) {
+    const [field, messages] = Object.entries(error.response.data)[0];
+    const capitalizedField = field.charAt(0).toUpperCase() + field.slice(1);
+    errorMessage = `${capitalizedField}: ${messages.join(", ")}`;
+  }
+  return errorMessage;
+};

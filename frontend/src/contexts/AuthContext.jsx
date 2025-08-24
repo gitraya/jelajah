@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import { AuthContext } from "@/hooks/useAuth";
-import { getAPIData, postAPIData } from "@/lib/utils";
+import { getAPIData, getErrorMessage, postAPIData } from "@/lib/utils";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -38,10 +38,7 @@ export const AuthProvider = ({ children }) => {
       await checkAuth();
       return true;
     } catch (error) {
-      setError(
-        error.response?.data?.[Object.keys(error.response.data)[0]]?.[0] ||
-          "Something went wrong"
-      );
+      setError(getErrorMessage(error));
       return false;
     }
   };

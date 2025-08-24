@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { postAPIData, validator } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
+import { getErrorMessage, postAPIData, validator } from "@/lib/utils";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ export default function Register() {
     handleSubmit,
     formState: { errors },
   } = useForm();
+  const { login, error: loginError } = useAuth();
   const [error, setError] = useState(null);
 
   const redirectPath = new URLSearchParams(search).get("redirect") || "/trips";
@@ -25,16 +27,10 @@ export default function Register() {
   const onSubmit = async (data) => {
     try {
       await postAPIData("/auth/register/", data);
-      await postAPIData("/auth/token/", {
-        username: data.username,
-        password: data.password,
-      });
-      navigate(redirectPath);
+      const isLoggedIn = await login(data.username, data.password);
+      if (isLoggedIn) navigate(redirectPath);
     } catch (error) {
-      setError(
-        error.response?.data?.[Object.keys(error.response.data)[0]]?.[0] ||
-          "Something went wrong"
-      );
+      setError(getErrorMessage(error));
     }
   };
 
@@ -174,9 +170,9 @@ export default function Register() {
               )}
             </div>
 
-            {error && (
+            {(error || loginError) && (
               <Alert variant="destructive" className="mb-4">
-                <AlertTitle>{error}</AlertTitle>
+                <AlertTitle>{error || loginError}</AlertTitle>
               </Alert>
             )}
 
