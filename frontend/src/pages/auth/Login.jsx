@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { useLocation, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,12 @@ export default function Register() {
       <Card>
         <CardHeader>
           <CardTitle>Login to Your Account</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Don't have an account?{" "}
+            <Link to={`/register${search}`} className="text-blue-500">
+              Register
+            </Link>
+          </p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

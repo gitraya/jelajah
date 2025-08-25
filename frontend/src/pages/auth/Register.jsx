@@ -39,6 +39,12 @@ export default function Register() {
       <Card>
         <CardHeader>
           <CardTitle>Create New Account</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Already have an account?{" "}
+            <a href={`/login${search}`} className="text-blue-500">
+              Login
+            </a>
+          </p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
