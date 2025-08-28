@@ -41,6 +41,18 @@ export async function postAPIData(endpoint, data, config) {
   }
 }
 
+export async function putAPIData(endpoint, data, config) {
+  try {
+    const response = await axios.put(endpoint, data, config);
+    return response;
+  } catch (error) {
+    if (IS_DEVELOPMENT) {
+      console.error("Error updating data to API:", error);
+    }
+    throw error;
+  }
+}
+
 export const validator = {
   required: { value: true, message: "Required field" },
   isRequired: (value) => ({ value: value, message: "Required field" }),

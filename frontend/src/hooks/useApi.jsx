@@ -1,5 +1,5 @@
 import { IS_DEVELOPMENT } from "@/configs";
-import { getAPIData, postAPIData } from "@/lib/utils";
+import { getAPIData, postAPIData, putAPIData } from "@/lib/utils";
 
 import { useAuth } from "./useAuth";
 
@@ -38,6 +38,22 @@ export const useApi = () => {
     }
   };
 
+  const putRequest = async (endpoint, data, config) => {
+    try {
+      const response = await putAPIData(endpoint, data, config);
+      return response;
+    } catch (error) {
+      if (error.response.status === 401) {
+        const refreshSuccess = await refreshToken();
+
+        if (refreshSuccess) {
+          return putRequest(endpoint, data, config);
+        }
+      }
+      throw error;
+    }
+  };
+
   const refreshToken = async () => {
     try {
       await postAPIData("/auth/token/refresh/");
@@ -51,5 +67,5 @@ export const useApi = () => {
     }
   };
 
-  return { getRequest, postRequest };
+  return { getRequest, postRequest, putRequest };
 };

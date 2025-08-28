@@ -21,7 +21,7 @@ export default function App() {
         <Route element={<ProtectedLayout />}>
           <Route path="/trips/my" element={<MyTrips />} />
           <Route path="/trips/new" element={<NewTrip />} />
-          <Route path="/trips/:id" element={<TripDetail />} />
+          <Route path="/trips/:id/my" element={<TripDetail />} />
           <Route path="/trips/:id/edit" element={<TripEdit />} />
         </Route>
         <Route element={<Layout />}>
@@ -29,6 +29,7 @@ export default function App() {
           <Route path="/register" element={<Register />} />
 
           <Route path="/trips" element={<Trips />} />
+          <Route path="/trips/:id" element={<TripDetail />} />
 
           <Route path="*" element={<NotFound />} />
         </Route>
