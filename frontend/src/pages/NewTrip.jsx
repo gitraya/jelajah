@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 
@@ -6,37 +7,43 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MultiSelect } from "@/components/ui/multi-select";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { postAPIData } from "@/lib/utils";
+import { useApi } from "@/hooks/useApi";
+import { validator } from "@/lib/utils";
 
 export default function NewTrip() {
   const navigate = useNavigate();
+  const { postRequest, getRequest } = useApi();
+  const [memberOptions, setMemberOptions] = useState([]);
+
   const {
     register,
     handleSubmit,
-    formState: { errors },
     control,
+    formState: { errors },
   } = useForm();
 
+  useEffect(() => {
+    const fetchMembers = async () => {
+      const members = await getRequest("/members");
+      setMemberOptions(
+        members.data.map((member) => ({
+          value: member.id,
+          label: member.name,
+        }))
+      );
+    };
+
+    fetchMembers();
+  }, []);
+
   const onSubmit = async (data) => {
-    delete data.members;
-    delete data.notes;
+    data.members = data.members.map((member) => member.value);
+    await postRequest("/trips/", data);
 
-    data.owner = 2; // Hardcoded owner ID for now
-    await postAPIData("/trips/", data);
-
-    console.log("New Trip:", data);
-
-    // TODO: send to backend later
-    navigate("/trips");
+    navigate("/trips/my");
   };
-
-  const memberOptions = [
-    { value: "1", label: "Alice" },
-    { value: "2", label: "Bob" },
-    { value: "3", label: "Charlie" },
-    { value: "4", label: "Diana" },
-  ];
 
   return (
     <div className="container py-8 px-4 max-w-xl">
@@ -50,9 +57,38 @@ export default function NewTrip() {
               <Label htmlFor="title" className="mb-2">
                 Title
               </Label>
-              <Input id="title" {...register("title", { required: true })} />
+              <Input
+                id="title"
+                aria-invalid={errors.title ? "true" : "false"}
+                {...register("title", {
+                  required: validator.required,
+                  minLength: validator.minLength(2),
+                  maxLength: validator.maxLength(100),
+                })}
+              />
               {errors.title && (
-                <p className="text-red-500 text-sm mt-1">Title is required</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.title.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="description" className="mb-2">
+                Description
+              </Label>
+              <Textarea
+                id="description"
+                aria-invalid={errors.description ? "true" : "false"}
+                {...register("description", {
+                  required: validator.required,
+                  minLength: validator.minLength(2),
+                })}
+              />
+              {errors.description && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.description.message}
+                </p>
               )}
             </div>
 
@@ -60,7 +96,20 @@ export default function NewTrip() {
               <Label htmlFor="location" className="mb-2">
                 Location
               </Label>
-              <Input id="location" {...register("location")} />
+              <Input
+                id="location"
+                aria-invalid={errors.location ? "true" : "false"}
+                {...register("location", {
+                  required: validator.required,
+                  minLength: validator.minLength(2),
+                  maxLength: validator.maxLength(200),
+                })}
+              />
+              {errors.location && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.location.message}
+                </p>
+              )}
             </div>
 
             <div>
@@ -70,10 +119,13 @@ export default function NewTrip() {
               <Input
                 id="start_date"
                 type="date"
-                {...register("start_date", { required: true })}
+                aria-invalid={errors.start_date ? "true" : "false"}
+                {...register("start_date", { required: validator.required })}
               />
               {errors.start_date && (
-                <p className="text-red-500 text-sm mt-1">Date is required</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.start_date.message}
+                </p>
               )}
             </div>
             <div>
@@ -83,10 +135,13 @@ export default function NewTrip() {
               <Input
                 id="end_date"
                 type="date"
-                {...register("end_date", { required: true })}
+                aria-invalid={errors.end_date ? "true" : "false"}
+                {...register("end_date", { required: validator.required })}
               />
               {errors.end_date && (
-                <p className="text-red-500 text-sm mt-1">Date is required</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.end_date.message}
+                </p>
               )}
             </div>
 
@@ -113,7 +168,16 @@ export default function NewTrip() {
               <Label htmlFor="notes" className="mb-2">
                 Notes
               </Label>
-              <Textarea id="notes" {...register("notes")} />
+              <Textarea
+                id="notes"
+                aria-invalid={errors.notes ? "true" : "false"}
+                {...register("notes")}
+              />
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Switch id="is_public" {...register("is_public")} />
+              <Label htmlFor="is_public">Public</Label>
             </div>
 
             <Button type="submit">Save Trip</Button>
