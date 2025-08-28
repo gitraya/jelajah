@@ -43,13 +43,13 @@ export default function Navbar() {
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
                 {isAuthenticated ? (
-                  <Link to="/trips/new" className="hover:bg-transparent">
+                  <Link to="/trips/new" className="hover:bg-transparent p-0!">
                     <Button size="sm" className="rounded-md">
                       + New Trip
                     </Button>
                   </Link>
                 ) : (
-                  <Link to="/login" className="hover:bg-transparent">
+                  <Link to="/login" className="hover:bg-transparent p-0!">
                     <Button size="sm" className="rounded-md">
                       Login
                     </Button>
