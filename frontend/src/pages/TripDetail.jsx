@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 
 import { InviteMemberDialog } from "@/components/InviteMemberDialog";
@@ -13,24 +14,25 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useApi } from "@/hooks/useApi";
 
 export default function TripDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { getRequest, putRequest } = useApi();
+  const [tripData, setTripData] = useState(null);
 
-  // Dummy data (will be replaced with backend fetch)
-  const trip = {
-    id,
-    title: "Trip to Bali",
-    location: "Bali, Indonesia",
-    date: "2025-08-10",
-    members: ["Raka", "Ibnu", "Dina"],
-    notes: "Don't forget to bring sunblock and camera.",
-  };
+  useEffect(() => {
+    const fetchTrip = async () => {
+      const trip = await getRequest(`/trips/${id}`);
+      setTripData(trip.data);
+    };
 
-  const handleDelete = () => {
-    // delete trip logic (dummy for now)
-    console.log("Delete trip id:", id);
+    fetchTrip();
+  }, [id]);
+
+  const handleDelete = async () => {
+    await putRequest(`/trips/${id}`, { status: "DELETED" });
     navigate("/trips");
   };
 
@@ -38,26 +40,26 @@ export default function TripDetail() {
     <div className="container max-w-xl py-8 px-4">
       <Card>
         <CardHeader>
-          <CardTitle>{trip.title}</CardTitle>
+          <CardTitle>{tripData?.title}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p>
-            <strong>Location:</strong> {trip.location}
+            <strong>Location:</strong> {tripData?.location}
           </p>
           <p>
-            <strong>Date:</strong> {trip.date}
+            <strong>Date:</strong> {tripData?.start_date}
           </p>
           <div>
             <strong>Participants:</strong>
             <ul className="list-disc list-inside">
-              {trip.members.map((member, index) => (
+              {tripData?.members.map((member, index) => (
                 <li key={index}>{member}</li>
               ))}
             </ul>
           </div>
-          {trip.notes && (
+          {tripData?.notes && (
             <p>
-              <strong>Notes:</strong> {trip.notes}
+              <strong>Notes:</strong> {tripData.notes}
             </p>
           )}
 

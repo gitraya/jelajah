@@ -3,17 +3,19 @@ import { Link } from "react-router";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getAPIData } from "@/lib/utils";
+import { useApi } from "@/hooks/useApi";
 
 export default function MyTrips() {
+  const { getRequest } = useApi();
   const [trips, setTrips] = useState([]);
 
   useEffect(() => {
-    getAPIData("/trips/my/")
-      .then((data) => setTrips(data))
-      .catch((error) => {
-        console.error("Failed to fetch trips:", error);
-      });
+    const fetchTrips = async () => {
+      const response = await getRequest("/trips/");
+      setTrips(response.data);
+    };
+
+    fetchTrips();
   }, []);
 
   return (
@@ -42,7 +44,7 @@ export default function MyTrips() {
                 Participants: {trip.members.join(", ")}
               </p>
               <Button variant="link" asChild className="mt-2 p-0 text-blue-800">
-                <Link to={`/trips/${trip.id}`}>View Details</Link>
+                <Link to={`/trips/${trip.id}/my`}>View Details</Link>
               </Button>
             </CardContent>
           </Card>

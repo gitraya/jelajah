@@ -3,18 +3,18 @@ import { Link } from "react-router";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useApi } from "@/hooks/useApi";
+import { getAPIData } from "@/lib/utils";
 
 export default function Trips() {
-  const { getRequest } = useApi();
   const [trips, setTrips] = useState([]);
 
   useEffect(() => {
-    getRequest("/trips")
-      .then((response) => setTrips(response.data))
-      .catch((error) => {
-        console.error("Failed to fetch trips:", error);
-      });
+    const fetchTrips = async () => {
+      const response = await getAPIData("/trips/?is_public=true");
+      setTrips(response.data);
+    };
+
+    fetchTrips();
   }, []);
 
   return (
