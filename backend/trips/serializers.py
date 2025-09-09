@@ -32,7 +32,7 @@ class TripMemberSerializer(serializers.ModelSerializer):
 class TripSerializer(serializers.ModelSerializer):
     """Detailed serializer for Trip model"""
     owner = UserSerializer(read_only=True)
-    members = TripMemberSerializer(many=True, read_only=True)
+    members = TripMemberSerializer(source='trip_members', many=True, read_only=True)
     location = LocationSerializer()
     member_ids = serializers.ListField(
         child=serializers.IntegerField(),
@@ -52,7 +52,7 @@ class TripSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "End date must be after start date."
             )
-        if data['start_date'] < timezone.now():
+        if data['start_date'] < timezone.now().date():
             raise serializers.ValidationError(
                 "Start date must be in the future."
             )

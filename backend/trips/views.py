@@ -4,10 +4,10 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
-from django.utils import timezone
 from django.contrib.auth import get_user_model
 
 from .models import Trip, TripMember, Location, TripStatus, MemberStatus
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .serializers import (
     TripSerializer,
     TripMemberSerializer, TripMemberManageSerializer, LocationSerializer
@@ -20,21 +20,30 @@ class TripViewSet(ModelViewSet):
     ViewSet for Trip CRUD operations with custom actions
     """
     serializer_class = TripSerializer
-    permission_classes = [permissions.IsAuthenticated]
     
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
     def get_queryset(self):
-        user = self.request.user
         queryset = Trip.objects.select_related('owner', 'location').prefetch_related('trip_members__user')
         
-        # Filter based on action
-        self.action
         if self.action == 'list':
-            # Show user's trips and public trips they're members of
-            return queryset.filter(
-                Q(owner=user) | 
-                Q(is_public=True) | 
-                Q(trip_members__user=user, trip_members__status=MemberStatus.ACCEPTED)
-            ).distinct()
+            # For unauthenticated users, only show public trips or trips with is_public filter
+            is_public = self.request.query_params.get('is_public', None)
+            if not self.request.user.is_authenticated or is_public:
+                return queryset.filter(is_public=True)
+            # For authenticated users, show relevant trips
+            else:
+                user = self.request.user
+                return queryset.filter(
+                    Q(owner=user) | 
+                    Q(is_public=True) | 
+                    Q(trip_members__user=user, trip_members__status=MemberStatus.ACCEPTED)
+                ).distinct()
         
         return queryset
     
@@ -73,9 +82,9 @@ class TripViewSet(ModelViewSet):
             owner=self.request.user,
             **validated_data
         )
-        
-        users.append(self.request.user)  # Ensure owner is included
-        
+
+        users = list(users) + [self.request.user]  # Ensure owner is included
+
         # Add members after trip creation
         for user in users:
             TripMember.objects.create(
