@@ -26,11 +26,11 @@ export default function NewTrip() {
 
   useEffect(() => {
     const fetchMembers = async () => {
-      const members = await getRequest("/members");
+      const members = await getRequest("/auth/users/");
       setMemberOptions(
         members.data.map((member) => ({
           value: member.id,
-          label: member.name,
+          label: `${member.first_name} (${member.email})`,
         }))
       );
     };
@@ -39,7 +39,19 @@ export default function NewTrip() {
   }, []);
 
   const onSubmit = async (data) => {
-    data.members = data.members.map((member) => member.value);
+    data.member_ids = [];
+    if (data.members && Array.isArray(data.members)) {
+      data.member_ids = data.members.map((member) => member.value || member);
+    }
+
+    data.location.latitude = parseFloat(
+      parseFloat(data.location.latitude).toFixed(6)
+    );
+    data.location.longitude = parseFloat(
+      parseFloat(data.location.longitude).toFixed(6)
+    );
+
+    delete data.members; // Remove the original members array as it's not needed anymore
     await postRequest("/trips/", data);
 
     navigate("/trips/my");
@@ -92,25 +104,87 @@ export default function NewTrip() {
               )}
             </div>
 
+            <hr className="border-gray-300 my-1" />
+
+            <h2 className="font-medium mb-2">Location</h2>
+
             <div>
-              <Label htmlFor="location" className="mb-2">
-                Location
+              <Label htmlFor="location.name" className="mb-2">
+                Name
               </Label>
               <Input
-                id="location"
-                aria-invalid={errors.location ? "true" : "false"}
-                {...register("location", {
+                id="location.name"
+                aria-invalid={errors.location?.name ? "true" : "false"}
+                {...register("location.name", {
                   required: validator.required,
                   minLength: validator.minLength(2),
-                  maxLength: validator.maxLength(200),
+                  maxLength: validator.maxLength(255),
                 })}
               />
-              {errors.location && (
+              {errors.location?.name && (
                 <p className="text-red-500 text-sm mt-1">
-                  {errors.location.message}
+                  {errors.location.name.message}
                 </p>
               )}
             </div>
+
+            <div>
+              <Label htmlFor="location.description" className="mb-2">
+                Description
+              </Label>
+              <Textarea
+                id="location.description"
+                aria-invalid={errors.location?.description ? "true" : "false"}
+                {...register("location.description", {
+                  minLength: validator.minLength(2),
+                })}
+              />
+              {errors.location?.description && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.location.description.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="location.latitude" className="mb-2">
+                Latitude
+              </Label>
+              <Input
+                id="location.latitude"
+                aria-invalid={errors.location?.latitude ? "true" : "false"}
+                {...register("location.latitude", {
+                  required: validator.required,
+                  minLength: validator.minLength(2),
+                })}
+              />
+              {errors.location?.latitude && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.location.latitude.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="location.longitude" className="mb-2">
+                Longitude
+              </Label>
+              <Input
+                id="location.longitude"
+                aria-invalid={errors.location?.longitude ? "true" : "false"}
+                {...register("location.longitude", {
+                  required: validator.required,
+                  minLength: validator.minLength(2),
+                })}
+              />
+              {errors.location?.longitude && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.location.longitude.message}
+                </p>
+              )}
+            </div>
+
+            <hr className="border-gray-300" />
 
             <div>
               <Label htmlFor="start_date" className="mb-2">
