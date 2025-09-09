@@ -9,7 +9,7 @@ from django.contrib.auth import get_user_model
 
 from .models import Trip, TripMember, Location, TripStatus, MemberStatus
 from .serializers import (
-    TripListSerializer, TripDetailSerializer, TripCreateSerializer,
+    TripSerializer,
     TripMemberSerializer, TripMemberManageSerializer, LocationSerializer
 )
 
@@ -19,6 +19,7 @@ class TripViewSet(ModelViewSet):
     """
     ViewSet for Trip CRUD operations with custom actions
     """
+    serializer_class = TripSerializer
     permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
@@ -36,13 +37,6 @@ class TripViewSet(ModelViewSet):
             ).distinct()
         
         return queryset
-    
-    def get_serializer_class(self):
-        if self.action == 'list':
-            return TripListSerializer
-        elif self.action == 'create':
-            return TripCreateSerializer
-        return TripDetailSerializer
     
     def perform_create(self, serializer):
         member_ids = self.request.data.get('member_ids', [])
@@ -64,9 +58,22 @@ class TripViewSet(ModelViewSet):
                 })
         else:
             users = []
+            
+        validated_data = serializer.validated_data.copy()
+        validated_data.pop('member_ids', None)
+        validated_data.pop('status', None)
+
+        # Create location
+        location_data = validated_data.pop('location')
+        location, _ = Location.objects.get_or_create(**location_data)
+
+        # Create trip
+        trip = Trip.objects.create(
+            location=location,
+            owner=self.request.user,
+            **validated_data
+        )
         
-        # Save trip
-        trip = serializer.save(owner=self.request.user)
         users.append(self.request.user)  # Ensure owner is included
         
         # Add members after trip creation
@@ -76,6 +83,18 @@ class TripViewSet(ModelViewSet):
                 user=user,
                 status=MemberStatus.ACCEPTED
             )
+    
+    def perform_update(self, serializer):
+        validated_data = serializer.validated_data.copy()
+        validated_data.pop('member_ids', None)
+        
+        if 'location' in validated_data:
+            location_data = validated_data.pop('location')
+            for attr, value in location_data.items():
+                setattr(serializer.instance.location, attr, value)
+            serializer.instance.location.save()
+        
+        serializer.save()
     
     def retrieve(self, request, *args, **kwargs):
         trip = self.get_object()
@@ -92,26 +111,16 @@ class TripViewSet(ModelViewSet):
     
     def update(self, request, *args, **kwargs):
         trip = self.get_object()
-        
-        # Only owner can update trip details
-        if trip.owner != request.user:
-            return Response(
-                {'error': 'Only the trip owner can update this trip.'},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        
+
+        self.can_edit_trip(trip, request)
+
         return super().update(request, *args, **kwargs)
     
     def destroy(self, request, *args, **kwargs):
         trip = self.get_object()
-        
-        # Only owner can delete trip
-        if trip.owner != request.user:
-            return Response(
-                {'error': 'Only the trip owner can delete this trip.'},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        
+
+        self.can_edit_trip(trip, request)
+
         # Soft delete by changing status
         trip.status = TripStatus.DELETED
         trip.save()
@@ -235,7 +244,7 @@ class TripViewSet(ModelViewSet):
         """Get current user's trips"""
         user = request.user
         trips = Trip.objects.filter(owner=user).exclude(status=TripStatus.DELETED)
-        serializer = TripListSerializer(trips, many=True)
+        serializer = TripSerializer(trips, many=True)
         return Response(serializer.data)
     
     @action(detail=False, methods=['get'])
@@ -246,7 +255,7 @@ class TripViewSet(ModelViewSet):
             trip_members__user=user,
             trip_members__status=MemberStatus.ACCEPTED
         ).exclude(owner=user).exclude(status=TripStatus.DELETED)
-        serializer = TripListSerializer(trips, many=True)
+        serializer = TripSerializer(trips, many=True)
         return Response(serializer.data)
     
     @action(detail=False, methods=['get'])
@@ -259,7 +268,7 @@ class TripViewSet(ModelViewSet):
         ).select_related('trip')
         
         trips = [member.trip for member in pending_members]
-        serializer = TripListSerializer(trips, many=True)
+        serializer = TripSerializer(trips, many=True)
         return Response(serializer.data)
     
     def can_view_trip(self, trip, user):
@@ -269,6 +278,13 @@ class TripViewSet(ModelViewSet):
             trip.is_public or 
             trip.trip_members.filter(user=user, status=MemberStatus.ACCEPTED).exists()
         )
+    
+    def can_edit_trip(self, trip, request):
+        if trip.owner != request.user:
+            return Response(
+                {'error': 'You do not have permission for this resource.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
 
 class LocationListCreateView(generics.ListCreateAPIView):
     """
@@ -290,7 +306,7 @@ class MyTripsView(generics.ListAPIView):
     """
     List current user's owned trips
     """
-    serializer_class = TripListSerializer
+    serializer_class = TripSerializer
     permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
@@ -302,7 +318,7 @@ class PublicTripsView(generics.ListAPIView):
     """
     List all public trips
     """
-    serializer_class = TripListSerializer
+    serializer_class = TripSerializer
     permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
@@ -314,7 +330,7 @@ class TripSearchView(generics.ListAPIView):
     """
     Search trips by various criteria
     """
-    serializer_class = TripListSerializer
+    serializer_class = TripSerializer
     permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
