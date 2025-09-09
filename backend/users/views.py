@@ -24,7 +24,20 @@ class UserProfileView(generics.RetrieveAPIView):
     serializer_class = UserSerializer
     lookup_field = 'username'
     permission_classes = [permissions.IsAuthenticated]
+    
+class UserListView(generics.ListAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        queryset = User.objects.all()
+        
+        # Search parameters
+        email = self.request.query_params.get('email', None)
+        if email:
+            queryset = queryset.filter(email__icontains=email)
 
+        return queryset
 
 class CookieTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
