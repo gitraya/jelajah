@@ -25,11 +25,11 @@ export default function TripEdit() {
       setTripData(trip.data);
     };
     const fetchMembers = async () => {
-      const members = await getRequest("/members");
+      const members = await getRequest("/auth/users");
       setMemberOptions(
         members.data.map((member) => ({
           value: member.id,
-          label: member.name,
+          label: `${member.first_name} (${member.email})`,
         }))
       );
     };
@@ -101,26 +101,91 @@ export default function TripEdit() {
               )}
             </div>
 
+            <hr className="border-gray-300 my-1" />
+
+            <h2 className="font-medium mb-2">Location</h2>
+
             <div>
-              <Label htmlFor="location" className="mb-2">
-                Location
+              <Label htmlFor="location.name" className="mb-2">
+                Name
               </Label>
               <Input
-                id="location"
-                defaultValue={tripData?.location}
-                aria-invalid={errors.location ? "true" : "false"}
-                {...register("location", {
+                id="location.name"
+                defaultValue={tripData?.location?.name}
+                aria-invalid={errors.location?.name ? "true" : "false"}
+                {...register("location.name", {
                   required: validator.required,
                   minLength: validator.minLength(2),
-                  maxLength: validator.maxLength(200),
+                  maxLength: validator.maxLength(255),
                 })}
               />
-              {errors.location && (
+              {errors.location?.name && (
                 <p className="text-red-500 text-sm mt-1">
-                  {errors.location.message}
+                  {errors.location.name.message}
                 </p>
               )}
             </div>
+
+            <div>
+              <Label htmlFor="location.description" className="mb-2">
+                Description
+              </Label>
+              <Textarea
+                id="location.description"
+                defaultValue={tripData?.location?.description}
+                aria-invalid={errors.location?.description ? "true" : "false"}
+                {...register("location.description", {
+                  minLength: validator.minLength(2),
+                })}
+              />
+              {errors.location?.description && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.location.description.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="location.latitude" className="mb-2">
+                Latitude
+              </Label>
+              <Input
+                id="location.latitude"
+                defaultValue={tripData?.location?.latitude}
+                aria-invalid={errors.location?.latitude ? "true" : "false"}
+                {...register("location.latitude", {
+                  required: validator.required,
+                  minLength: validator.minLength(2),
+                })}
+              />
+              {errors.location?.latitude && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.location.latitude.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="location.longitude" className="mb-2">
+                Longitude
+              </Label>
+              <Input
+                id="location.longitude"
+                defaultValue={tripData?.location?.longitude}
+                aria-invalid={errors.location?.longitude ? "true" : "false"}
+                {...register("location.longitude", {
+                  required: validator.required,
+                  minLength: validator.minLength(2),
+                })}
+              />
+              {errors.location?.longitude && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.location.longitude.message}
+                </p>
+              )}
+            </div>
+
+            <hr className="border-gray-300" />
 
             <div>
               <Label htmlFor="start_date" className="mb-2">
@@ -167,7 +232,7 @@ export default function TripEdit() {
                 defaultValue={
                   tripData?.members?.map((member) => ({
                     value: member.id,
-                    label: member.name,
+                    label: `${member.first_name} (${member.email})`,
                   })) || []
                 }
                 render={({ field }) => (
@@ -196,7 +261,7 @@ export default function TripEdit() {
             <div className="flex items-center space-x-2">
               <Switch
                 id="is_public"
-                defaultValue={tripData?.is_public}
+                checked={tripData?.is_public}
                 {...register("is_public")}
               />
               <Label htmlFor="is_public">Public</Label>
