@@ -35,13 +35,14 @@ export default function MyTrips() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Location: {trip.location}
+                Location: {trip.location.name}
               </p>
               <p className="text-sm text-muted-foreground">
                 Date: {trip.start_date}
               </p>
               <p className="text-sm text-muted-foreground">
-                Participants: {trip.members.join(", ")}
+                Participants:{" "}
+                {trip.members.map((m) => m.user.first_name).join(", ")}
               </p>
               <Button variant="link" asChild className="mt-2 p-0 text-blue-800">
                 <Link to={`/trips/${trip.id}/my`}>View Details</Link>

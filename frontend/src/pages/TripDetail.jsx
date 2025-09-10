@@ -44,7 +44,7 @@ export default function TripDetail() {
         </CardHeader>
         <CardContent className="space-y-4">
           <p>
-            <strong>Location:</strong> {tripData?.location}
+            <strong>Location:</strong> {tripData?.location?.name}
           </p>
           <p>
             <strong>Date:</strong> {tripData?.start_date}
@@ -53,7 +53,7 @@ export default function TripDetail() {
             <strong>Participants:</strong>
             <ul className="list-disc list-inside">
               {tripData?.members.map((member, index) => (
-                <li key={index}>{member}</li>
+                <li key={index}>{member.user?.first_name}</li>
               ))}
             </ul>
           </div>
