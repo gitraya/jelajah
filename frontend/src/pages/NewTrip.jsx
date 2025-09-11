@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MultiSelect } from "@/components/ui/multi-select";
+import { Select } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useApi } from "@/hooks/useApi";
@@ -226,12 +226,12 @@ export default function NewTrip() {
               <Controller
                 name="members"
                 control={control}
-                defaultValue={[]}
                 render={({ field }) => (
-                  <MultiSelect
+                  <Select
+                    isMulti
                     options={memberOptions}
                     placeholder="Select participants"
-                    selected={field.value}
+                    defaultValue={field.value}
                     onChange={field.onChange}
                   />
                 )}

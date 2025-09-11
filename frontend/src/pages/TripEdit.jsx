@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MultiSelect } from "@/components/ui/multi-select";
+import { Select } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useApi } from "@/hooks/useApi";
@@ -16,13 +16,35 @@ export default function TripEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { putRequest, getRequest } = useApi();
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+    setValue,
+  } = useForm();
+  const [loading, setLoading] = useState(true);
   const [tripData, setTripData] = useState(null);
   const [memberOptions, setMemberOptions] = useState([]);
 
   useEffect(() => {
+    let countFetches = 0;
+    const doneFetching = () => {
+      countFetches++;
+      if (countFetches === 2) {
+        setLoading(false);
+      }
+    };
     const fetchTrip = async () => {
       const trip = await getRequest(`/trips/${id}`);
       setTripData(trip.data);
+      const defaultMemberOptions =
+        trip?.data?.members?.map((member) => ({
+          value: member.id,
+          label: `${member.user.first_name} (${member.user.email})`,
+        })) || [];
+      setValue("members", defaultMemberOptions);
+      doneFetching();
     };
     const fetchMembers = async () => {
       const members = await getRequest("/auth/users");
@@ -32,18 +54,12 @@ export default function TripEdit() {
           label: `${member.first_name} (${member.email})`,
         }))
       );
+      doneFetching();
     };
 
     fetchTrip();
     fetchMembers();
   }, [id]);
-
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState: { errors },
-  } = useForm();
 
   const onSubmit = async (data) => {
     data.members = data.members.map((member) => member.value);
@@ -51,6 +67,10 @@ export default function TripEdit() {
 
     navigate(`/trips/${id}/my`);
   };
+
+  if (loading) {
+    return <div className="container max-w-xl py-8 px-4">Loading...</div>;
+  }
 
   return (
     <div className="container max-w-xl py-8 px-4">
@@ -229,17 +249,12 @@ export default function TripEdit() {
               <Controller
                 name="members"
                 control={control}
-                defaultValue={
-                  tripData?.members?.map((member) => ({
-                    value: member.id,
-                    label: `${member.first_name} (${member.email})`,
-                  })) || []
-                }
                 render={({ field }) => (
-                  <MultiSelect
+                  <Select
+                    isMulti
                     options={memberOptions}
                     placeholder="Select participants"
-                    selected={field.value}
+                    defaultValue={field.value}
                     onChange={field.onChange}
                   />
                 )}
