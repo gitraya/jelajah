@@ -10,12 +10,14 @@ import { Select } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useApi } from "@/hooks/useApi";
+import { useAuth } from "@/hooks/useAuth";
 import { validator } from "@/lib/utils";
 
 export default function TripEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { putRequest, getRequest } = useApi();
+  const { user } = useAuth();
   const {
     register,
     handleSubmit,
@@ -39,10 +41,12 @@ export default function TripEdit() {
       const trip = await getRequest(`/trips/${id}`);
       setTripData(trip.data);
       const defaultMemberOptions =
-        trip?.data?.members?.map((member) => ({
-          value: member.id,
-          label: `${member.user.first_name} (${member.user.email})`,
-        })) || [];
+        trip?.data?.members
+          ?.filter((i) => i.user.id !== user.id)
+          .map((member) => ({
+            value: member.id,
+            label: `${member.user.first_name} (${member.user.email})`,
+          })) || [];
       setValue("members", defaultMemberOptions);
       doneFetching();
     };
@@ -62,7 +66,19 @@ export default function TripEdit() {
   }, [id]);
 
   const onSubmit = async (data) => {
-    data.members = data.members.map((member) => member.value);
+    data.member_ids = [];
+    if (data.members && Array.isArray(data.members)) {
+      data.member_ids = data.members.map((member) => member.value || member);
+    }
+
+    data.location.latitude = parseFloat(
+      parseFloat(data.location.latitude).toFixed(6)
+    );
+    data.location.longitude = parseFloat(
+      parseFloat(data.location.longitude).toFixed(6)
+    );
+
+    delete data.members; // Remove the original members array as it's not needed anymore
     await putRequest(`/trips/${id}/`, data);
 
     navigate(`/trips/${id}/my`);
