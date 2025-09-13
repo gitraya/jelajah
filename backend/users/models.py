@@ -1,7 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from backend.models import BaseModel
 
-class User(AbstractUser):
+class User(AbstractUser, BaseModel):
     """Extended user model for Jelajah"""
     bio = models.TextField(blank=True)
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)

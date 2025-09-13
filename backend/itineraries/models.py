@@ -1,6 +1,7 @@
 from django.db import models
+from backend.models import BaseModel
 
-class ItineraryDay(models.Model):
+class ItineraryDay(BaseModel):
     """Represents a single day in a trip itinerary"""
     trip = models.ForeignKey('trips.Trip', on_delete=models.CASCADE, related_name='days')
     date = models.DateField()
@@ -13,7 +14,7 @@ class ItineraryDay(models.Model):
         ordering = ['date']
         unique_together = ['trip', 'date']
 
-class ItineraryItem(models.Model):
+class ItineraryItem(BaseModel):
     """Individual activity or event within an itinerary day"""
     day = models.ForeignKey(ItineraryDay, on_delete=models.CASCADE, related_name='items')
     time = models.TimeField()

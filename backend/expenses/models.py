@@ -1,7 +1,8 @@
 from django.db import models
 from django.conf import settings
+from backend.models import BaseModel
 
-class Expense(models.Model):
+class Expense(BaseModel):
     """Expense tracking for trips"""
     trip = models.ForeignKey('trips.Trip', on_delete=models.CASCADE, related_name='expenses')
     title = models.CharField(max_length=100)
@@ -16,7 +17,7 @@ class Expense(models.Model):
     class Meta:
         ordering = ['-date']
 
-class ExpenseSplit(models.Model):
+class ExpenseSplit(BaseModel):
     """How an expense is split between trip members"""
     expense = models.ForeignKey(Expense, on_delete=models.CASCADE, related_name='splits')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='expense_shares')

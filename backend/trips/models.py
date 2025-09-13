@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from backend.models import BaseModel
 
 class TripStatus(models.TextChoices):
     PLANNED = 'PLANNED', 'Planned'
@@ -14,7 +15,7 @@ class MemberStatus(models.TextChoices):
     DECLINED = 'DECLINED', 'Declined'
     BLOCKED = 'BLOCKED', 'Blocked'
 
-class TripMember(models.Model):
+class TripMember(BaseModel):
     trip = models.ForeignKey('Trip', on_delete=models.CASCADE, related_name='trip_members')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     joined_at = models.DateTimeField(auto_now_add=True)
@@ -24,13 +25,13 @@ class TripMember(models.Model):
         default=MemberStatus.PENDING
     )
 
-class Location(models.Model):
+class Location(BaseModel):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     latitude = models.DecimalField(max_digits=9, decimal_places=6)
     longitude = models.DecimalField(max_digits=9, decimal_places=6)
 
-class Trip(models.Model):
+class Trip(BaseModel):
     """Main trip model for travel planning"""
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='owned_trips')
     title = models.CharField(max_length=255)
@@ -39,8 +40,6 @@ class Trip(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     members = models.ManyToManyField(settings.AUTH_USER_MODEL, through=TripMember, related_name='trips')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     is_public = models.BooleanField(default=False)
     notes = models.TextField(blank=True)
     status = models.CharField(

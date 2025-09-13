@@ -1,7 +1,8 @@
 from django.db import models
 from django.conf import settings
+from backend.models import BaseModel
 
-class PackingCategory(models.Model):
+class PackingCategory(BaseModel):
     """Categories for packing items (e.g., Clothes, Electronics)"""
     name = models.CharField(max_length=100)
     
@@ -11,7 +12,7 @@ class PackingCategory(models.Model):
     class Meta:
         verbose_name_plural = "Packing Categories"
 
-class PackingItem(models.Model):
+class PackingItem(BaseModel):
     """Individual items to pack for a trip"""
     trip = models.ForeignKey('trips.Trip', on_delete=models.CASCADE, related_name='packing_items')
     name = models.CharField(max_length=100)
