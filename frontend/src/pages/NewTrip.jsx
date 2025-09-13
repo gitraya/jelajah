@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 
+import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -16,6 +17,7 @@ export default function NewTrip() {
   const navigate = useNavigate();
   const { postRequest, getRequest } = useApi();
   const [memberOptions, setMemberOptions] = useState([]);
+  const [error, setError] = useState("");
 
   const {
     register,
@@ -52,9 +54,19 @@ export default function NewTrip() {
     );
 
     delete data.members; // Remove the original members array as it's not needed anymore
-    await postRequest("/trips/", data);
+    try {
+      await postRequest("/trips/", data);
 
-    navigate("/trips/my");
+      navigate("/trips/my");
+    } catch (error) {
+      setError(
+        error.status !== 500
+          ? error?.response?.data?.[
+              Object.keys(error?.response?.data)?.[0]
+            ]?.[0]
+          : "An error occurred while creating the trip. Please try again later."
+      );
+    }
   };
 
   return (
@@ -253,6 +265,12 @@ export default function NewTrip() {
               <Switch id="is_public" {...register("is_public")} />
               <Label htmlFor="is_public">Public</Label>
             </div>
+
+            {error && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertTitle>{error}</AlertTitle>
+              </Alert>
+            )}
 
             <Button type="submit">Save Trip</Button>
           </form>

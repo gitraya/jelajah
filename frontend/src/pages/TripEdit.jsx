@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router";
 
+import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -26,6 +27,7 @@ export default function TripEdit() {
     setValue,
   } = useForm();
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [tripData, setTripData] = useState(null);
   const [memberOptions, setMemberOptions] = useState([]);
 
@@ -79,9 +81,19 @@ export default function TripEdit() {
     );
 
     delete data.members; // Remove the original members array as it's not needed anymore
-    await putRequest(`/trips/${id}/`, data);
+    try {
+      await putRequest(`/trips/${id}/`, data);
 
-    navigate(`/trips/${id}/my`);
+      navigate(`/trips/${id}/my`);
+    } catch (error) {
+      setError(
+        error.status !== 500
+          ? error?.response?.data?.[
+              Object.keys(error?.response?.data)?.[0]
+            ]?.[0]
+          : "An error occurred while updating the trip. Please try again later."
+      );
+    }
   };
 
   if (loading) {
@@ -297,6 +309,12 @@ export default function TripEdit() {
               />
               <Label htmlFor="is_public">Public</Label>
             </div>
+
+            {error && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertTitle>{error}</AlertTitle>
+              </Alert>
+            )}
 
             <Button type="submit">Save Changes</Button>
           </form>
