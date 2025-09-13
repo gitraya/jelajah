@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from django.utils import timezone
+from django.utils.dateparse import parse_date
 from django.contrib.auth import get_user_model
-from .models import Trip, TripMember, Location, TripStatus, MemberStatus
+from .models import Trip, TripMember, Location, MemberStatus
 
 User = get_user_model()
 
@@ -46,52 +47,74 @@ class TripSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ['id', 'created_at', 'updated_at']
     
-    def validate(self, data):
-        """Validate that end_date is after start_date"""
-        if data['start_date'] >= data['end_date']:
-            raise serializers.ValidationError(
-                "End date must be after start date."
-            )
-        if data['start_date'] < timezone.now().date():
-            raise serializers.ValidationError(
-                "Start date must be in the future."
-            )
-        return data
+    def validate_start_date(self, start_date):
+        """Validate that start_date is not in the past"""        
+        end_date = parse_date(self.initial_data['end_date'])
+        if end_date is None:
+            raise serializers.ValidationError("Invalid end date format")
+            
+        if start_date >= end_date:
+            raise serializers.ValidationError("Start date must be before end date")
+        elif start_date < timezone.now().date():
+            raise serializers.ValidationError("Start date cannot be in the past.")
+        return start_date
 
-class TripMemberManageSerializer(serializers.ModelSerializer):
-    """Serializer for managing trip members"""
-    user_email = serializers.EmailField(write_only=True, required=False)
-    user_username = serializers.CharField(write_only=True, required=False)
-    user = UserSerializer(read_only=True)
-    
-    class Meta:
-        model = TripMember
-        fields = ['id', 'user', 'user_email', 'user_username', 'status', 'joined_at']
-        read_only_fields = ['id', 'joined_at']
-    
-    def validate(self, data):
-        """Ensure either email or username is provided"""
-        if not data.get('user_email') and not data.get('user_username'):
-            raise serializers.ValidationError(
-                "Either user_email or user_username must be provided."
-            )
-        return data
+    def validate_member_ids(self, member_ids):
+        """Validate that member IDs correspond to existing users"""
+        member_ids = list(set(member_ids))  # Remove duplicates
+        
+        request = self.context['request']
+        if request.user.id in member_ids:
+            member_ids.remove(request.user.id)
+        
+        for user_id in member_ids:
+            if not User.objects.filter(id=user_id).exists():
+                raise serializers.ValidationError(f"User with ID {user_id} does not exist.")
+        return member_ids
     
     def create(self, validated_data):
-        user_email = validated_data.pop('user_email', None)
-        user_username = validated_data.pop('user_username', None)
+        location_data = validated_data.pop('location')
+        member_ids = validated_data.pop('member_ids', [])
         
-        try:
-            if user_email:
-                user = User.objects.get(email=user_email)
-            else:
-                user = User.objects.get(username=user_username)
-        except User.DoesNotExist:
-            raise serializers.ValidationError("User not found.")
+        request = self.context['request']
+        owner = request.user
         
-        # Check if user is already a member
-        trip = validated_data['trip']
-        if TripMember.objects.filter(trip=trip, user=user).exists():
-            raise serializers.ValidationError("User is already a member of this trip.")
+        location, _ = Location.objects.get_or_create(**location_data)
+        trip = Trip.objects.create(owner=owner, location=location, **validated_data)
         
-        return TripMember.objects.create(user=user, **validated_data)
+        TripMember.objects.create(user=owner, trip=trip, status=MemberStatus.ACCEPTED)
+        
+        for user_id in member_ids:
+            TripMember.objects.create(user_id=user_id, trip=trip, status=MemberStatus.ACCEPTED)
+
+        return trip
+    
+    def update(self, instance, validated_data):
+        location_data = validated_data.pop('location', None)
+        member_ids = validated_data.pop('member_ids', None)
+        
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        
+        if location_data:
+            location = instance.location
+            for attr, value in location_data.items():
+                setattr(location, attr, value)
+            location.save()
+        
+        instance.save()
+        
+        if member_ids is not None:
+            current_member_ids = set(instance.trip_members.values_list('user_id', flat=True))
+            new_member_ids = set(member_ids)
+            
+            to_add = new_member_ids - current_member_ids
+            to_remove = current_member_ids - new_member_ids
+            
+            for user_id in to_add:
+                TripMember.objects.create(user_id=user_id, trip=instance, status=MemberStatus.ACCEPTED)
+            
+            for user_id in to_remove:
+                TripMember.objects.filter(user_id=user_id, trip=instance).update(status=MemberStatus.BLOCKED)
+
+        return instance
