@@ -100,6 +100,14 @@ export default function TripEdit() {
     return <div className="container max-w-xl py-8 px-4">Loading...</div>;
   }
 
+  if (!tripData.is_editable) {
+    return (
+      <div className="container max-w-xl py-8 px-4">
+        You do not have permission to edit this trip.
+      </div>
+    );
+  }
+
   return (
     <div className="container max-w-xl py-8 px-4">
       <Card>

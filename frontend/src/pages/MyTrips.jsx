@@ -8,11 +8,13 @@ import { useApi } from "@/hooks/useApi";
 export default function MyTrips() {
   const { getRequest } = useApi();
   const [trips, setTrips] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchTrips = async () => {
       const response = await getRequest("/trips/");
       setTrips(response.data);
+      setLoading(false);
     };
 
     fetchTrips();
@@ -28,6 +30,8 @@ export default function MyTrips() {
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {loading && <p>Loading...</p>}
+        {!loading && trips.length === 0 && <p>No trips found.</p>}
         {trips.map((trip) => (
           <Card key={trip.id}>
             <CardHeader>
@@ -42,7 +46,8 @@ export default function MyTrips() {
               </p>
               <p className="text-sm text-muted-foreground">
                 Participants:{" "}
-                {trip.members.map((m) => m.user.first_name).join(", ")}
+                {trip.members.map((m) => m.user.first_name).join(", ") ||
+                  "None"}
               </p>
               <Button variant="link" asChild className="mt-2 p-0 text-blue-800">
                 <Link to={`/trips/${trip.id}/my`}>View Details</Link>
