@@ -1,6 +1,5 @@
 from rest_framework.permissions import BasePermission
-from .models import MemberStatus
-
+from .models import MemberStatus, TripStatus
 
 class IsTripAccessible(BasePermission):
     """
@@ -11,6 +10,8 @@ class IsTripAccessible(BasePermission):
 
     def has_object_permission(self, request, view, obj):
         if view.action in ["retrieve", "list"]:
+            if obj.status == TripStatus.DELETED:
+                return False
             if obj.is_public:
                 return True
             if not request.user.is_authenticated:

@@ -41,6 +41,8 @@ class TripSerializer(serializers.ModelSerializer):
         required=False,
         help_text="List of user IDs to add as members"
     )
+    is_editable = serializers.SerializerMethodField()
+    is_deletable = serializers.SerializerMethodField()
     
     class Meta:
         model = Trip
@@ -118,3 +120,17 @@ class TripSerializer(serializers.ModelSerializer):
                 TripMember.objects.filter(user_id=user_id, trip=instance).update(status=MemberStatus.BLOCKED)
 
         return instance
+    
+    def get_is_editable(self, obj):
+        request = self.context.get('request')
+        if request and request.user == obj.owner and obj.status != 'DELETED':
+            return True
+        elif request and obj.trip_members.filter(user=request.user, status=MemberStatus.ACCEPTED).exists() and obj.status != 'DELETED':
+            return True
+        return False
+    
+    def get_is_deletable(self, obj):
+        request = self.context.get('request')
+        if request and request.user == obj.owner and obj.status != 'DELETED':
+            return True
+        return False
