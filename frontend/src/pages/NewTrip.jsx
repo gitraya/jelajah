@@ -11,10 +11,12 @@ import { Select } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useApi } from "@/hooks/useApi";
+import { useAuth } from "@/hooks/useAuth";
 import { validator } from "@/lib/utils";
 
 export default function NewTrip() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { postRequest, getRequest } = useApi();
   const [memberOptions, setMemberOptions] = useState([]);
   const [error, setError] = useState("");
@@ -30,10 +32,12 @@ export default function NewTrip() {
     const fetchMembers = async () => {
       const members = await getRequest("/auth/users/");
       setMemberOptions(
-        members.data.map((member) => ({
-          value: member.id,
-          label: `${member.first_name} (${member.email})`,
-        }))
+        members.data
+          .filter((member) => member.id !== user.id)
+          .map((member) => ({
+            value: member.id,
+            label: `${member.first_name} (${member.email})`,
+          }))
       );
     };
 

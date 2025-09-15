@@ -36,7 +36,7 @@ class TripSerializer(serializers.ModelSerializer):
     members = TripMemberSerializer(source='trip_members', many=True, read_only=True)
     location = LocationSerializer()
     member_ids = serializers.ListField(
-        child=serializers.IntegerField(),
+        child=serializers.UUIDField(),
         write_only=True,
         required=False,
         help_text="List of user IDs to add as members"

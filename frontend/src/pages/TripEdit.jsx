@@ -55,10 +55,12 @@ export default function TripEdit() {
     const fetchMembers = async () => {
       const members = await getRequest("/auth/users");
       setMemberOptions(
-        members.data.map((member) => ({
-          value: member.id,
-          label: `${member.first_name} (${member.email})`,
-        }))
+        members.data
+          .filter((member) => member.id !== user.id)
+          .map((member) => ({
+            value: member.id,
+            label: `${member.first_name} (${member.email})`,
+          }))
       );
       doneFetching();
     };
