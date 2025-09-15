@@ -123,14 +123,22 @@ class TripSerializer(serializers.ModelSerializer):
     
     def get_is_editable(self, obj):
         request = self.context.get('request')
-        if request and request.user == obj.owner and obj.status != 'DELETED':
+        if not request or not request.user.is_authenticated:
+            return False
+        
+        user = request.user
+        if user == obj.owner and obj.status != 'DELETED':
             return True
-        elif request and obj.trip_members.filter(user=request.user, status=MemberStatus.ACCEPTED).exists() and obj.status != 'DELETED':
+        elif obj.trip_members.filter(user=user, status=MemberStatus.ACCEPTED).exists() and obj.status != 'DELETED':
             return True
         return False
-    
+
     def get_is_deletable(self, obj):
         request = self.context.get('request')
-        if request and request.user == obj.owner and obj.status != 'DELETED':
+        if not request or not request.user.is_authenticated:
+            return False
+        
+        user = request.user
+        if user == obj.owner and obj.status != 'DELETED':
             return True
         return False
