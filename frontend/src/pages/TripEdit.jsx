@@ -50,7 +50,6 @@ export default function TripEdit() {
             label: `${member.user.first_name} (${member.user.email})`,
           })) || [];
       setValue("members", defaultMemberOptions);
-      doneFetching();
     };
     const fetchMembers = async () => {
       const members = await getRequest("/auth/users");
@@ -62,11 +61,10 @@ export default function TripEdit() {
             label: `${member.first_name} (${member.email})`,
           }))
       );
-      doneFetching();
     };
 
-    fetchTrip();
-    fetchMembers();
+    fetchTrip().finally(doneFetching);
+    fetchMembers().finally(doneFetching);
   }, [id]);
 
   const onSubmit = async (data) => {

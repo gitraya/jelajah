@@ -28,10 +28,9 @@ export default function TripDetail() {
     const fetchTrip = async () => {
       const trip = await getRequest(`/trips/${id}`);
       setTripData(trip.data);
-      setLoading(false);
     };
 
-    fetchTrip();
+    fetchTrip().finally(() => setLoading(false));
   }, [id]);
 
   const handleDelete = async () => {

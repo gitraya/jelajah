@@ -14,10 +14,9 @@ export default function MyTrips() {
     const fetchTrips = async () => {
       const response = await getRequest("/trips/");
       setTrips(response.data);
-      setLoading(false);
     };
 
-    fetchTrips();
+    fetchTrips().finally(() => setLoading(false));
   }, []);
 
   return (

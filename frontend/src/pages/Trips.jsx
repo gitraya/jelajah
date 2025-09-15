@@ -13,10 +13,9 @@ export default function Trips() {
     const fetchTrips = async () => {
       const response = await getAPIData("/trips/?is_public=true");
       setTrips(response.data);
-      setLoading(false);
     };
 
-    fetchTrips();
+    fetchTrips().finally(() => setLoading(false));
   }, []);
 
   return (
