@@ -41,6 +41,12 @@ class TripSerializer(serializers.ModelSerializer):
         required=False,
         help_text="List of user IDs to add as members"
     )
+    member_emails = serializers.ListField(
+        child=serializers.EmailField(),
+        write_only=True,
+        required=False,
+        help_text="List of user emails to add as members"
+    )
     is_editable = serializers.SerializerMethodField()
     is_deletable = serializers.SerializerMethodField()
     
@@ -75,8 +81,10 @@ class TripSerializer(serializers.ModelSerializer):
         return member_ids
     
     def create(self, validated_data):
+        validated_data.pop('member_emails', None)
         location_data = validated_data.pop('location')
         member_ids = validated_data.pop('member_ids', [])
+
         
         request = self.context['request']
         owner = request.user
@@ -92,6 +100,7 @@ class TripSerializer(serializers.ModelSerializer):
         return trip
     
     def update(self, instance, validated_data):
+        validated_data.pop('member_emails', None)
         location_data = validated_data.pop('location', None)
         member_ids = validated_data.pop('member_ids', None)
         

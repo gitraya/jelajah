@@ -181,3 +181,10 @@ SIMPLE_JWT = {
 # Media settings for user avatars and other uploads
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Email settings for SendGrid
+EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
+SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
+SENDGRID_SANDBOX_MODE_IN_DEBUG = False
+SENDGRID_ECHO_TO_STDOUT = True if os.getenv("DEBUG") == "True" else False  # Optional: Print emails to console for dev
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")  # Use the email you verify with SendGrid

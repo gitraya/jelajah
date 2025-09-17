@@ -1,0 +1,20 @@
+Trip Invitation
+=================
+-----------------
+You're Invited to Join a Trip!
+-----------------
+Hi {{ user_name | default:"there" }},
+
+{{ inviter_name | default:"Your friend" }} has invited you to join the trip "{{ trip_name }}".
+
+Click the button below to view the trip details and accept the invitation.
+-----------------
+<a href="{{ trip_link }}" class="button">View Trip</a>
+-----------------
+If the button above doesn't work, copy and paste the following link into your browser:
+{{ trip_link }}
+-----------------
+Best regards,
+The Jelajah Team
+-----------------
+© {{ current_year }} Jelajah. All rights reserved.
