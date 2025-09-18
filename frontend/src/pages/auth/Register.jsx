@@ -21,14 +21,23 @@ export default function Register() {
   } = useForm();
   const { login, error: loginError } = useAuth();
   const [error, setError] = useState(null);
+  const query = new URLSearchParams(search);
 
-  const redirectPath = new URLSearchParams(search).get("redirect") || "/trips";
+  const redirectPath = query.get("redirect") || "/trips";
+  const defaultEmail = query.get("email") || "";
+  const tripId = query.get("tripId") || "";
+  const response = query.get("response") || "ACCEPTED"; // Default to ACCEPTED if not provided
 
   const onSubmit = async (data) => {
     try {
       await postAPIData("/auth/register/", data);
       const isLoggedIn = await login(data.username, data.password);
-      if (isLoggedIn) navigate(redirectPath);
+      if (isLoggedIn) { 
+        if (tripId) {
+          await postAPIData(`/trips/${tripId}/respond-invitation/`, { response });
+        }
+        navigate(redirectPath);
+      }
     } catch (error) {
       setError(getErrorMessage(error));
     }
@@ -75,6 +84,8 @@ export default function Register() {
                 id="email"
                 type="email"
                 aria-invalid={errors.email ? "true" : "false"}
+                defaultValue={defaultEmail}
+                disabled={!!defaultEmail}
                 {...register("email", {
                   required: validator.required,
                   pattern: validator.email,

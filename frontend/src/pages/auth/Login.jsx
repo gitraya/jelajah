@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
-import { validator } from "@/lib/utils";
+import { postAPIData, validator } from "@/lib/utils";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -18,12 +18,20 @@ export default function Register() {
     formState: { errors },
   } = useForm();
   const { login, error } = useAuth();
+  const query = new URLSearchParams(search);
 
-  const redirectPath = new URLSearchParams(search).get("redirect") || "/trips";
+  const redirectPath = query.get("redirect") || "/trips";
+  const tripId = query.get("tripId") || "";
+  const response = query.get("response") || "ACCEPTED"; // Default to ACCEPTED if not provided
 
   const onSubmit = async (data) => {
     const isLoggedIn = await login(data.username, data.password);
-    if (isLoggedIn) navigate(redirectPath);
+    if (isLoggedIn) {
+      if (tripId) {
+        await postAPIData(`/trips/${tripId}/respond-invitation/`, { response });
+      }
+      navigate(redirectPath);
+    }
   };
 
   return (
