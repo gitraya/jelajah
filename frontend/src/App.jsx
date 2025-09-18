@@ -18,7 +18,7 @@ export default function App() {
     <AuthProvider>
       <Routes>
         <Route index element={<Home />} />
-        <Route element={<ProtectedLayout />}>
+        <Route>
           <Route path="/trips/my" element={<MyTrips />} />
           <Route path="/trips/new" element={<NewTrip />} />
           <Route path="/trips/:id/my" element={<TripDetail />} />
