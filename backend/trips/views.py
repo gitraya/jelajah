@@ -1,4 +1,4 @@
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -89,7 +89,9 @@ class TripViewSet(ModelViewSet):
                 'user_name': user.first_name or user.email,
                 'trip_name': trip.title,
                 'inviter_name': request.user.first_name or request.user.email,
-                'trip_link': f"{request.scheme}://{request.get_host()}/trips/{trip.id}/",
+                'register_link': f"{request.scheme}://{request.get_host()}/register/?email={user.email}&tripId={trip.id}&response=ACCEPTED&redirect=/trips/my/{trip.id}/",
+                'login_link': f"{request.scheme}://{request.get_host()}/login/?tripId={trip.id}&response=ACCEPTED&redirect=/trips/my/{trip.id}/",
+                'decline_link': f"{request.scheme}://{request.get_host()}/login/?tripId={trip.id}&response=DECLINED&redirect=/trips",
                 'current_year': time.strftime("%Y"),
             }
 
@@ -101,3 +103,28 @@ class TripViewSet(ModelViewSet):
             )
 
         return Response({"message": "Invitations sent"}, status=status.HTTP_200_OK)
+    
+    @action(detail=True, methods=['post'], url_path='respond-invitation', url_name='respond-invitation')
+    def respond_invitation(self, request, pk=None):
+        """Respond to a trip invitation"""
+        trip = self.get_object()
+        self.check_object_permissions(request, trip)
+
+        user = request.user
+        response = request.data.get('response')
+
+        if response not in [MemberStatus.ACCEPTED, MemberStatus.DECLINED]:
+            return Response({"error": "Invalid response."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            trip_member = TripMember.objects.get(user=user, trip=trip)
+        except TripMember.DoesNotExist:
+            return Response({"error": "You are not invited to this trip."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if trip_member.status != MemberStatus.PENDING:
+            return Response({"error": "You have already responded to this invitation."}, status=status.HTTP_400_BAD_REQUEST)
+
+        trip_member.status = response
+        trip_member.save()
+
+        return Response({"message": f"You have {response.lower()} the invitation."}, status=status.HTTP_200_OK)
