@@ -50,6 +50,10 @@
   --sidebar-ring: oklch(0.704 0.04 256.788);
 }
 
+#root {
+  width: 100vw;
+}
+
 body {
   margin: 0;
   display: flex;
