@@ -24,7 +24,7 @@ export default function App() {
           <Route path="/trips/:id/my" element={<TripDetail />} />
           <Route path="/trips/:id/edit" element={<TripEdit />} />
         </Route>
-        <Route element={<Layout />}>
+        <Route>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
