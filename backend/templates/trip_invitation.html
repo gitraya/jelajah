@@ -38,6 +38,15 @@
         text-decoration: none;
         border-radius: 5px;
       }
+      .button_secondary {
+        display: inline-block;
+        padding: 10px 20px;
+        margin-top: 10px;
+        background-color: #e0e0e0;
+        color: #333333 !important;
+        text-decoration: none;
+        border-radius: 5px;
+      }
       .footer {
         text-align: center;
         font-size: 12px;
@@ -62,7 +71,13 @@
           invitation:
         </p>
         <p style="text-align: center">
-          <a href="{{ trip_link }}" class="button">View Trip</a>
+          <a href="{{ register_link }}" class="button">Accept Invitation & Create Account</a>
+        </p>
+        <p style="text-align: center">
+          <a href="{{ login_link }}" class="button_secondary">I already have an account</a>
+        </p>
+        <p style="text-align: center">
+          <a href="{{ decline_link }}">Decline invitation</a>
         </p>
         <p>
           If you have any questions, feel free to reach out to {{ inviter_name | default:"Your friend" }}.
