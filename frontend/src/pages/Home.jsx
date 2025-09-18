@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getDifficultyColor, getStatusColor } from "@/lib/colors";
+import { getTripDifficultyColor,getTripStatusColor } from "@/lib/colors";
 import { formatCurrency, formatDate, getInitials } from "@/lib/utils";
 
 export default function Home() {
@@ -433,7 +433,7 @@ export default function Home() {
                       </div>
                     </div>
                     <div className="flex flex-col gap-1">
-                      <Badge className={getStatusColor(trip.status)}>
+                      <Badge className={getTripStatusColor(trip.status)}>
                         {trip.status}
                       </Badge>
                       {trip.joinable && spotsLeft > 0 && (
@@ -491,7 +491,7 @@ export default function Home() {
                   <div className="flex items-center gap-1 mb-3">
                     <span className="text-muted-foreground">Level:</span>
                     <Badge
-                      className={getDifficultyColor(trip.difficulty)}
+                      className={getTripDifficultyColor(trip.difficulty)}
                       size="sm"
                     >
                       {trip.difficulty}

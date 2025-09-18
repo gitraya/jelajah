@@ -26,7 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
-import { getStatusColor } from "@/lib/colors";
+import { getTripStatusColor } from "@/lib/colors";
 import { calculateDuration, formatCurrency, formatDate } from "@/lib/utils";
 
 export default function MyTrips() {
@@ -387,7 +387,7 @@ export default function MyTrips() {
                         </span>
                       </div>
                     </div>
-                    <Badge className={getStatusColor(trip.status)}>
+                    <Badge className={getTripStatusColor(trip.status)}>
                       {trip.status}
                     </Badge>
                   </div>

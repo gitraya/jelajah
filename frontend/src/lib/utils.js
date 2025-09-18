@@ -114,6 +114,7 @@ export const formatCurrency = (amount) => {
 };
 
 export const formatDate = (dateString) => {
+  if (!dateString) return "Not scheduled";
   return new Date(dateString).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
@@ -134,4 +135,9 @@ export const calculateDuration = (startDate, endDate) => {
   const end = new Date(endDate);
   const diffTime = Math.abs(end.getTime() - start.getTime());
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+};
+
+export const isOverdue = (dueDate, completed) => {
+  if (completed) return false;
+  return new Date(dueDate) < new Date();
 };
