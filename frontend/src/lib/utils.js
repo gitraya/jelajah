@@ -141,3 +141,13 @@ export const isOverdue = (dueDate, completed) => {
   if (completed) return false;
   return new Date(dueDate) < new Date();
 };
+
+export const validatePassword = (password = "") => {
+  return {
+    length: password.length >= 8,
+    uppercase: /[A-Z]/.test(password),
+    lowercase: /[a-z]/.test(password),
+    number: /\d/.test(password),
+    special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+  };
+};
