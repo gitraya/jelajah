@@ -11,6 +11,7 @@ import NewTrip from "@/pages/NewTrip";
 import NotFound from "@/pages/NotFound";
 import TripDetail from "@/pages/TripDetail";
 import TripEdit from "@/pages/TripEdit";
+import TripManage from "@/pages/TripManage";
 import Trips from "@/pages/Trips";
 
 export default function App() {
@@ -30,6 +31,7 @@ export default function App() {
 
           <Route path="/trips" element={<Trips />} />
           <Route path="/trips/:id" element={<TripDetail />} />
+          <Route path="/trips/:id/manage" element={<TripManage />} />
 
           <Route path="*" element={<NotFound />} />
         </Route>
