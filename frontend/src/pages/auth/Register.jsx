@@ -335,7 +335,7 @@ export default function Register() {
           <p className="text-sm text-muted-foreground">
             Already have an account?{" "}
             <button
-              onClick={() => navigate(`/login?redirect=${redirectPath}`)}
+              onClick={() => navigate(`/login${search}`)}
               className="text-primary hover:underline font-medium"
             >
               Sign in here
