@@ -7,10 +7,11 @@ import {
   Star,
   Users,
 } from "lucide-react";
+import { Link } from "react-router";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -120,19 +121,21 @@ export default function TripDetail() {
       image: "🚣",
     },
   ];
-  const onBackToList = () => {
-    // Implement navigation back to the trip list page
-    window.history.back();
-  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="border-b">
         <div className="container mx-auto px-4 py-6">
           <div className="flex lg:items-center gap-4 flex-col lg:flex-row">
-            <Button variant="outline" onClick={onBackToList} className="w-fit">
+            <Link
+              to="/"
+              className={buttonVariants({
+                variant: "outline",
+              })}
+            >
               ← Back to Browse
-            </Button>
+            </Link>
 
             <div className="flex-1 flex items-center gap-4">
               <div>

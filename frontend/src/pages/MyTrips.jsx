@@ -9,10 +9,11 @@ import {
   Users,
 } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router";
 
 import TripDialog from "@/components/dialogs/TripDialog";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { UserAvatar } from "@/components/UserAvatar";
@@ -105,15 +106,6 @@ export default function MyTrips() {
     // In a real app, you'd show a toast notification here
     alert("Public link copied to clipboard!");
   };
-  const onSelectTrip = (id) => {
-    window.location.href = `/trips/${id}/my`;
-  };
-  const onViewPublic = (id) => {
-    window.location.href = `/trips/${id}`;
-  };
-  const onBackToBrowse = () => {
-    window.location.href = `/trips`;
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -127,12 +119,12 @@ export default function MyTrips() {
                 <p className="text-muted-foreground">
                   Manage your travel adventures
                 </p>
-                <button
-                  onClick={onBackToBrowse}
+                <Link
+                  to="/"
                   className="mt-3 cursor-pointer text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
                   ← Browse Public Trips
-                </button>
+                </Link>
               </div>
               <UserAvatar className="sm:hidden" />
             </div>
@@ -264,23 +256,27 @@ export default function MyTrips() {
                   {/* Actions */}
                   <div className="flex flex-col gap-2 xl:flex-row xl:items-center xl:justify-between">
                     <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => onSelectTrip(trip.id)}
+                      <Link
+                        to={`/trips/${trip.id}/manage`}
+                        className={buttonVariants({
+                          variant: "outline",
+                          size: "sm",
+                        })}
                       >
                         <Edit className="w-4 h-4 mr-1" />
                         Manage
-                      </Button>
+                      </Link>
                       {trip.isPublic && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => onViewPublic(trip.id)}
+                        <Link
+                          to={`/trips/${trip.id}`}
+                          className={buttonVariants({
+                            variant: "outline",
+                            size: "sm",
+                          })}
                         >
                           <Eye className="w-4 h-4 mr-1" />
                           View
-                        </Button>
+                        </Link>
                       )}
                     </div>
                     <div className="flex items-center gap-1">

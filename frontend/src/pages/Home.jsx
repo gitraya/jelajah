@@ -8,7 +8,7 @@ import {
   Users,
 } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 import HowItWorksDialog from "@/components/dialogs/HowItWorksDialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -30,6 +30,7 @@ import { formatCurrency, formatDate, getInitials } from "@/lib/utils";
 
 export default function Home() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDestination, setSelectedDestination] = useState("All");
   const [selectedStatus, setSelectedStatus] = useState("All");
@@ -182,11 +183,6 @@ export default function Home() {
       joinable: true,
     },
   ];
-
-  const onViewTrip = (tripId) => {
-    // Navigate to Trip Details page
-    window.location.href = `/trips/${tripId}`;
-  };
 
   // Filter trips based on search and filters
   const filteredTrips = publicTrips.filter((trip) => {
@@ -435,140 +431,138 @@ export default function Home() {
             const spotsLeft = trip.maxMembers - trip.members;
 
             return (
-              <Card
-                key={trip.id}
-                className="group hover:shadow-lg transition-shadow cursor-pointer"
-                onClick={() => onViewTrip(trip.id)}
-              >
-                <CardHeader>
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex-1">
-                      <CardTitle className="mb-2 group-hover:text-primary transition-colors">
-                        {trip.title}
-                      </CardTitle>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                        <MapPin className="w-4 h-4" />
-                        <span>{trip.destination}</span>
+              <Link key={trip.id} as={Card} to={`/trips/${trip.id}`}>
+                <Card className="group hover:shadow-lg transition-shadow cursor-pointer">
+                  <CardHeader>
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1">
+                        <CardTitle className="mb-2 group-hover:text-primary transition-colors">
+                          {trip.title}
+                        </CardTitle>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                          <MapPin className="w-4 h-4" />
+                          <span>{trip.destination}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Calendar className="w-4 h-4" />
+                          <span>
+                            {formatDate(trip.startDate)} -{" "}
+                            {formatDate(trip.endDate)}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Calendar className="w-4 h-4" />
-                        <span>
-                          {formatDate(trip.startDate)} -{" "}
-                          {formatDate(trip.endDate)}
+                      <div className="flex flex-col gap-1">
+                        <Badge className={getTripStatusColor(trip.status)}>
+                          {trip.status}
+                        </Badge>
+                        {trip.joinable && spotsLeft > 0 && (
+                          <Badge
+                            variant="outline"
+                            className="text-green-600 border-green-600"
+                          >
+                            {spotsLeft} spots left
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      {trip.description}
+                    </p>
+
+                    {/* Organizer */}
+                    <div className="flex items-center gap-2 mb-3">
+                      <Avatar className="w-6 h-6">
+                        <AvatarImage src={trip.organizer.avatar} />
+                        <AvatarFallback className="text-xs">
+                          {getInitials(trip.organizer.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-sm text-muted-foreground">
+                        by {trip.organizer.name}
+                      </span>
+                    </div>
+
+                    {/* Trip Details */}
+                    <div className="grid grid-cols-2 gap-4 mb-3 text-sm">
+                      <div>
+                        <span className="text-muted-foreground">Duration:</span>
+                        <span className="ml-1 font-medium">
+                          {trip.duration} days
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Group:</span>
+                        <span className="ml-1 font-medium">
+                          {trip.members}/{trip.maxMembers} people
                         </span>
                       </div>
                     </div>
-                    <div className="flex flex-col gap-1">
-                      <Badge className={getTripStatusColor(trip.status)}>
-                        {trip.status}
+
+                    <div className="mb-3">
+                      <span className="text-muted-foreground">Budget:</span>
+                      <span className="ml-1 font-medium">
+                        {formatCurrency(trip.totalBudget / trip.maxMembers)}
+                        /person
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1 mb-3">
+                      <span className="text-muted-foreground">Level:</span>
+                      <Badge
+                        className={getTripDifficultyColor(trip.difficulty)}
+                        size="sm"
+                      >
+                        {trip.difficulty}
                       </Badge>
-                      {trip.joinable && spotsLeft > 0 && (
-                        <Badge
-                          variant="outline"
-                          className="text-green-600 border-green-600"
-                        >
-                          {spotsLeft} spots left
-                        </Badge>
-                      )}
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    {trip.description}
-                  </p>
 
-                  {/* Organizer */}
-                  <div className="flex items-center gap-2 mb-3">
-                    <Avatar className="w-6 h-6">
-                      <AvatarImage src={trip.organizer.avatar} />
-                      <AvatarFallback className="text-xs">
-                        {getInitials(trip.organizer.name)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="text-sm text-muted-foreground">
-                      by {trip.organizer.name}
-                    </span>
-                  </div>
-
-                  {/* Trip Details */}
-                  <div className="grid grid-cols-2 gap-4 mb-3 text-sm">
-                    <div>
-                      <span className="text-muted-foreground">Duration:</span>
-                      <span className="ml-1 font-medium">
-                        {trip.duration} days
-                      </span>
+                    {/* Highlights */}
+                    <div className="mb-3">
+                      <div className="text-sm text-muted-foreground mb-1">
+                        Highlights:
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {trip.highlights.slice(0, 3).map((highlight, index) => (
+                          <Badge
+                            key={index}
+                            variant="outline"
+                            className="text-xs"
+                          >
+                            {highlight}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-muted-foreground">Group:</span>
-                      <span className="ml-1 font-medium">
-                        {trip.members}/{trip.maxMembers} people
-                      </span>
-                    </div>
-                  </div>
 
-                  <div className="mb-3">
-                    <span className="text-muted-foreground">Budget:</span>
-                    <span className="ml-1 font-medium">
-                      {formatCurrency(trip.totalBudget / trip.maxMembers)}
-                      /person
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1 mb-3">
-                    <span className="text-muted-foreground">Level:</span>
-                    <Badge
-                      className={getTripDifficultyColor(trip.difficulty)}
-                      size="sm"
-                    >
-                      {trip.difficulty}
-                    </Badge>
-                  </div>
-
-                  {/* Highlights */}
-                  <div className="mb-3">
-                    <div className="text-sm text-muted-foreground mb-1">
-                      Highlights:
-                    </div>
-                    <div className="flex flex-wrap gap-1">
-                      {trip.highlights.slice(0, 3).map((highlight, index) => (
+                    {/* Tags */}
+                    <div className="flex flex-wrap gap-1 mb-4">
+                      {trip.tags.map((tag, index) => (
                         <Badge
                           key={index}
-                          variant="outline"
+                          variant="secondary"
                           className="text-xs"
                         >
-                          {highlight}
+                          {tag}
                         </Badge>
                       ))}
                     </div>
-                  </div>
 
-                  {/* Tags */}
-                  <div className="flex flex-wrap gap-1 mb-4">
-                    {trip.tags.map((tag, index) => (
-                      <Badge
-                        key={index}
-                        variant="secondary"
-                        className="text-xs"
-                      >
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-
-                  {/* Action */}
-                  <Button
-                    className="w-full"
-                    variant={trip.joinable ? "default" : "outline"}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onViewTrip(trip.id);
-                    }}
-                  >
-                    <Eye className="w-4 h-4 mr-2" />
-                    {trip.joinable ? "View & Join" : "View Trip"}
-                  </Button>
-                </CardContent>
-              </Card>
+                    {/* Action */}
+                    <Button
+                      className="w-full"
+                      variant={trip.joinable ? "default" : "outline"}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/trips/${trip.id}`);
+                      }}
+                    >
+                      <Eye className="w-4 h-4 mr-2" />
+                      {trip.joinable ? "View & Join" : "View Trip"}
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Link>
             );
           })}
         </div>
