@@ -37,21 +37,26 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const redirectPath = query.get("redirect") || "/trips";
+  const redirectPath = query.get("redirect") || "/";
   const defaultEmail = query.get("email") || "";
   const tripId = query.get("tripId") || "";
   const response = query.get("response") || "ACCEPTED"; // Default to ACCEPTED if not provided
 
   const onSubmit = async (data) => {
-    setIsLoading(true);
-    const isLoggedIn = await login(data.email, data.password);
-    if (isLoggedIn) {
-      if (tripId) {
-        await postAPIData(`/trips/${tripId}/respond-invitation/`, { response });
+    try {
+      setIsLoading(true);
+      const isLoggedIn = await login(data.email, data.password);
+      if (isLoggedIn) {
+        if (tripId) {
+          await postAPIData(`/trips/${tripId}/respond-invitation/`, {
+            response,
+          });
+        }
+        navigate(redirectPath);
       }
-      navigate(redirectPath);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const handleDemoLogin = async () => {

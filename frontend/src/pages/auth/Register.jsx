@@ -31,19 +31,21 @@ export default function Register() {
     watch,
     formState: { errors },
   } = useForm();
-  const { login, error: loginError, loading: isLoading } = useAuth();
+  const { login, error: loginError } = useAuth();
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const query = new URLSearchParams(search);
 
-  const redirectPath = query.get("redirect") || "/trips";
+  const redirectPath = query.get("redirect") || "/";
   const defaultEmail = query.get("email") || "";
   const tripId = query.get("tripId") || "";
   const response = query.get("response") || "ACCEPTED"; // Default to ACCEPTED if not provided
 
   const onSubmit = async (data) => {
     try {
+      setIsLoading(true);
       await postAPIData("/auth/register/", data);
       const isLoggedIn = await login(data.email, data.password);
       if (isLoggedIn) {
@@ -56,6 +58,8 @@ export default function Register() {
       }
     } catch (error) {
       setError(getErrorMessage(error));
+    } finally {
+      setIsLoading(false);
     }
   };
 
