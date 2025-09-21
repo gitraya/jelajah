@@ -108,7 +108,6 @@ export default function Register() {
                   id="first_name"
                   type="text"
                   placeholder="Enter your first name"
-                  className={errors.first_name ? "border-destructive" : ""}
                   aria-invalid={errors.first_name ? "true" : "false"}
                   {...register("first_name", {
                     required: validator.required,
@@ -129,7 +128,6 @@ export default function Register() {
                   id="last_name"
                   type="text"
                   placeholder="Enter your last name"
-                  className={errors.last_name ? "border-destructive" : ""}
                   aria-invalid={errors.last_name ? "true" : "false"}
                   {...register("last_name", {
                     required: validator.required,
@@ -150,7 +148,6 @@ export default function Register() {
                   id="email"
                   type="email"
                   placeholder="your.email@example.com"
-                  className={errors.email ? "border-destructive" : ""}
                   aria-invalid={errors.email ? "true" : "false"}
                   defaultValue={defaultEmail}
                   disabled={!!defaultEmail}
@@ -173,9 +170,7 @@ export default function Register() {
                     id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="Create a strong password"
-                    className={
-                      errors.password ? "border-destructive pr-10" : "pr-10"
-                    }
+                    className="pr-10"
                     aria-invalid={errors.password ? "true" : "false"}
                     {...register("password", {
                       required: validator.required,
@@ -279,9 +274,7 @@ export default function Register() {
                     id="password2"
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="Confirm your password"
-                    className={
-                      errors.password2 ? "border-destructive pr-10" : "pr-10"
-                    }
+                    className="pr-10"
                     aria-invalid={errors.password2 ? "true" : "false"}
                     {...register("password2", {
                       required: validator.required,

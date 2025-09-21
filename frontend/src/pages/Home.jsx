@@ -8,10 +8,12 @@ import {
   Users,
 } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router";
 
+import HowItWorksDialog from "@/components/dialogs/HowItWorksDialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
@@ -21,10 +23,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getTripDifficultyColor,getTripStatusColor } from "@/lib/colors";
+import { UserAvatar } from "@/components/UserAvatar";
+import { useAuth } from "@/hooks/useAuth";
+import { getTripDifficultyColor, getTripStatusColor } from "@/lib/colors";
 import { formatCurrency, formatDate, getInitials } from "@/lib/utils";
 
 export default function Home() {
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDestination, setSelectedDestination] = useState("All");
   const [selectedStatus, setSelectedStatus] = useState("All");
@@ -178,11 +183,6 @@ export default function Home() {
     },
   ];
 
-  const onGoToMyTrips = () => {
-    // Navigate to My Trips page
-    window.location.href = "/my-trips";
-  };
-
   const onViewTrip = (tripId) => {
     // Navigate to Trip Details page
     window.location.href = `/trips/${tripId}`;
@@ -238,6 +238,17 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Header with User Avatar */}
+      {user && (
+        <div className="border-b">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex justify-end">
+              <UserAvatar />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hero Section */}
       <div className="border-b bg-gradient-to-r from-primary/5 to-primary/10">
         <div className="container mx-auto px-4 py-12">
@@ -254,12 +265,27 @@ export default function Home() {
               next journey.
             </p>
             <div className="flex justify-center gap-4">
-              <Button size="lg" onClick={onGoToMyTrips}>
-                Plan Your Own Trip
-              </Button>
-              <Button variant="outline" size="lg">
-                How It Works
-              </Button>
+              <Link
+                to={user ? "/trips/my" : "/login?redirect=/trips/my"}
+                className={buttonVariants({
+                  size: "lg",
+                })}
+              >
+                {user ? "My Trips" : "Plan Your Own Trip"}
+              </Link>
+              {user ? (
+                <HowItWorksDialog />
+              ) : (
+                <Link
+                  to="/login"
+                  className={buttonVariants({
+                    variant: "outline",
+                    size: "lg",
+                  })}
+                >
+                  Sign In
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -574,9 +600,25 @@ export default function Home() {
           <p className="text-muted-foreground mb-6">
             Create your own trip and invite others to join your journey.
           </p>
-          <Button size="lg" onClick={onGoToMyTrips}>
-            Start Planning Now
-          </Button>
+          <div className="flex justify-center gap-4">
+            <Link
+              to={user ? "/trips/my/" : "/login"}
+              className={buttonVariants({ size: "lg" })}
+            >
+              Start Planning Now
+            </Link>
+            {!user && (
+              <Link
+                to="/login"
+                className={buttonVariants({
+                  variant: "outline",
+                  size: "lg",
+                })}
+              >
+                Sign In
+              </Link>
+            )}
+          </div>
         </div>
       </div>
     </div>

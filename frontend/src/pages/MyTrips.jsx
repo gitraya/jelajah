@@ -4,30 +4,19 @@ import {
   Edit,
   Eye,
   MapPin,
-  Plus,
   Share,
   Trash2,
   Users,
 } from "lucide-react";
 import { useState } from "react";
 
+import TripDialog from "@/components/dialogs/TripDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { Textarea } from "@/components/ui/textarea";
 import { getTripStatusColor } from "@/lib/colors";
-import { calculateDuration, formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency, formatDate } from "@/lib/utils";
 
 export default function MyTrips() {
   const [trips, setTrips] = useState([
@@ -97,52 +86,6 @@ export default function MyTrips() {
     },
   ]);
 
-  const [isCreatingTrip, setIsCreatingTrip] = useState(false);
-  const [newTrip, setNewTrip] = useState({
-    title: "",
-    destination: "",
-    startDate: "",
-    endDate: "",
-    totalBudget: "",
-    description: "",
-  });
-
-  const createTrip = () => {
-    if (
-      newTrip.title &&
-      newTrip.destination &&
-      newTrip.startDate &&
-      newTrip.endDate
-    ) {
-      const duration = calculateDuration(newTrip.startDate, newTrip.endDate);
-      const trip = {
-        id: Date.now().toString(),
-        title: newTrip.title,
-        destination: newTrip.destination,
-        startDate: newTrip.startDate,
-        endDate: newTrip.endDate,
-        duration,
-        members: 1,
-        totalBudget: parseInt(newTrip.totalBudget) || 0,
-        spentBudget: 0,
-        status: "planning",
-        isPublic: false,
-        description: newTrip.description,
-        createdAt: new Date().toISOString().split("T")[0],
-      };
-      setTrips([trip, ...trips]);
-      setNewTrip({
-        title: "",
-        destination: "",
-        startDate: "",
-        endDate: "",
-        totalBudget: "",
-        description: "",
-      });
-      setIsCreatingTrip(false);
-    }
-  };
-
   const deleteTrip = (id) => {
     setTrips(trips.filter((trip) => trip.id !== id));
   };
@@ -191,103 +134,7 @@ export default function MyTrips() {
                 </button>
               </div>
             </div>
-            <Dialog open={isCreatingTrip} onOpenChange={setIsCreatingTrip}>
-              <DialogTrigger asChild>
-                <Button className="mt-4 sm:mt-0">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create New Trip
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Create New Trip</DialogTitle>
-                  <DialogDescription>
-                    Start planning your next adventure
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="title">Trip Title</Label>
-                    <Input
-                      id="title"
-                      value={newTrip.title}
-                      onChange={(e) =>
-                        setNewTrip({ ...newTrip, title: e.target.value })
-                      }
-                      placeholder="Enter trip title"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="destination">Destination</Label>
-                    <Input
-                      id="destination"
-                      value={newTrip.destination}
-                      onChange={(e) =>
-                        setNewTrip({ ...newTrip, destination: e.target.value })
-                      }
-                      placeholder="Where are you going?"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="startDate">Start Date</Label>
-                      <Input
-                        id="startDate"
-                        type="date"
-                        value={newTrip.startDate}
-                        onChange={(e) =>
-                          setNewTrip({ ...newTrip, startDate: e.target.value })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="endDate">End Date</Label>
-                      <Input
-                        id="endDate"
-                        type="date"
-                        value={newTrip.endDate}
-                        onChange={(e) =>
-                          setNewTrip({ ...newTrip, endDate: e.target.value })
-                        }
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="budget">Total Budget (IDR)</Label>
-                    <Input
-                      id="budget"
-                      type="number"
-                      value={newTrip.totalBudget}
-                      onChange={(e) =>
-                        setNewTrip({ ...newTrip, totalBudget: e.target.value })
-                      }
-                      placeholder="Enter budget amount"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea
-                      id="description"
-                      value={newTrip.description}
-                      onChange={(e) =>
-                        setNewTrip({ ...newTrip, description: e.target.value })
-                      }
-                      placeholder="Describe your trip"
-                      rows={3}
-                    />
-                  </div>
-                  <div className="flex justify-end space-x-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => setIsCreatingTrip(false)}
-                    >
-                      Cancel
-                    </Button>
-                    <Button onClick={createTrip}>Create Trip</Button>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
+            <TripDialog />
           </div>
         </div>
       </div>

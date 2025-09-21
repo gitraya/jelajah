@@ -19,6 +19,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { UserAvatar } from "@/components/UserAvatar";
 import { formatCurrency, getInitials } from "@/lib/utils";
 
 export default function TripDetail() {
@@ -152,9 +153,12 @@ export default function TripDetail() {
                 </div>
               </div>
 
-              <Badge variant="secondary" className="px-3 py-1 ml-auto">
-                {tripData.duration}
-              </Badge>
+              <div className="flex items-center gap-4 ml-auto">
+                <Badge variant="secondary" className="px-3 py-1">
+                  {tripData.duration}
+                </Badge>
+                <UserAvatar />
+              </div>
             </div>
           </div>
         </div>

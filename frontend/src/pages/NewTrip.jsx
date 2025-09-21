@@ -95,7 +95,7 @@ export default function NewTrip() {
                 })}
               />
               {errors.title && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-sm text-destructive">
                   {errors.title.message}
                 </p>
               )}
@@ -114,7 +114,7 @@ export default function NewTrip() {
                 })}
               />
               {errors.description && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-sm text-destructive">
                   {errors.description.message}
                 </p>
               )}
@@ -138,7 +138,7 @@ export default function NewTrip() {
                 })}
               />
               {errors.location?.name && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-sm text-destructive">
                   {errors.location.name.message}
                 </p>
               )}
@@ -156,7 +156,7 @@ export default function NewTrip() {
                 })}
               />
               {errors.location?.description && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-sm text-destructive">
                   {errors.location.description.message}
                 </p>
               )}
@@ -175,7 +175,7 @@ export default function NewTrip() {
                 })}
               />
               {errors.location?.latitude && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-sm text-destructive">
                   {errors.location.latitude.message}
                 </p>
               )}
@@ -194,7 +194,7 @@ export default function NewTrip() {
                 })}
               />
               {errors.location?.longitude && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-sm text-destructive">
                   {errors.location.longitude.message}
                 </p>
               )}
@@ -213,7 +213,7 @@ export default function NewTrip() {
                 {...register("start_date", { required: validator.required })}
               />
               {errors.start_date && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-sm text-destructive">
                   {errors.start_date.message}
                 </p>
               )}
@@ -229,7 +229,7 @@ export default function NewTrip() {
                 {...register("end_date", { required: validator.required })}
               />
               {errors.end_date && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-sm text-destructive">
                   {errors.end_date.message}
                 </p>
               )}

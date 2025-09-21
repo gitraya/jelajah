@@ -106,7 +106,6 @@ export default function Register() {
                   id="email"
                   type="email"
                   placeholder="your.email@example.com"
-                  className={errors.email ? "border-destructive" : ""}
                   aria-invalid={errors.email ? "true" : "false"}
                   defaultValue={defaultEmail}
                   disabled={!!defaultEmail}
@@ -129,9 +128,7 @@ export default function Register() {
                     id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
-                    className={
-                      errors.password ? "border-destructive pr-10" : "pr-10"
-                    }
+                    className="pr-10"
                     aria-invalid={errors.password ? "true" : "false"}
                     {...register("password", {
                       required: validator.required,

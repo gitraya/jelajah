@@ -17,6 +17,7 @@ import { PackingList } from "@/components/PackingList";
 import { TripOverview } from "@/components/TripOverview";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { UserAvatar } from "@/components/UserAvatar";
 
 export default function TripManage() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -70,9 +71,12 @@ export default function TripManage() {
                 </div>
               </div>
 
-              <Badge variant="secondary" className="px-3 py-1 ml-auto">
-                {tripData.duration}
-              </Badge>
+              <div className="flex items-center gap-4 ml-auto">
+                <Badge variant="secondary" className="px-3 py-1">
+                  {tripData.duration}
+                </Badge>
+                <UserAvatar />
+              </div>
             </div>
           </div>
         </div>

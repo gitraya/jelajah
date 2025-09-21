@@ -12,7 +12,6 @@ import NotFound from "@/pages/NotFound";
 import TripDetail from "@/pages/TripDetail";
 import TripEdit from "@/pages/TripEdit";
 import TripManage from "@/pages/TripManage";
-import Trips from "@/pages/Trips";
 
 export default function App() {
   return (
@@ -29,7 +28,6 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          <Route path="/trips" element={<Trips />} />
           <Route path="/trips/:id" element={<TripDetail />} />
           <Route path="/trips/:id/manage" element={<TripManage />} />
 
