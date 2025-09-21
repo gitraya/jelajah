@@ -6,20 +6,20 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 class ExpenseSplitSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(source='user.username', read_only=True)
+    email = serializers.CharField(source='user.email', read_only=True)
     
     class Meta:
         model = ExpenseSplit
-        fields = ['id', 'user', 'username', 'amount', 'paid']
+        fields = ['id', 'user', 'email', 'amount', 'paid']
         read_only_fields = ['expense']
 
 class ExpenseSerializer(serializers.ModelSerializer):
-    paid_by_username = serializers.CharField(source='paid_by.username', read_only=True)
+    paid_by_email = serializers.CharField(source='paid_by.email', read_only=True)
     splits = ExpenseSplitSerializer(many=True, read_only=True)
     
     class Meta:
         model = Expense
-        fields = ['id', 'trip', 'title', 'amount', 'date', 'paid_by', 'paid_by_username', 'notes', 'splits']
+        fields = ['id', 'trip', 'title', 'amount', 'date', 'paid_by', 'paid_by_email', 'notes', 'splits']
         read_only_fields = ['trip']
     
     def create(self, validated_data):
@@ -28,12 +28,12 @@ class ExpenseSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 class ExpenseDetailSerializer(serializers.ModelSerializer):
-    paid_by_username = serializers.CharField(source='paid_by.username', read_only=True)
+    paid_by_email = serializers.CharField(source='paid_by.email', read_only=True)
     splits = ExpenseSplitSerializer(many=True)
     
     class Meta:
         model = Expense
-        fields = ['id', 'trip', 'title', 'amount', 'date', 'paid_by', 'paid_by_username', 'notes', 'splits']
+        fields = ['id', 'trip', 'title', 'amount', 'date', 'paid_by', 'paid_by_email', 'notes', 'splits']
         read_only_fields = ['trip']
     
     @transaction.atomic

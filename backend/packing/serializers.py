@@ -8,11 +8,11 @@ class PackingCategorySerializer(serializers.ModelSerializer):
 
 class PackingItemSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
-    assigned_to_username = serializers.CharField(source='assigned_to.username', read_only=True, allow_null=True)
+    assigned_to_email = serializers.CharField(source='assigned_to.email', read_only=True, allow_null=True)
     
     class Meta:
         model = PackingItem
-        fields = ['id', 'name', 'category', 'category_name', 'quantity', 'packed', 'assigned_to', 'assigned_to_username']
+        fields = ['id', 'name', 'category', 'category_name', 'quantity', 'packed', 'assigned_to', 'assigned_to_email']
         read_only_fields = ['trip']
     
     def create(self, validated_data):

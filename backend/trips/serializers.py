@@ -10,7 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
     """Basic user serializer for member information"""
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name']
+        fields = ['id', 'email', 'first_name', 'last_name']
         read_only_fields = ['id']
 
 class LocationSerializer(serializers.ModelSerializer):

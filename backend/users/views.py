@@ -22,7 +22,7 @@ class UserDetailView(generics.RetrieveUpdateAPIView):
 class UserProfileView(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    lookup_field = 'username'
+    lookup_field = 'id'
     permission_classes = [permissions.IsAuthenticated]
     
 class UserListView(generics.ListAPIView):

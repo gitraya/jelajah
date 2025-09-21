@@ -7,6 +7,6 @@ urlpatterns = [
     path('token/refresh/', CookieTokenRefreshView.as_view(), name='token_refresh'),
     path('token/blacklist/', CookieTokenBlacklistView.as_view(), name='token_blacklist'),
     path('me/', UserDetailView.as_view(), name='user_detail'),
-    path('profile/<str:username>/', UserProfileView.as_view(), name='user_profile'),
+    path('profile/<str:user_id>/', UserProfileView.as_view(), name='user_profile'),
     path('users/', UserListView.as_view(), name='user_list')
 ]
