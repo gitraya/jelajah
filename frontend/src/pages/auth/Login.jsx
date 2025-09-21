@@ -1,4 +1,4 @@
-import { ArrowLeft,Eye, EyeOff, Globe } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Globe } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useLocation, useNavigate } from "react-router";
@@ -18,6 +18,11 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/useAuth";
 import { postAPIData, validator } from "@/lib/utils";
 
+const DEMO_CREDENTIALS = {
+  email: "demo@example.com",
+  password: "demo12@PW",
+};
+
 export default function Register() {
   const navigate = useNavigate();
   const { search } = useLocation();
@@ -33,12 +38,13 @@ export default function Register() {
   const [isLoading, setIsLoading] = useState(false);
 
   const redirectPath = query.get("redirect") || "/trips";
+  const defaultEmail = query.get("email") || "";
   const tripId = query.get("tripId") || "";
   const response = query.get("response") || "ACCEPTED"; // Default to ACCEPTED if not provided
 
   const onSubmit = async (data) => {
     setIsLoading(true);
-    const isLoggedIn = await login(data.username, data.password);
+    const isLoggedIn = await login(data.email, data.password);
     if (isLoggedIn) {
       if (tripId) {
         await postAPIData(`/trips/${tripId}/respond-invitation/`, { response });
@@ -49,8 +55,9 @@ export default function Register() {
   };
 
   const handleDemoLogin = async () => {
-    setValue("email", "demo@example.com");
-    setValue("password", "demopassword");
+    setValue("email", DEMO_CREDENTIALS.email);
+    setValue("password", DEMO_CREDENTIALS.password);
+    onSubmit(DEMO_CREDENTIALS);
   };
 
   return (
@@ -58,13 +65,13 @@ export default function Register() {
       <div className="w-full max-w-md space-y-6">
         {/* Header */}
         <div className="text-center">
-          <button
-            onClick={() => navigate("/trips/")}
+          <Link
+            to="/"
             className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
           >
             <ArrowLeft className="w-4 h-4 mr-1" />
             Back to Browse
-          </button>
+          </Link>
           <div className="flex items-center justify-center gap-2 mb-2">
             <Globe className="w-8 h-8 text-primary" />
             <h1 className="text-2xl font-bold">Jelajah</h1>
@@ -96,6 +103,8 @@ export default function Register() {
                   placeholder="your.email@example.com"
                   className={errors.email ? "border-destructive" : ""}
                   aria-invalid={errors.email ? "true" : "false"}
+                  defaultValue={defaultEmail}
+                  disabled={!!defaultEmail}
                   {...register("email", {
                     required: validator.required,
                     pattern: validator.email,
@@ -192,12 +201,12 @@ export default function Register() {
         <div className="text-center">
           <p className="text-sm text-muted-foreground">
             Don't have an account?{" "}
-            <button
-              onClick={() => navigate(`/register${search}`)}
+            <Link
+              to={`/register${search}`}
               className="text-primary hover:underline font-medium"
             >
               Sign up here
-            </button>
+            </Link>
           </p>
         </div>
 

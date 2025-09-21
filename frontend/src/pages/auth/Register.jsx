@@ -1,7 +1,7 @@
 import { ArrowLeft, Check, Eye, EyeOff, Globe } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useLocation, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -45,7 +45,7 @@ export default function Register() {
   const onSubmit = async (data) => {
     try {
       await postAPIData("/auth/register/", data);
-      const isLoggedIn = await login(data.username, data.password);
+      const isLoggedIn = await login(data.email, data.password);
       if (isLoggedIn) {
         if (tripId) {
           await postAPIData(`/trips/${tripId}/respond-invitation/`, {
@@ -66,13 +66,13 @@ export default function Register() {
       <div className="w-full max-w-md space-y-6">
         {/* Header */}
         <div className="text-center">
-          <button
-            onClick={() => navigate("/trips/")}
+          <Link
+            to="/"
             className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
           >
             <ArrowLeft className="w-4 h-4 mr-1" />
             Back to Browse
-          </button>
+          </Link>
           <div className="flex items-center justify-center gap-2 mb-2">
             <Globe className="w-8 h-8 text-primary" />
             <h1 className="text-2xl font-bold">Jelajah</h1>
@@ -97,26 +97,6 @@ export default function Register() {
                   <AlertDescription>{error || loginError}</AlertDescription>
                 </Alert>
               )}
-
-              <div className="space-y-2">
-                <Label htmlFor="username">Username*</Label>
-                <Input
-                  id="username"
-                  type="text"
-                  placeholder="Choose a unique username"
-                  className={errors.username ? "border-destructive" : ""}
-                  aria-invalid={errors.username ? "true" : "false"}
-                  {...register("username", {
-                    required: validator.required,
-                    pattern: validator.username,
-                  })}
-                />
-                {errors.username && (
-                  <p className="text-sm text-destructive">
-                    {errors.username.message}
-                  </p>
-                )}
-              </div>
 
               <div className="space-y-2">
                 <Label htmlFor="first_name">First Name</Label>
@@ -334,12 +314,12 @@ export default function Register() {
         <div className="text-center">
           <p className="text-sm text-muted-foreground">
             Already have an account?{" "}
-            <button
-              onClick={() => navigate(`/login${search}`)}
+            <Link
+              to={`/login${search}`}
               className="text-primary hover:underline font-medium"
             >
               Sign in here
-            </button>
+            </Link>
           </p>
         </div>
 

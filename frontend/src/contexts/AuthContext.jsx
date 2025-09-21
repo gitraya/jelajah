@@ -31,14 +31,11 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = async (username, password) => {
+  const login = async (email, password) => {
     try {
       setError(null);
 
-      await postAPIData("/auth/token/", {
-        username,
-        password,
-      });
+      await postAPIData("/auth/token/", { email, password });
 
       await checkAuth();
       return true;
