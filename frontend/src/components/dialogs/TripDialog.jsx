@@ -54,7 +54,7 @@ export default function TripDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="mt-4 sm:mt-0">
+        <Button className="w-full sm:w-auto mt-4 sm:mt-0">
           <Plus className="w-4 h-4 mr-2" />
           Create New Trip
         </Button>

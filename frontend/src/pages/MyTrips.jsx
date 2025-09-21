@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { UserAvatar } from "@/components/UserAvatar";
 import { getTripStatusColor } from "@/lib/colors";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
@@ -120,7 +121,7 @@ export default function MyTrips() {
       <div className="border-b">
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center justify-between gap-4">
               <div>
                 <h1 className="mb-2 text-2xl font-semibold">My Trips</h1>
                 <p className="text-muted-foreground">
@@ -133,8 +134,12 @@ export default function MyTrips() {
                   ← Browse Public Trips
                 </button>
               </div>
+              <UserAvatar className="sm:hidden" />
             </div>
-            <TripDialog />
+            <div className="flex items-center gap-3">
+              <TripDialog />
+              <UserAvatar className="hidden sm:block" />
+            </div>
           </div>
         </div>
       </div>

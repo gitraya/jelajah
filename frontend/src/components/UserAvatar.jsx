@@ -42,19 +42,24 @@ export function UserAvatar({ className = "" }) {
           </div>
           <DropdownMenuSeparator />
           <DropdownMenuItem
+            className="cursor-pointer"
             onClick={() => alert("Profile settings would be implemented here")}
           >
             <User className="mr-2 h-4 w-4" />
             Profile
           </DropdownMenuItem>
           <DropdownMenuItem
+            className="cursor-pointer"
             onClick={() => alert("Account settings would be implemented here")}
           >
             <Settings className="mr-2 h-4 w-4" />
             Settings
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={logout} className="text-destructive">
+          <DropdownMenuItem
+            onClick={logout}
+            className="text-destructive cursor-pointer hover:bg-destructive/10 focus:bg-destructive/10"
+          >
             <LogOut className="mr-2 h-4 w-4" />
             Sign out
           </DropdownMenuItem>
