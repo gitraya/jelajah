@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 
 import { AuthContext } from "@/hooks/useAuth";
 import { getAPIData, getErrorMessage, postAPIData } from "@/lib/utils";
 
 export const AuthProvider = ({ children }) => {
+  const navigate = useNavigate();
   const location = useLocation();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -55,6 +56,8 @@ export const AuthProvider = ({ children }) => {
 
       setUser(null);
       setIsAuthenticated(false);
+
+      navigate("/");
       return true;
     } catch (error) {
       setError(error.message);
