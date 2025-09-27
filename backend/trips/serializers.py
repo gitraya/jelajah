@@ -15,10 +15,15 @@ class UserSerializer(serializers.ModelSerializer):
 
 class LocationSerializer(serializers.ModelSerializer):
     """Serializer for Location model"""
+    name = serializers.CharField(max_length=255)
+
     class Meta:
         model = Location
         fields = "__all__"
         read_only_fields = ['id']
+        extra_kwargs = {
+            'name': {'validators': []},
+        }
 
 class TripMemberSerializer(serializers.ModelSerializer):
     """Serializer for TripMember model with user details"""
@@ -85,7 +90,6 @@ class TripSerializer(serializers.ModelSerializer):
         location_data = validated_data.pop('location')
         member_ids = validated_data.pop('member_ids', [])
 
-        
         request = self.context['request']
         owner = request.user
         

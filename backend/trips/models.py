@@ -26,10 +26,10 @@ class TripMember(BaseModel):
     )
 
 class Location(BaseModel):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
 
 class Trip(BaseModel):
     """Main trip model for travel planning"""
@@ -42,6 +42,9 @@ class Trip(BaseModel):
     members = models.ManyToManyField(settings.AUTH_USER_MODEL, through=TripMember, related_name='trips')
     is_public = models.BooleanField(default=False)
     notes = models.TextField(blank=True)
+    member_spots = models.PositiveIntegerField(default=1)
+    duration = models.PositiveIntegerField(help_text="Duration in days", default=1)
+    budget = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     status = models.CharField(
         max_length=10,
         choices=TripStatus.choices,
