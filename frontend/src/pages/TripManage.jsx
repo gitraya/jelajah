@@ -8,6 +8,7 @@ import {
   Users,
 } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router";
 
 import { ChecklistManager } from "@/components/ChecklistManager";
 import { ExpensesManager } from "@/components/ExpensesManager";
@@ -18,8 +19,10 @@ import { TripOverview } from "@/components/TripOverview";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserAvatar } from "@/components/UserAvatar";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function TripManage() {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
 
   // Mock trip data
@@ -33,11 +36,6 @@ export default function TripManage() {
     spentBudget: 8500000,
   };
 
-  const handleBackToList = () => {
-    // Update URL
-    window.history.pushState({}, "", "?view=my-trips");
-  };
-
   // Manage view (original trip management interface)
   return (
     <div className="min-h-screen bg-background">
@@ -45,12 +43,12 @@ export default function TripManage() {
       <div className="border-b">
         <div className="container mx-auto px-4 py-6">
           <div className="flex lg:items-center gap-4 flex-col lg:flex-row">
-            <button
-              onClick={handleBackToList}
+            <Link
+              to={user ? "/trips/my" : "/login?redirect=/trips/my"}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors mr-auto lg:mr-0"
             >
               ← Back to Trips
-            </button>
+            </Link>
 
             <div className="flex-1 flex items-center gap-4">
               <div>

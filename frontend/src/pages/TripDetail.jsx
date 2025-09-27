@@ -7,7 +7,7 @@ import {
   Star,
   Users,
 } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +24,7 @@ import { UserAvatar } from "@/components/UserAvatar";
 import { formatCurrency, getInitials } from "@/lib/utils";
 
 export default function TripDetail() {
+  const navigate = useNavigate();
   // Mock trip data - in a real app, you'd fetch this based on tripId
   const tripData = {
     title: "Jelajah Bali Adventure",
@@ -129,7 +130,8 @@ export default function TripDetail() {
         <div className="container mx-auto px-4 py-6">
           <div className="flex lg:items-center gap-4 flex-col lg:flex-row">
             <Link
-              to="/"
+              as="button"
+              onClick={() => navigate(-1)}
               className={buttonVariants({
                 variant: "outline",
               })}

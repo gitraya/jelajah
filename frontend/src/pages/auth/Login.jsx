@@ -115,7 +115,7 @@ export default function Register() {
                   })}
                 />
                 {errors.email && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-xs text-destructive">
                     {errors.email.message}
                   </p>
                 )}
@@ -148,7 +148,7 @@ export default function Register() {
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-xs text-destructive">
                     {errors.password.message}
                   </p>
                 )}

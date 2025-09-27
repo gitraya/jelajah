@@ -116,7 +116,7 @@ export default function Register() {
                   })}
                 />
                 {errors.first_name && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-xs text-destructive">
                     {errors.first_name.message}
                   </p>
                 )}
@@ -136,7 +136,7 @@ export default function Register() {
                   })}
                 />
                 {errors.last_name && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-xs text-destructive">
                     {errors.last_name.message}
                   </p>
                 )}
@@ -157,7 +157,7 @@ export default function Register() {
                   })}
                 />
                 {errors.email && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-xs text-destructive">
                     {errors.email.message}
                   </p>
                 )}
@@ -190,7 +190,7 @@ export default function Register() {
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-xs text-destructive">
                     {errors.password.message}
                   </p>
                 )}
@@ -294,7 +294,7 @@ export default function Register() {
                   </button>
                 </div>
                 {errors.password2 && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-xs text-destructive">
                     {errors.password2.message}
                   </p>
                 )}

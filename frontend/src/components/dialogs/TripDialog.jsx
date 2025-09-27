@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -31,15 +32,13 @@ export default function TripDialog() {
   const [error, setError] = useState("");
 
   const onSubmit = async (data) => {
-    alert("Trip creation would be implemented here");
-
     try {
       data.budget = parseInt(data.budget) || 0;
       data.duration = calculateDuration(data.start_date, data.end_date);
       data.member_spots = parseInt(data.member_spots) || 1;
-      await postRequest("/trips/", data);
+      const response = await postRequest("/trips/", data);
 
-      navigate("/trips/my");
+      navigate(`/trips/${response.data.id}/manage`);
     } catch (error) {
       setError(
         error.status !== 500
@@ -85,7 +84,7 @@ export default function TripDialog() {
               })}
             />
             {errors.title && (
-              <p className="text-sm text-destructive">{errors.title.message}</p>
+              <p className="text-xs text-destructive">{errors.title.message}</p>
             )}
           </div>
           <div className="space-y-2">
@@ -101,7 +100,7 @@ export default function TripDialog() {
               })}
             />
             {errors.location?.name && (
-              <p className="text-sm text-destructive">
+              <p className="text-xs text-destructive">
                 {errors.location.name.message}
               </p>
             )}
@@ -116,7 +115,7 @@ export default function TripDialog() {
                 {...register("start_date", { required: validator.required })}
               />
               {errors.start_date && (
-                <p className="text-sm text-destructive">
+                <p className="text-xs text-destructive">
                   {errors.start_date.message}
                 </p>
               )}
@@ -130,7 +129,7 @@ export default function TripDialog() {
                 {...register("end_date", { required: validator.required })}
               />
               {errors.end_date && (
-                <p className="text-sm text-destructive">
+                <p className="text-xs text-destructive">
                   {errors.end_date.message}
                 </p>
               )}
@@ -148,7 +147,7 @@ export default function TripDialog() {
               })}
             />
             {errors.budget && (
-              <p className="text-sm text-destructive">
+              <p className="text-xs text-destructive">
                 {errors.budget.message}
               </p>
             )}
@@ -168,7 +167,7 @@ export default function TripDialog() {
               })}
             />
             {errors.member_spots && (
-              <p className="text-sm text-destructive">
+              <p className="text-xs text-destructive">
                 {errors.member_spots.message}
               </p>
             )}
@@ -186,7 +185,7 @@ export default function TripDialog() {
               })}
             />
             {errors.description && (
-              <p className="text-sm text-destructive">
+              <p className="text-xs text-destructive">
                 {errors.description.message}
               </p>
             )}

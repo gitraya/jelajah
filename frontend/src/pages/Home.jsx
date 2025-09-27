@@ -431,7 +431,7 @@ export default function Home() {
             const spotsLeft = trip.maxMembers - trip.members;
 
             return (
-              <Link key={trip.id} as={Card} to={`/trips/${trip.id}`}>
+              <Link key={trip.id} to={`/trips/${trip.id}`}>
                 <Card className="group hover:shadow-lg transition-shadow cursor-pointer">
                   <CardHeader>
                     <div className="flex items-start justify-between mb-2">
