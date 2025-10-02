@@ -32,7 +32,7 @@ class TripMemberSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = TripMember
-        fields = ['id', 'user', 'user_id', 'joined_at', 'status']
+        fields = ['id', 'user', 'user_id', 'joined_at', 'status', 'role']
         read_only_fields = ['id', 'joined_at']
 
 class TripSerializer(serializers.ModelSerializer):
