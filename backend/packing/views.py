@@ -1,27 +1,12 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, mixins
 from .models import PackingCategory, PackingItem
 from .serializers import PackingCategorySerializer, PackingItemSerializer
-from trips.models import Trip
-from django.db import models
+from .permissions import TripAccessPermission
 
-class PackingCategoryViewSet(viewsets.ModelViewSet):
+class PackingCategoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = PackingCategory.objects.all()
     serializer_class = PackingCategorySerializer
     permission_classes = [permissions.IsAuthenticated]
-
-class TripAccessPermission(permissions.BasePermission):
-    """Permission to only allow trip members or owners to access packing list"""
-    def has_permission(self, request, view):
-        trip_id = view.kwargs.get('trip_id')
-        if not trip_id:
-            return False
-        
-        user = request.user
-        return Trip.objects.filter(
-            id=trip_id
-        ).filter(
-            models.Q(owner=user) | models.Q(members=user)
-        ).exists()
 
 class PackingItemViewSet(viewsets.ModelViewSet):
     serializer_class = PackingItemSerializer

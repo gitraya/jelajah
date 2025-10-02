@@ -1,3 +1,5 @@
 from django.contrib import admin
+from .models import PackingCategory, PackingItem
 
-# Register your models here.
+admin.site.register(PackingCategory)
+admin.site.register(PackingItem)
