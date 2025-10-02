@@ -1,4 +1,4 @@
-import { CheckCircle, Circle, Package, Plus, Trash2 } from "lucide-react";
+import { CheckCircle, Circle, Package, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -11,16 +11,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import {
   Select,
@@ -29,9 +19,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { usePacking } from "@/hooks/usePacking";
 import { getPackingCategoryColor } from "@/lib/colors";
 
+import PackingDialog from "./dialogs/PackingDialog";
+
 export function PackingList() {
+  const { categories } = usePacking();
   const [items, setItems] = useState([
     {
       id: "1",
@@ -99,36 +93,28 @@ export function PackingList() {
     },
   ]);
 
-  const [isAddingItem, setIsAddingItem] = useState(false);
-  const [newItem, setNewItem] = useState({
-    name: "",
-    category: "",
-    quantity: "1",
-    assignedTo: "",
-  });
-
   const [selectedCategory, setSelectedCategory] = useState("All");
 
-  const categories = [
-    "All",
-    "Documents",
-    "Clothing",
-    "Toiletries",
-    "Electronics",
-    "Beach gear",
-    "Medical",
-    "Other",
-  ];
-  const assignedToOptions = [
-    "Personal",
-    "Shared",
-    "John",
-    "Sarah",
-    "Mike",
-    "Lisa",
-    "Tom",
-    "Anna",
-  ];
+  // const categories = [
+  //   "All",
+  //   "Documents",
+  //   "Clothing",
+  //   "Toiletries",
+  //   "Electronics",
+  //   "Beach gear",
+  //   "Medical",
+  //   "Other",
+  // ];
+  // const assignedToOptions = [
+  //   "Personal",
+  //   "Shared",
+  //   "John",
+  //   "Sarah",
+  //   "Mike",
+  //   "Lisa",
+  //   "Tom",
+  //   "Anna",
+  // ];
 
   const totalItems = items.length;
   const packedItems = items.filter((item) => item.packed).length;
@@ -148,32 +134,6 @@ export function PackingList() {
     );
   };
 
-  const addItem = () => {
-    if (
-      newItem.name &&
-      newItem.category &&
-      newItem.quantity &&
-      newItem.assignedTo
-    ) {
-      const item = {
-        id: Date.now().toString(),
-        name: newItem.name,
-        category: newItem.category,
-        quantity: parseInt(newItem.quantity),
-        packed: false,
-        assignedTo: newItem.assignedTo,
-      };
-      setItems([...items, item]);
-      setNewItem({
-        name: "",
-        category: "",
-        quantity: "1",
-        assignedTo: "",
-      });
-      setIsAddingItem(false);
-    }
-  };
-
   const deleteItem = (id) => {
     setItems(items.filter((item) => item.id !== id));
   };
@@ -181,7 +141,9 @@ export function PackingList() {
   const categoryStats = categories
     .slice(1)
     .map((category) => {
-      const categoryItems = items.filter((item) => item.category === category);
+      const categoryItems = items.filter(
+        (item) => item.category === category.name
+      );
       const packedCategoryItems = categoryItems.filter((item) => item.packed);
       return {
         category,
@@ -263,103 +225,13 @@ export function PackingList() {
               </SelectTrigger>
               <SelectContent>
                 {categories.map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category}
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <Dialog open={isAddingItem} onOpenChange={setIsAddingItem}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Item
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Add Packing Item</DialogTitle>
-                  <DialogDescription>
-                    Add a new item to your packing list
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="name">Item Name</Label>
-                    <Input
-                      id="name"
-                      value={newItem.name}
-                      onChange={(e) =>
-                        setNewItem({ ...newItem, name: e.target.value })
-                      }
-                      placeholder="Enter item name"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="category">Category</Label>
-                    <Select
-                      value={newItem.category}
-                      onValueChange={(value) =>
-                        setNewItem({ ...newItem, category: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.slice(1).map((category) => (
-                          <SelectItem key={category} value={category}>
-                            {category}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="quantity">Quantity</Label>
-                    <Input
-                      id="quantity"
-                      type="number"
-                      min="1"
-                      value={newItem.quantity}
-                      onChange={(e) =>
-                        setNewItem({ ...newItem, quantity: e.target.value })
-                      }
-                      placeholder="Enter quantity"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="assignedTo">Assigned to</Label>
-                    <Select
-                      value={newItem.assignedTo}
-                      onValueChange={(value) =>
-                        setNewItem({ ...newItem, assignedTo: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select who packs this" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {assignedToOptions.map((option) => (
-                          <SelectItem key={option} value={option}>
-                            {option}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex justify-end space-x-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => setIsAddingItem(false)}
-                    >
-                      Cancel
-                    </Button>
-                    <Button onClick={addItem}>Add Item</Button>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
+            <PackingDialog />
           </div>
         </CardHeader>
         <CardContent>
