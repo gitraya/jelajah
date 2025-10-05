@@ -1,11 +1,9 @@
 from django.contrib import admin
-from .models import Trip, TripMember, Location
+from django.apps import apps
 
-@admin.register(Trip)
-class TripAdmin(admin.ModelAdmin):
-    list_display = ('title', 'location', 'start_date', 'end_date', 'owner')
-    search_fields = ('title', 'location')
-    list_filter = ('start_date', 'is_public')
-
-admin.site.register(TripMember)
-admin.site.register(Location)
+models = apps.get_app_config('trips').get_models()
+for model in models:
+    try:
+        admin.site.register(model)
+    except admin.sites.AlreadyRegistered:
+        pass

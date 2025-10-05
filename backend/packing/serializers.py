@@ -1,5 +1,9 @@
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from .models import PackingCategory, PackingItem
+from trips.serializers import TripMemberSerializer
+
+User = get_user_model()
 
 class PackingCategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -7,12 +11,14 @@ class PackingCategorySerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 class PackingItemSerializer(serializers.ModelSerializer):
-    category_name = serializers.CharField(source='category.name', read_only=True)
-    assigned_to_email = serializers.CharField(source='assigned_to.email', read_only=True, allow_null=True)
-    assigned_to_first_name = serializers.CharField(source='assigned_to.first_name', read_only=True, allow_null=True)
+    assigned_to = TripMemberSerializer(read_only=True)
+    assigned_to_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), source='assigned_to', write_only=True, required=True)
+    category = PackingCategorySerializer(read_only=True)
+    category_id = serializers.PrimaryKeyRelatedField(queryset=PackingCategory.objects.all(), source='category', write_only=True, required=True)
+
     class Meta:
         model = PackingItem
-        fields = ['id', 'name', 'category', 'category_name', 'quantity', 'packed', 'assigned_to', 'assigned_to_first_name', 'assigned_to_email']
+        fields = ['id', 'name', 'category', 'quantity', 'packed', 'assigned_to', 'category_id', 'assigned_to_id']
         read_only_fields = ['trip']
     
     def create(self, validated_data):

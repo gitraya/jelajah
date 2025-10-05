@@ -1,5 +1,9 @@
 from django.contrib import admin
-from .models import PackingCategory, PackingItem
+from django.apps import apps
 
-admin.site.register(PackingCategory)
-admin.site.register(PackingItem)
+models = apps.get_app_config('packing').get_models()
+for model in models:
+    try:
+        admin.site.register(model)
+    except admin.sites.AlreadyRegistered:
+        pass
