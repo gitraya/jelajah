@@ -34,6 +34,7 @@ export default function PackingDialog() {
     handleSubmit,
     setValue,
     formState: { errors },
+    reset,
   } = useForm();
   const { categories, triggerUpdatePackingItems } = usePacking();
   const [error, setError] = useState("");
@@ -65,7 +66,10 @@ export default function PackingDialog() {
     );
 
   useEffect(() => {
-    if (open) fetchAssignedToOptions();
+    if (open) {
+      fetchAssignedToOptions();
+      reset();
+    }
   }, [open]);
 
   return (
