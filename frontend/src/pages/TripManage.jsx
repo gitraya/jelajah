@@ -8,7 +8,7 @@ import {
   Users,
 } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 
 import { ChecklistManager } from "@/components/ChecklistManager";
 import { ExpensesManager } from "@/components/ExpensesManager";
@@ -24,7 +24,10 @@ import { useAuth } from "@/hooks/useAuth";
 
 export default function TripManage() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState("overview");
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(
+    searchParams.get("tab") || "overview"
+  );
 
   // Mock trip data
   const tripData = {

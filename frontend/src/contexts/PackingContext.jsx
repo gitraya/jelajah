@@ -15,7 +15,7 @@ export const PackingProvider = ({ children }) => {
   const fetchCategories = async () => {
     try {
       const response = await getAPIData("/packing/categories/");
-      setCategories(response.data);
+      setCategories([{ id: "all", name: "All" }, ...response.data]);
     } catch (error) {
       console.error(
         "Failed to fetch packing categories:",

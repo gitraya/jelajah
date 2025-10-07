@@ -95,9 +95,10 @@ export const validator = {
   }),
 };
 
-export const getErrorMessage = (error) => {
+export const getErrorMessage = (error, defaultMessage) => {
+  let errorMessage = defaultMessage || "Something went wrong";
+
   try {
-    let errorMessage = "Something went wrong";
     if (error.response?.data?.detail) {
       errorMessage = error.response.data.detail;
       return errorMessage;
@@ -109,7 +110,7 @@ export const getErrorMessage = (error) => {
     }
     return errorMessage;
   } catch (error) {
-    return error.response?.data?.detail || "Something went wrong";
+    return error.response?.data?.detail || errorMessage;
   }
 };
 

@@ -1,5 +1,5 @@
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -22,12 +22,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { TRIP_MEMBER_ROLES } from "@/configs/trip";
 import { useApi } from "@/hooks/useApi";
 import { usePacking } from "@/hooks/usePacking";
-import { validator } from "@/lib/utils";
+import { getErrorMessage, validator } from "@/lib/utils";
 
 export default function PackingDialog() {
-  const { postRequest } = useApi();
+  const { postRequest, getRequest } = useApi();
   const {
     register,
     handleSubmit,
@@ -37,11 +38,10 @@ export default function PackingDialog() {
   const { categories, triggerUpdatePackingItems } = usePacking();
   const [error, setError] = useState("");
   const [open, setOpen] = useState(false);
+  const [assignedToOptions, setAssignedToOptions] = useState([]);
 
   const onSubmit = async (data) => {
     try {
-      data.assigned_to = "f6bef501-37bb-401f-ad78-ff5954c76741";
-
       await postRequest(
         "/trips/ec5813bd-2a95-4d2f-8f30-ac40c57bd1b0/packing/items/",
         data
@@ -51,27 +51,22 @@ export default function PackingDialog() {
       setOpen(false);
     } catch (error) {
       setError(
-        error.status !== 500
-          ? error?.response?.data?.[
-              Object.keys(error?.response?.data)?.[0]
-            ]?.[0]
-          : "An error occurred while creating the trip. Please try again later."
+        getErrorMessage(
+          error,
+          "An error occurred while creating the trip. Please try again later."
+        )
       );
     }
   };
 
-  const assignedToOptions = [
-    {
-      id: "a123e4567-e89b-12d3-a456-426614174000",
-      first_name: "Personal",
-      last_name: "",
-    },
-    {
-      id: "a123e4567-e89b-12d3-a456-426614174001",
-      first_name: "Shared",
-      last_name: "",
-    },
-  ];
+  const fetchAssignedToOptions = () =>
+    getRequest("/trips/ec5813bd-2a95-4d2f-8f30-ac40c57bd1b0/members/").then(
+      (response) => setAssignedToOptions(response.data)
+    );
+
+  useEffect(() => {
+    if (open) fetchAssignedToOptions();
+  }, [open]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -111,16 +106,17 @@ export default function PackingDialog() {
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="category">Category</Label>
+            <Label htmlFor="category_id">Category</Label>
             <Select
-              id="category"
-              aria-invalid={errors.category ? "true" : "false"}
+              id="category_id"
               onValueChange={(value) =>
-                setValue("category", value, { shouldValidate: true })
+                setValue("category_id", value, { shouldValidate: true })
               }
-              {...register("category", { required: validator.required })}
+              {...register("category_id", { required: validator.required })}
             >
-              <SelectTrigger>
+              <SelectTrigger
+                aria-invalid={errors.category_id ? "true" : "false"}
+              >
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent>
@@ -131,9 +127,9 @@ export default function PackingDialog() {
                 ))}
               </SelectContent>
             </Select>
-            {errors.category && (
+            {errors.category_id && (
               <p className="text-xs text-destructive">
-                {errors.category.message}
+                {errors.category_id.message}
               </p>
             )}
           </div>
@@ -157,29 +153,31 @@ export default function PackingDialog() {
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="assigned_to">Assigned to</Label>
+            <Label htmlFor="assigned_to_id">Assigned to</Label>
             <Select
-              id="assigned_to"
-              aria-invalid={errors.assigned_to ? "true" : "false"}
+              id="assigned_to_id"
               onValueChange={(value) =>
-                setValue("assigned_to", value, { shouldValidate: true })
+                setValue("assigned_to_id", value, { shouldValidate: true })
               }
-              {...register("assigned_to", { required: validator.required })}
+              {...register("assigned_to_id", { required: validator.required })}
             >
-              <SelectTrigger>
+              <SelectTrigger
+                aria-invalid={errors.assigned_to_id ? "true" : "false"}
+              >
                 <SelectValue placeholder="Select who packs this" />
               </SelectTrigger>
               <SelectContent>
                 {assignedToOptions.map((option) => (
                   <SelectItem key={option.id} value={option.id}>
-                    {option.first_name} {option.last_name}
+                    {option.user.first_name} {option.user.last_name} (
+                    {TRIP_MEMBER_ROLES[option.role]})
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            {errors.assigned_to && (
+            {errors.assigned_to_id && (
               <p className="text-xs text-destructive">
-                {errors.assigned_to.message}
+                {errors.assigned_to_id.message}
               </p>
             )}
           </div>

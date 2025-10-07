@@ -1,5 +1,5 @@
 import { CheckCircle, Circle, Package, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,92 +19,84 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useApi } from "@/hooks/useApi";
 import { usePacking } from "@/hooks/usePacking";
 import { getPackingCategoryColor } from "@/lib/colors";
 
 import PackingDialog from "./dialogs/PackingDialog";
 
 export function PackingList() {
-  const { categories } = usePacking();
+  const { categories, updatePackingItems } = usePacking();
+  const { getRequest } = useApi();
+  const [isLoading, setIsLoading] = useState(true);
   const [items, setItems] = useState([
     {
       id: "1",
       name: "Passport",
-      category: "Documents",
+      category_name: "Documents",
       quantity: 1,
       packed: true,
-      assignedTo: "Personal",
+      assigned_to_first_name: "Personal",
     },
     {
       id: "2",
       name: "Sunscreen SPF 50",
-      category: "Toiletries",
+      category_name: "Toiletries",
       quantity: 2,
       packed: true,
-      assignedTo: "Shared",
+      assigned_to_first_name: "Shared",
     },
     {
       id: "3",
       name: "Beach towels",
-      category: "Beach gear",
+      category_name: "Beach gear",
       quantity: 6,
       packed: false,
-      assignedTo: "Shared",
+      assigned_to_first_name: "Shared",
     },
     {
       id: "4",
       name: "Swimwear",
-      category: "Clothing",
+      category_name: "Clothing",
       quantity: 2,
       packed: false,
-      assignedTo: "Personal",
+      assigned_to_first_name: "Personal",
     },
     {
       id: "5",
       name: "Camera",
-      category: "Electronics",
+      category_name: "Electronics",
       quantity: 1,
       packed: true,
-      assignedTo: "John",
+      assigned_to_first_name: "John",
     },
     {
       id: "6",
       name: "First aid kit",
-      category: "Medical",
+      category_name: "Medical",
       quantity: 1,
       packed: false,
-      assignedTo: "Sarah",
+      assigned_to_first_name: "Sarah",
     },
     {
       id: "7",
       name: "Hiking shoes",
-      category: "Clothing",
+      category_name: "Clothing",
       quantity: 1,
       packed: false,
-      assignedTo: "Personal",
+      assigned_to_first_name: "Personal",
     },
     {
       id: "8",
       name: "Phone chargers",
-      category: "Electronics",
+      category_name: "Electronics",
       quantity: 6,
       packed: true,
-      assignedTo: "Personal",
+      assigned_to_first_name: "Personal",
     },
   ]);
 
-  const [selectedCategory, setSelectedCategory] = useState("All");
-
-  // const categories = [
-  //   "All",
-  //   "Documents",
-  //   "Clothing",
-  //   "Toiletries",
-  //   "Electronics",
-  //   "Beach gear",
-  //   "Medical",
-  //   "Other",
-  // ];
+  const [selectedCategory, setSelectedCategory] = useState("all");
   // const assignedToOptions = [
   //   "Personal",
   //   "Shared",
@@ -116,13 +108,22 @@ export function PackingList() {
   //   "Anna",
   // ];
 
+  useEffect(() => {
+    setIsLoading(true);
+    getRequest("/trips/ec5813bd-2a95-4d2f-8f30-ac40c57bd1b0/packing/items")
+      .then((response) => {
+        setItems(response.data);
+      })
+      .finally(() => setIsLoading(false));
+  }, [updatePackingItems]);
+
   const totalItems = items.length;
   const packedItems = items.filter((item) => item.packed).length;
   const packedPercentage =
     totalItems > 0 ? (packedItems / totalItems) * 100 : 0;
 
   const filteredItems =
-    selectedCategory === "All"
+    selectedCategory === "all"
       ? items
       : items.filter((item) => item.category === selectedCategory);
 
@@ -156,6 +157,10 @@ export function PackingList() {
       };
     })
     .filter((stat) => stat.total > 0);
+
+  if (isLoading) {
+    return <div className="space-y-6">Loading...</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -269,10 +274,14 @@ export function PackingList() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge className={getPackingCategoryColor(item.category)}>
-                    {item.category}
+                  <Badge
+                    className={getPackingCategoryColor(item.category.name)}
+                  >
+                    {item.category.name}
                   </Badge>
-                  <Badge variant="outline">{item.assignedTo}</Badge>
+                  <Badge variant="outline">
+                    {item.assigned_to.user.first_name || "Unassigned"}
+                  </Badge>
                   <Button
                     variant="ghost"
                     size="sm"
