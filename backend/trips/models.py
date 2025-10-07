@@ -31,6 +31,9 @@ class TripMember(BaseModel):
     joined_at = models.DateTimeField(auto_now_add=True)
     role = models.CharField(max_length=50, choices=MemberRole.choices, default=MemberRole.MEMBER)
     status = models.CharField(max_length=10, choices=MemberStatus.choices, default=MemberStatus.PENDING)
+    
+    def __str__(self):
+        return f"{self.user.email} - {self.trip.title} ({self.role})"
 
 class Location(BaseModel):
     name = models.CharField(max_length=255, unique=True)

@@ -8,7 +8,7 @@ import time
 
 from .models import Trip, TripStatus, MemberStatus, TripMember
 from rest_framework.permissions import IsAuthenticated
-from .serializers import TripSerializer
+from .serializers import TripSerializer, TripMemberSerializer
 from .permissions import IsTripAccessible
 from backend.services import send_templated_email
 
@@ -128,3 +128,16 @@ class TripViewSet(ModelViewSet):
         trip_member.save()
 
         return Response({"message": f"You have {response.lower()} the invitation."}, status=status.HTTP_200_OK)
+
+class TripMemberListView(generics.ListAPIView):
+    """
+    List members of a specific trip
+    """
+    serializer_class = TripMemberSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        trip_id = self.kwargs.get('trip_id')
+        trip = generics.get_object_or_404(Trip, id=trip_id)
+        self.check_object_permissions(self.request, trip)
+        return trip.trip_members.select_related('user').all()
