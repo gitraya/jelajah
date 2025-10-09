@@ -1,5 +1,6 @@
 import { CheckCircle, Circle, Package, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useParams } from "react-router";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,143 +21,87 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useApi } from "@/hooks/useApi";
+import { useAuth } from "@/hooks/useAuth";
 import { usePacking } from "@/hooks/usePacking";
 import { getPackingCategoryColor } from "@/lib/colors";
 
 import PackingDialog from "./dialogs/PackingDialog";
 
-export function PackingList() {
-  const { categories, updatePackingItems } = usePacking();
-  const { getRequest } = useApi();
-  const [isLoading, setIsLoading] = useState(true);
-  const [items, setItems] = useState([
-    {
-      id: "1",
-      name: "Passport",
-      category_name: "Documents",
-      quantity: 1,
-      packed: true,
-      assigned_to_first_name: "Personal",
-    },
-    {
-      id: "2",
-      name: "Sunscreen SPF 50",
-      category_name: "Toiletries",
-      quantity: 2,
-      packed: true,
-      assigned_to_first_name: "Shared",
-    },
-    {
-      id: "3",
-      name: "Beach towels",
-      category_name: "Beach gear",
-      quantity: 6,
-      packed: false,
-      assigned_to_first_name: "Shared",
-    },
-    {
-      id: "4",
-      name: "Swimwear",
-      category_name: "Clothing",
-      quantity: 2,
-      packed: false,
-      assigned_to_first_name: "Personal",
-    },
-    {
-      id: "5",
-      name: "Camera",
-      category_name: "Electronics",
-      quantity: 1,
-      packed: true,
-      assigned_to_first_name: "John",
-    },
-    {
-      id: "6",
-      name: "First aid kit",
-      category_name: "Medical",
-      quantity: 1,
-      packed: false,
-      assigned_to_first_name: "Sarah",
-    },
-    {
-      id: "7",
-      name: "Hiking shoes",
-      category_name: "Clothing",
-      quantity: 1,
-      packed: false,
-      assigned_to_first_name: "Personal",
-    },
-    {
-      id: "8",
-      name: "Phone chargers",
-      category_name: "Electronics",
-      quantity: 6,
-      packed: true,
-      assigned_to_first_name: "Personal",
-    },
-  ]);
+const getAssignedName = (assigned_to, user) => {
+  if (assigned_to?.user?.id === user?.id) {
+    return "Personal";
+  }
 
+  return assigned_to?.user?.first_name || "Shared";
+};
+
+export function PackingList() {
+  const { id: tripId } = useParams();
+  const { categories, updatePackingItems } = usePacking();
+  const { getRequest, patchRequest, deleteRequest } = useApi();
+  const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
+  const [items, setItems] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
-  // const assignedToOptions = [
-  //   "Personal",
-  //   "Shared",
-  //   "John",
-  //   "Sarah",
-  //   "Mike",
-  //   "Lisa",
-  //   "Tom",
-  //   "Anna",
-  // ];
+  const [
+    { total_items, packed_items, categories: categoryStats },
+    setStatistics,
+  ] = useState({});
 
   useEffect(() => {
     setIsLoading(true);
-    getRequest("/trips/ec5813bd-2a95-4d2f-8f30-ac40c57bd1b0/packing/items")
-      .then((response) => {
-        setItems(response.data);
-      })
+    getRequest(
+      `/trips/${tripId}/packing/items${
+        selectedCategory !== "all" ? `?category_id=${selectedCategory}` : ""
+      }`
+    )
+      .then((response) => setItems(response.data))
       .finally(() => setIsLoading(false));
+  }, [updatePackingItems, selectedCategory]);
+
+  useEffect(() => {
+    getRequest(`/trips/${tripId}/packing/statistics/`).then((response) =>
+      setStatistics(response.data)
+    );
   }, [updatePackingItems]);
 
-  const totalItems = items.length;
-  const packedItems = items.filter((item) => item.packed).length;
   const packedPercentage =
-    totalItems > 0 ? (packedItems / totalItems) * 100 : 0;
-
-  const filteredItems =
-    selectedCategory === "all"
-      ? items
-      : items.filter((item) => item.category === selectedCategory);
+    total_items > 0 ? (packed_items / total_items) * 100 : 0;
 
   const togglePacked = (id) => {
+    const packed = !items.find((item) => item.id === id).packed;
     setItems(
-      items.map((item) =>
-        item.id === id ? { ...item, packed: !item.packed } : item
-      )
+      items.map((item) => (item.id === id ? { ...item, packed } : item))
     );
+    setStatistics((prev) => ({
+      ...prev,
+      packed_items: packed ? prev.packed_items + 1 : prev.packed_items - 1,
+      categories: prev.categories.map((cat) => {
+        if (
+          cat.category?.id === items.find((item) => item.id === id).category.id
+        ) {
+          return {
+            ...cat,
+            packed: packed ? cat.packed + 1 : cat.packed - 1,
+          };
+        }
+        return cat;
+      }),
+    }));
+    patchRequest(`/trips/${tripId}/packing/items/${id}/`, { packed });
   };
 
   const deleteItem = (id) => {
     setItems(items.filter((item) => item.id !== id));
+    setStatistics((prev) => ({
+      ...prev,
+      total_items: prev.total_items - 1,
+      packed_items: items.find((item) => item.id === id).packed
+        ? prev.packed_items - 1
+        : prev.packed_items,
+    }));
+    deleteRequest(`/trips/${tripId}/packing/items/${id}/`);
   };
-
-  const categoryStats = categories
-    .slice(1)
-    .map((category) => {
-      const categoryItems = items.filter(
-        (item) => item.category === category.name
-      );
-      const packedCategoryItems = categoryItems.filter((item) => item.packed);
-      return {
-        category,
-        total: categoryItems.length,
-        packed: packedCategoryItems.length,
-        percentage:
-          categoryItems.length > 0
-            ? (packedCategoryItems.length / categoryItems.length) * 100
-            : 0,
-      };
-    })
-    .filter((stat) => stat.total > 0);
 
   if (isLoading) {
     return <div className="space-y-6">Loading...</div>;
@@ -172,7 +117,7 @@ export function PackingList() {
             Packing Progress
           </CardTitle>
           <CardDescription>
-            {packedItems} of {totalItems} items packed
+            {packed_items} of {total_items} items packed
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -194,17 +139,20 @@ export function PackingList() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {categoryStats.map((stat) => (
-              <div key={stat.category} className="space-y-2">
+              <div key={stat.category?.name} className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm">{stat.category}</span>
+                  <span className="text-sm">{stat.category?.name}</span>
                   <Badge
                     variant="outline"
-                    className={getPackingCategoryColor(stat.category)}
+                    className={getPackingCategoryColor(stat.category?.name)}
                   >
                     {stat.packed}/{stat.total}
                   </Badge>
                 </div>
-                <Progress value={stat.percentage} className="w-full h-2" />
+                <Progress
+                  value={(stat.packed / stat.total) * 100 || 0}
+                  className="w-full h-2"
+                />
               </div>
             ))}
           </div>
@@ -241,7 +189,7 @@ export function PackingList() {
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            {filteredItems.map((item) => (
+            {items.map((item) => (
               <div
                 key={item.id}
                 className={`flex items-center justify-between p-3 border rounded-lg transition-colors ${
@@ -280,7 +228,7 @@ export function PackingList() {
                     {item.category.name}
                   </Badge>
                   <Badge variant="outline">
-                    {item.assigned_to.user.first_name || "Unassigned"}
+                    {getAssignedName(item.assigned_to, user)}
                   </Badge>
                   <Button
                     variant="ghost"

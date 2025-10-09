@@ -1,6 +1,7 @@
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useParams } from "react-router";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -24,8 +25,23 @@ import {
 } from "@/components/ui/select";
 import { TRIP_MEMBER_ROLES } from "@/configs/trip";
 import { useApi } from "@/hooks/useApi";
+import { useAuth } from "@/hooks/useAuth";
 import { usePacking } from "@/hooks/usePacking";
 import { getErrorMessage, validator } from "@/lib/utils";
+
+const getAssignedLabel = (assigned_to, user) => {
+  if (!assigned_to?.user) {
+    return "Shared";
+  }
+
+  if (assigned_to?.user?.id === user?.id) {
+    return `Personal (${TRIP_MEMBER_ROLES[assigned_to.role]})`;
+  }
+
+  return `${assigned_to.user.first_name} ${assigned_to.user.last_name} (${
+    TRIP_MEMBER_ROLES[assigned_to.role]
+  })`;
+};
 
 export default function PackingDialog() {
   const { postRequest, getRequest } = useApi();
@@ -36,33 +52,40 @@ export default function PackingDialog() {
     formState: { errors },
     reset,
   } = useForm();
+  const { id: tripId } = useParams();
+  const { user } = useAuth();
   const { categories, triggerUpdatePackingItems } = usePacking();
   const [error, setError] = useState("");
   const [open, setOpen] = useState(false);
   const [assignedToOptions, setAssignedToOptions] = useState([]);
 
-  const onSubmit = async (data) => {
-    try {
-      await postRequest(
-        "/trips/ec5813bd-2a95-4d2f-8f30-ac40c57bd1b0/packing/items/",
-        data
-      );
+  const onSubmit = (data) => {
+    if (data.assigned_to_id === "shared") {
+      data.assigned_to_id = null;
+    }
 
-      triggerUpdatePackingItems();
-      setOpen(false);
-    } catch (error) {
-      setError(
-        getErrorMessage(
-          error,
-          "An error occurred while creating the trip. Please try again later."
+    postRequest(`/trips/${tripId}/packing/items/`, data)
+      .then(() => {
+        triggerUpdatePackingItems();
+        setOpen(false);
+      })
+      .catch((error) =>
+        setError(
+          getErrorMessage(
+            error,
+            "An error occurred while creating the trip. Please try again later."
+          )
         )
       );
-    }
   };
 
   const fetchAssignedToOptions = () =>
-    getRequest("/trips/ec5813bd-2a95-4d2f-8f30-ac40c57bd1b0/members/").then(
-      (response) => setAssignedToOptions(response.data)
+    getRequest(`/trips/${tripId}/members/`).then((response) =>
+      setAssignedToOptions([
+        // Add "Shared" option
+        { id: "shared" },
+        ...response.data,
+      ])
     );
 
   useEffect(() => {
@@ -173,8 +196,7 @@ export default function PackingDialog() {
               <SelectContent>
                 {assignedToOptions.map((option) => (
                   <SelectItem key={option.id} value={option.id}>
-                    {option.user.first_name} {option.user.last_name} (
-                    {TRIP_MEMBER_ROLES[option.role]})
+                    {getAssignedLabel(option, user)}
                   </SelectItem>
                 ))}
               </SelectContent>
