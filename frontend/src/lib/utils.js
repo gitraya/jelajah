@@ -53,6 +53,30 @@ export async function putAPIData(endpoint, data, config) {
   }
 }
 
+export async function patchAPIData(endpoint, data, config) {
+  try {
+    const response = await axios.patch(endpoint, data, config);
+    return response;
+  } catch (error) {
+    if (IS_DEVELOPMENT) {
+      console.error("Error patching data to API:", error);
+    }
+    throw error;
+  }
+}
+
+export async function deleteAPIData(endpoint, config) {
+  try {
+    const response = await axios.delete(endpoint, config);
+    return response;
+  } catch (error) {
+    if (IS_DEVELOPMENT) {
+      console.error("Error deleting data from API:", error);
+    }
+    throw error;
+  }
+}
+
 export const validator = {
   required: { value: true, message: "Required field" },
   isRequired: (value) => ({ value: value, message: "Required field" }),
