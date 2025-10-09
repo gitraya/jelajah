@@ -13,7 +13,7 @@ class PackingCategorySerializer(serializers.ModelSerializer):
 
 class PackingItemSerializer(serializers.ModelSerializer):
     assigned_to = TripMemberSerializer(read_only=True)
-    assigned_to_id = serializers.PrimaryKeyRelatedField(queryset=TripMember.objects.all(), source='assigned_to', write_only=True, required=True)
+    assigned_to_id = serializers.PrimaryKeyRelatedField(queryset=TripMember.objects.all(), source='assigned_to', write_only=True, required=False, allow_null=True)
     category = PackingCategorySerializer(read_only=True)
     category_id = serializers.PrimaryKeyRelatedField(queryset=PackingCategory.objects.all(), source='category', write_only=True, required=True)
 
@@ -23,6 +23,9 @@ class PackingItemSerializer(serializers.ModelSerializer):
         read_only_fields = ['trip']
     
     def validate_assigned_to_id(self, value):
+        if not value:
+            return value
+
         trip_id = self.context['trip_id']
         if not TripMember.objects.filter(id=value.id, trip_id=trip_id).exists():
             raise serializers.ValidationError("Assigned member does not belong to this trip.")

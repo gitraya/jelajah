@@ -12,6 +12,7 @@ class PackingCategory(BaseModel):
     class Meta:
         verbose_name_plural = "Packing Categories"
 
+
 class PackingItem(BaseModel):
     """Individual items to pack for a trip"""
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name='packing_items')
@@ -23,3 +24,6 @@ class PackingItem(BaseModel):
     
     def __str__(self):
         return self.name
+    
+    class Meta:
+        ordering = ['-created_at']
