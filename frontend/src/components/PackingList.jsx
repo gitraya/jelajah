@@ -137,25 +137,31 @@ export function PackingList() {
           <CardTitle>Progress by Category</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {categoryStats.map((stat) => (
-              <div key={stat.category?.name} className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">{stat.category?.name}</span>
-                  <Badge
-                    variant="outline"
-                    className={getPackingCategoryColor(stat.category?.name)}
-                  >
-                    {stat.packed}/{stat.total}
-                  </Badge>
+          {categoryStats?.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {categoryStats.map((stat) => (
+                <div key={stat.category?.name} className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">{stat.category?.name}</span>
+                    <Badge
+                      variant="outline"
+                      className={getPackingCategoryColor(stat.category?.name)}
+                    >
+                      {stat.packed}/{stat.total}
+                    </Badge>
+                  </div>
+                  <Progress
+                    value={(stat.packed / stat.total) * 100 || 0}
+                    className="w-full h-2"
+                  />
                 </div>
-                <Progress
-                  value={(stat.packed / stat.total) * 100 || 0}
-                  className="w-full h-2"
-                />
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-sm text-muted-foreground">
+              No category statistics available
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -188,60 +194,70 @@ export function PackingList() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2">
-            {items.map((item) => (
-              <div
-                key={item.id}
-                className={`flex items-center justify-between p-3 border rounded-lg transition-colors ${
-                  item.packed ? "bg-muted/50" : ""
-                }`}
-              >
-                <div className="flex items-center space-x-3">
-                  <Checkbox
-                    checked={item.packed}
-                    onCheckedChange={() => togglePacked(item.id)}
-                  />
+          {items?.length > 0 ? (
+            <div className="space-y-2">
+              {items.map((item) => (
+                <div
+                  key={item.id}
+                  className={`flex items-center justify-between p-3 border rounded-lg transition-colors ${
+                    item.packed ? "bg-muted/50" : ""
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      checked={item.packed}
+                      onCheckedChange={() => togglePacked(item.id)}
+                    />
+                    <div className="flex items-center gap-2">
+                      {item.packed ? (
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                      ) : (
+                        <Circle className="w-4 h-4 text-muted-foreground" />
+                      )}
+                      <span
+                        className={`${
+                          item.packed
+                            ? "line-through text-muted-foreground"
+                            : ""
+                        }`}
+                      >
+                        {item.name}
+                      </span>
+                      {item.quantity > 1 && (
+                        <Badge variant="outline" className="text-xs">
+                          {item.quantity}x
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
                   <div className="flex items-center gap-2">
-                    {item.packed ? (
-                      <CheckCircle className="w-4 h-4 text-green-600" />
-                    ) : (
-                      <Circle className="w-4 h-4 text-muted-foreground" />
-                    )}
-                    <span
-                      className={`${
-                        item.packed ? "line-through text-muted-foreground" : ""
-                      }`}
+                    <Badge
+                      className={getPackingCategoryColor(item.category.name)}
                     >
-                      {item.name}
-                    </span>
-                    {item.quantity > 1 && (
-                      <Badge variant="outline" className="text-xs">
-                        {item.quantity}x
-                      </Badge>
-                    )}
+                      {item.category.name}
+                    </Badge>
+                    <Badge variant="outline">
+                      {getAssignedName(item.assigned_to, user)}
+                    </Badge>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => deleteItem(item.id)}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Badge
-                    className={getPackingCategoryColor(item.category.name)}
-                  >
-                    {item.category.name}
-                  </Badge>
-                  <Badge variant="outline">
-                    {getAssignedName(item.assigned_to, user)}
-                  </Badge>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => deleteItem(item.id)}
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-sm text-muted-foreground">
+              {selectedCategory === "all"
+                ? "No items in the packing list. Start by adding some!"
+                : "No items in this category. Try selecting a different category or add new items."}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
