@@ -6,11 +6,13 @@ from rest_framework.response import Response
 from django.db.models import Count, Case, When
 
 class PackingCategoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    """Packing categories."""
     queryset = PackingCategory.objects.all()
     serializer_class = PackingCategorySerializer
     permission_classes = [permissions.IsAuthenticated]
 
 class PackingItemViewSet(viewsets.ModelViewSet):
+    """Packing items for a specific trip."""
     serializer_class = PackingItemSerializer
     permission_classes = [permissions.IsAuthenticated, TripAccessPermission]
     
@@ -28,6 +30,7 @@ class PackingItemViewSet(viewsets.ModelViewSet):
         return context
 
 class PackingItemStatisticsViewSet(viewsets.ViewSet):
+    """Statistics for packing items in a trip."""
     permission_classes = [permissions.IsAuthenticated, TripAccessPermission]
 
     def list(self, request, trip_id=None):
