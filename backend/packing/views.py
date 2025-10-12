@@ -1,11 +1,11 @@
 from rest_framework import viewsets, permissions, mixins
 from .models import PackingCategory, PackingItem
 from .serializers import PackingCategorySerializer, PackingItemSerializer
-from .permissions import TripAccessPermission
+from backend.permissions import TripAccessPermission
 from rest_framework.response import Response
 from django.db.models import Count, Case, When
 
-class PackingCategoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+class PackingCategoryViewSet(viewsets.ReadOnlyModelViewSet):
     """Packing categories."""
     queryset = PackingCategory.objects.all()
     serializer_class = PackingCategorySerializer

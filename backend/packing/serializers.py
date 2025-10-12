@@ -20,7 +20,6 @@ class PackingItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = PackingItem
         fields = ['id', 'name', 'category', 'quantity', 'packed', 'assigned_to', 'category_id', 'assigned_to_id']
-        read_only_fields = ['trip']
     
     def validate_assigned_to_id(self, value):
         if not value:
