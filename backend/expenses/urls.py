@@ -1,15 +1,22 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import ExpenseViewSet, ExpenseSplitViewSet
+from .views import ExpenseViewSet, ExpenseSplitViewSet, ExpenseCategoryViewSet, ExpenseStatisticsViewSet
 
-# Nested routers for trip -> expenses -> splits
-expenses_router = DefaultRouter()
-expenses_router.register(r'expenses', ExpenseViewSet, basename='expense')
+# Main router for category endpoints
+router = DefaultRouter()
+router.register(r'expenses/categories', ExpenseCategoryViewSet, basename='expense-category')
 
+# Trip-specific expense statistics router
+trip_router = DefaultRouter()
+trip_router.register(r'expenses', ExpenseViewSet, basename='expense-item')
+trip_router.register(r'statistics', ExpenseStatisticsViewSet, basename='expense-statistics')
+
+# Expense-specific splits router
 splits_router = DefaultRouter()
 splits_router.register(r'splits', ExpenseSplitViewSet, basename='expense-split')
 
 urlpatterns = [
-    path('trips/<int:trip_id>/', include(expenses_router.urls)),
-    path('expenses/<int:expense_id>/', include(splits_router.urls)),
+    path('', include(router.urls)),
+    path('trips/<uuid:trip_id>/', include(trip_router.urls)),
+    path('expenses/<uuid:expense_id>/', include(splits_router.urls)),
 ]

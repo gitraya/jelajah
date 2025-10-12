@@ -1,53 +1,62 @@
 from rest_framework import serializers
-from .models import Expense, ExpenseSplit
+from .models import Expense, ExpenseSplit, ExpenseCategory
 from django.db import transaction
 from django.contrib.auth import get_user_model
+from trips.models import TripMember
 
 User = get_user_model()
 
+class ExpenseCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExpenseCategory
+        fields = ['id', 'name']
+
 class ExpenseSplitSerializer(serializers.ModelSerializer):
-    email = serializers.CharField(source='user.email', read_only=True)
-    
     class Meta:
         model = ExpenseSplit
-        fields = ['id', 'user', 'email', 'amount', 'paid']
+        fields = ['id', 'member', 'amount', 'paid']
         read_only_fields = ['expense']
-
-class ExpenseSerializer(serializers.ModelSerializer):
-    paid_by_email = serializers.CharField(source='paid_by.email', read_only=True)
-    splits = ExpenseSplitSerializer(many=True, read_only=True)
-    
-    class Meta:
-        model = Expense
-        fields = ['id', 'trip', 'title', 'amount', 'date', 'paid_by', 'paid_by_email', 'notes', 'splits']
-        read_only_fields = ['trip']
+        
+    def validate_member(self, value):
+        expense_id = self.context['expense_id']
+        if expense_id:
+            expense = Expense.objects.get(id=expense_id)
+            trip_id = expense.trip_id
+            if not TripMember.objects.filter(id=value.id, trip_id=trip_id).exists():
+                raise serializers.ValidationError("Member does not belong to the trip associated with this expense.")
+        return value
     
     def create(self, validated_data):
-        trip_id = self.context['trip_id']
-        validated_data['trip_id'] = trip_id
+        expense_id = self.context['expense_id']
+        validated_data['expense_id'] = expense_id
         return super().create(validated_data)
 
-class ExpenseDetailSerializer(serializers.ModelSerializer):
-    paid_by_email = serializers.CharField(source='paid_by.email', read_only=True)
+class ExpenseSerializer(serializers.ModelSerializer):
     splits = ExpenseSplitSerializer(many=True)
     
     class Meta:
         model = Expense
-        fields = ['id', 'trip', 'title', 'amount', 'date', 'paid_by', 'paid_by_email', 'notes', 'splits']
-        read_only_fields = ['trip']
+        fields = ['id', 'title', 'amount', 'date', 'paid_by', 'notes', 'splits']
+    
+    def validate_paid_by(self, value):
+        trip_id = self.context['trip_id']
+        if not TripMember.objects.filter(id=value.id, trip_id=trip_id).exists():
+            raise serializers.ValidationError("Assigned member does not belong to this trip.")
+        return value
     
     @transaction.atomic
     def create(self, validated_data):
         trip_id = self.context['trip_id']
+        validated_data['trip_id'] = trip_id
         splits_data = validated_data.pop('splits', [])
         
-        expense = Expense.objects.create(trip_id=trip_id, **validated_data)
-        
+        expense = super().create(validated_data)
+
         for split_data in splits_data:
             ExpenseSplit.objects.create(expense=expense, **split_data)
-        
+
         return expense
-    
+
     @transaction.atomic
     def update(self, instance, validated_data):
         splits_data = validated_data.pop('splits', [])
