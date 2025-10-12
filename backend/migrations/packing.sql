@@ -1,5 +1,5 @@
 -- Insert default packing categories
-insert into packingcategory (name) values
+insert into packing_packingcategory (name) values
 ('Documents'),
 ('Clothing'),
 ('Toiletries'),
