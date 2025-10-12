@@ -31,7 +31,7 @@ class Expense(BaseModel):
 class ExpenseSplit(BaseModel):
     """How an expense is split between trip members"""
     expense = models.ForeignKey(Expense, on_delete=models.CASCADE, related_name='splits')
-    member = models.ForeignKey(TripMember, on_delete=models.CASCADE, related_name='expense_shares')
+    member = models.ForeignKey(TripMember, on_delete=models.CASCADE, related_name='expense_shares', null=True)
     amount = models.DecimalField(max_digits=14, decimal_places=2)
     paid = models.BooleanField(default=False)
     
