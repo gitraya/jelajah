@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Expense, ExpenseSplit, ExpenseCategory
 from django.db import transaction
 from django.contrib.auth import get_user_model
+from trips.serializers import TripMemberSerializer
 from trips.models import TripMember
 
 User = get_user_model()
@@ -33,10 +34,14 @@ class ExpenseSplitSerializer(serializers.ModelSerializer):
 
 class ExpenseSerializer(serializers.ModelSerializer):
     splits = ExpenseSplitSerializer(many=True)
+    paid_by = TripMemberSerializer(read_only=True)
+    paid_by_id = serializers.PrimaryKeyRelatedField(queryset=TripMember.objects.all(), source='paid_by', write_only=True, required=False, allow_null=True)
+    category = ExpenseCategorySerializer(read_only=True)
+    category_id = serializers.PrimaryKeyRelatedField(queryset=ExpenseCategory.objects.all(), source='category', write_only=True, required=True)
     
     class Meta:
         model = Expense
-        fields = ['id', 'title', 'amount', 'date', 'paid_by', 'notes', 'splits']
+        fields = ['id', 'title', 'amount', 'date', 'paid_by', 'notes', 'splits', 'category', 'category_id', 'paid_by_id']
     
     def validate_paid_by(self, value):
         trip_id = self.context['trip_id']

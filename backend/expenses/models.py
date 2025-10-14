@@ -21,6 +21,7 @@ class Expense(BaseModel):
     date = models.DateField()
     paid_by = models.ForeignKey(TripMember, on_delete=models.CASCADE, related_name='expenses_paid')
     notes = models.TextField(blank=True)
+    category = models.ForeignKey(ExpenseCategory, on_delete=models.SET_NULL, null=True)
     
     def __str__(self):
         return f"{self.title} (${self.amount})"

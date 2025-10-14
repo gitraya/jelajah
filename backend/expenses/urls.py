@@ -8,7 +8,7 @@ router.register(r'expenses/categories', ExpenseCategoryViewSet, basename='expens
 
 # Trip-specific expense statistics router
 trip_router = DefaultRouter()
-trip_router.register(r'expenses', ExpenseViewSet, basename='expense-item')
+trip_router.register(r'items', ExpenseViewSet, basename='expense-item')
 trip_router.register(r'statistics', ExpenseStatisticsViewSet, basename='expense-statistics')
 
 # Expense-specific splits router
@@ -17,6 +17,6 @@ splits_router.register(r'splits', ExpenseSplitViewSet, basename='expense-split')
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('trips/<uuid:trip_id>/', include(trip_router.urls)),
+    path('trips/<uuid:trip_id>/expenses/', include(trip_router.urls)),
     path('expenses/<uuid:expense_id>/', include(splits_router.urls)),
 ]

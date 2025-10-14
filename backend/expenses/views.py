@@ -49,7 +49,7 @@ class ExpenseStatisticsViewSet(viewsets.ViewSet):
         # list of categories with counts of expenses and total amounts
         category_stats = Expense.objects.filter(trip_id=trip_id).values('category__name', 'category__id').annotate(
             count=models.Count('id'),
-            total=models.Sum('amount')
+            amount=models.Sum('amount')
         )
         
         # Transform the values to have nested category object
@@ -60,14 +60,13 @@ class ExpenseStatisticsViewSet(viewsets.ViewSet):
                 'name': item['category__name']
             },
             'count': item['count'],
-            'total': item['total'] or 0
+            'amount': item['amount'] or 0
             }
             for item in category_stats
         ]
         
 
         return Response({
-     
             "total_budget": total_budget,
             "total_spent": total_spent,
             "remaining_budget": remaining_budget,
