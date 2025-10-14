@@ -23,28 +23,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { TRIP_MEMBER_ROLES } from "@/configs/trip";
 import { useApi } from "@/hooks/useApi";
 import { useAuth } from "@/hooks/useAuth";
-import { usePacking } from "@/hooks/usePacking";
+import { useExpenses } from "@/hooks/useExpenses";
 import { useTrips } from "@/hooks/useTrips";
 import { getErrorMessage, validator } from "@/lib/utils";
 
-const getAssignedLabel = (assigned_to, user) => {
-  if (!assigned_to?.user) {
-    return "Shared";
-  }
-
-  if (assigned_to?.user?.id === user?.id) {
-    return `Personal (${TRIP_MEMBER_ROLES[assigned_to.role]})`;
-  }
-
-  return `${assigned_to.user.first_name} ${assigned_to.user.last_name} (${
-    TRIP_MEMBER_ROLES[assigned_to.role]
-  })`;
+const getPaidByLabel = (paid_by) => {
+  return `${paid_by.user.first_name} ${paid_by.user.last_name}`;
 };
 
-export default function PackingDialog() {
+export default function ExpenseDialog() {
   const { postRequest } = useApi();
   const {
     register,
@@ -56,25 +45,21 @@ export default function PackingDialog() {
   const { id: tripId } = useParams();
   const { user } = useAuth();
   const { members } = useTrips();
-  const { categories, triggerUpdatePackingItems } = usePacking();
+  const { categories, triggerUpdateExpenses } = useExpenses();
   const [error, setError] = useState("");
   const [open, setOpen] = useState(false);
 
   const onSubmit = (data) => {
-    if (data.assigned_to_id === "shared") {
-      data.assigned_to_id = null;
-    }
-
-    postRequest(`/trips/${tripId}/packing/items/`, data)
+    postRequest(`/trips/${tripId}/expenses/items/`, data)
       .then(() => {
-        triggerUpdatePackingItems();
+        triggerUpdateExpenses();
         setOpen(false);
       })
       .catch((error) =>
         setError(
           getErrorMessage(
             error,
-            "An error occurred while creating the packing item. Please try again later."
+            "An error occurred while creating the expense. Please try again later."
           )
         )
       );
@@ -86,21 +71,19 @@ export default function PackingDialog() {
     }
   }, [open]);
 
-  const assignedToOptions = [{ id: "shared" }, ...members];
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
           <Plus className="w-4 h-4 mr-2" />
-          Add Item
+          Add Expense
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add Packing Item</DialogTitle>
+          <DialogTitle>Add New Expense</DialogTitle>
           <DialogDescription>
-            Add a new item to your packing list
+            Record a new expense for the trip
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -109,22 +92,6 @@ export default function PackingDialog() {
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-          <div className="space-y-2">
-            <Label htmlFor="name">Item Name</Label>
-            <Input
-              id="name"
-              placeholder="Enter item name"
-              aria-invalid={errors.name ? "true" : "false"}
-              {...register("name", {
-                required: validator.required,
-                minLength: validator.minLength(2),
-                maxLength: validator.maxLength(100),
-              })}
-            />
-            {errors.name && (
-              <p className="text-xs text-destructive">{errors.name.message}</p>
-            )}
-          </div>
           <div className="space-y-2">
             <Label htmlFor="category_id">Category</Label>
             <Select
@@ -154,49 +121,64 @@ export default function PackingDialog() {
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="quantity">Quantity</Label>
+            <Label htmlFor="title">Description</Label>
             <Input
-              id="quantity"
-              type="number"
-              min="1"
-              placeholder="Enter quantity"
-              aria-invalid={errors.quantity ? "true" : "false"}
-              {...register("quantity", {
+              id="title"
+              placeholder="Enter expense description"
+              aria-invalid={errors.title ? "true" : "false"}
+              {...register("title", {
                 required: validator.required,
-                min: { value: 1, message: "Quantity must be at least 1" },
+                minLength: validator.minLength(2),
+                maxLength: validator.maxLength(100),
               })}
             />
-            {errors.quantity && (
+            {errors.title && (
+              <p className="text-xs text-destructive">{errors.title.message}</p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="amount">Amount (IDR)</Label>
+            <Input
+              id="amount"
+              type="number"
+              placeholder="Enter amount"
+              aria-invalid={errors.amount ? "true" : "false"}
+              {...register("amount", {
+                required: validator.required,
+                min: { value: 10000, message: "Amount must be at least 10000" },
+              })}
+            />
+            {errors.amount && (
               <p className="text-xs text-destructive">
-                {errors.quantity.message}
+                {errors.amount.message}
               </p>
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="assigned_to_id">Assigned to</Label>
+            <Label htmlFor="paid_by_id">Paid by</Label>
             <Select
-              id="assigned_to_id"
+              id="paid_by_id"
               onValueChange={(value) =>
-                setValue("assigned_to_id", value, { shouldValidate: true })
+                setValue("paid_by_id", value, { shouldValidate: true })
               }
-              {...register("assigned_to_id", { required: validator.required })}
+              {...register("paid_by_id", { required: validator.required })}
             >
               <SelectTrigger
-                aria-invalid={errors.assigned_to_id ? "true" : "false"}
+                aria-invalid={errors.paid_by_id ? "true" : "false"}
               >
-                <SelectValue placeholder="Select who packs this" />
+                <SelectValue placeholder="Select who paid this" />
               </SelectTrigger>
               <SelectContent>
-                {assignedToOptions.map((option) => (
+                {members.map((option) => (
                   <SelectItem key={option.id} value={option.id}>
-                    {getAssignedLabel(option, user)}
+                    {getPaidByLabel(option, user)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            {errors.assigned_to_id && (
+            {errors.paid_by_id && (
               <p className="text-xs text-destructive">
-                {errors.assigned_to_id.message}
+                {errors.paid_by_id.message}
               </p>
             )}
           </div>
@@ -206,7 +188,7 @@ export default function PackingDialog() {
                 Cancel
               </Button>
             </DialogClose>
-            <Button type="submit">Add Item</Button>
+            <Button type="submit">Add Expense</Button>
           </div>
         </form>
       </DialogContent>
