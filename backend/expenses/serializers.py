@@ -39,6 +39,7 @@ class ExpenseSerializer(serializers.ModelSerializer):
     paid_by_id = serializers.PrimaryKeyRelatedField(queryset=TripMember.objects.all(), source='paid_by', write_only=True, required=False, allow_null=True)
     category = ExpenseCategorySerializer(read_only=True)
     category_id = serializers.PrimaryKeyRelatedField(queryset=ExpenseCategory.objects.all(), source='category', write_only=True, required=True)
+    amount = serializers.DecimalField(max_digits=14, decimal_places=2, coerce_to_string=False)
     
     class Meta:
         model = Expense

@@ -69,7 +69,8 @@ export function PackingList() {
     total_items > 0 ? (packed_items / total_items) * 100 : 0;
 
   const togglePacked = (id) => {
-    const packed = !items.find((item) => item.id === id).packed;
+    const toggledItem = items.find((item) => item.id === id);
+    const packed = !toggledItem.packed;
     setItems(
       items.map((item) => (item.id === id ? { ...item, packed } : item))
     );
@@ -77,9 +78,7 @@ export function PackingList() {
       ...prev,
       packed_items: packed ? prev.packed_items + 1 : prev.packed_items - 1,
       categories: prev.categories.map((cat) => {
-        if (
-          cat.category?.id === items.find((item) => item.id === id).category.id
-        ) {
+        if (cat.category?.id === toggledItem.category.id) {
           return {
             ...cat,
             packed: packed ? cat.packed + 1 : cat.packed - 1,
@@ -92,13 +91,26 @@ export function PackingList() {
   };
 
   const deleteItem = (id) => {
+    const deletedItem = items.find((item) => item.id === id);
     setItems(items.filter((item) => item.id !== id));
     setStatistics((prev) => ({
       ...prev,
       total_items: prev.total_items - 1,
-      packed_items: items.find((item) => item.id === id).packed
+      packed_items: deletedItem.packed
         ? prev.packed_items - 1
         : prev.packed_items,
+      categories: prev.categories
+        .map((cat) => {
+          if (cat.category.id === deletedItem.category.id) {
+            return {
+              ...cat,
+              total: cat.total - 1,
+              packed: deletedItem.packed ? cat.packed - 1 : cat.packed,
+            };
+          }
+          return cat;
+        })
+        .filter((cat) => cat.total > 0),
     }));
     deleteRequest(`/trips/${tripId}/packing/items/${id}/`);
   };

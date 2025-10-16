@@ -52,8 +52,20 @@ export function ExpensesManager() {
     setExpenses(expenses.filter((item) => item.id !== id));
     setStatistics((prev) => ({
       ...prev,
-      total_spent: prev.total_budget - deletedExpense.amount,
+      total_spent: prev.total_spent - deletedExpense.amount,
       remaining_budget: prev.remaining_budget + deletedExpense.amount,
+      categories: prev.categories
+        .map((cat) => {
+          if (cat.category.id === deletedExpense.category.id) {
+            return {
+              ...cat,
+              amount: cat.amount - deletedExpense.amount,
+              count: cat.count - 1,
+            };
+          }
+          return cat;
+        })
+        .filter((cat) => cat.count > 0),
     }));
     deleteRequest(`/trips/${tripId}/expenses/items/${id}/`);
   };
