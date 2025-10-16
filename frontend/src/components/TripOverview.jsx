@@ -9,10 +9,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { useExpenses } from "@/hooks/useExpenses";
 import { formatCurrency } from "@/lib/utils";
 
 export function TripOverview({ tripData }) {
-  const budgetPercentage = (tripData.spentBudget / tripData.totalBudget) * 100;
+  const { statistics } = useExpenses();
+  const { total_budget, total_spent } = statistics;
+  const budgetPercentage = (total_spent / total_budget) * 100;
 
   const itinerary = [
     {
@@ -67,10 +70,10 @@ export function TripOverview({ tripData }) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(tripData.totalBudget)}
+              {formatCurrency(total_budget)}
             </div>
             <p className="text-xs text-muted-foreground">
-              {formatCurrency(tripData.spentBudget)} spent
+              {formatCurrency(total_spent)} spent
             </p>
           </CardContent>
         </Card>
@@ -125,8 +128,8 @@ export function TripOverview({ tripData }) {
             </div>
             <Progress value={budgetPercentage} className="w-full" />
             <div className="flex justify-between text-sm text-muted-foreground">
-              <span>{formatCurrency(tripData.spentBudget)}</span>
-              <span>{formatCurrency(tripData.totalBudget)}</span>
+              <span>{formatCurrency(total_spent)}</span>
+              <span>{formatCurrency(total_budget)}</span>
             </div>
           </div>
         </CardContent>

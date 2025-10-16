@@ -25,14 +25,17 @@ const getPaidByName = (paid_by) => {
 
 export function ExpensesManager() {
   const { id: tripId } = useParams();
-  const { updateExpenses } = useExpenses();
+  const { updateExpenses, statistics, setStatistics, fetchStatistics } =
+    useExpenses();
   const { getRequest, deleteRequest } = useApi();
   const [isLoading, setIsLoading] = useState(true);
   const [expenses, setExpenses] = useState([]);
-  const [
-    { total_budget, total_spent, remaining_budget, categories: categoryStats },
-    setStatistics,
-  ] = useState({});
+  const {
+    total_budget,
+    total_spent,
+    remaining_budget,
+    categories: categoryStats,
+  } = statistics;
 
   useEffect(() => {
     setIsLoading(true);
@@ -40,9 +43,7 @@ export function ExpensesManager() {
       .then((response) => setExpenses(response.data))
       .finally(() => setIsLoading(false));
 
-    getRequest(`/trips/${tripId}/expenses/statistics/`).then((response) =>
-      setStatistics(response.data)
-    );
+    fetchStatistics(tripId);
   }, [updateExpenses]);
 
   const budgetPercentage = (total_spent / total_budget) * 100;
