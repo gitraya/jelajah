@@ -1,3 +1,4 @@
+from datetime import timezone
 from rest_framework import serializers
 from .models import Expense, ExpenseSplit, ExpenseCategory
 from django.db import transaction
@@ -33,7 +34,7 @@ class ExpenseSplitSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 class ExpenseSerializer(serializers.ModelSerializer):
-    splits = ExpenseSplitSerializer(many=True)
+    splits = ExpenseSplitSerializer(many=True, read_only=True)
     paid_by = TripMemberSerializer(read_only=True)
     paid_by_id = serializers.PrimaryKeyRelatedField(queryset=TripMember.objects.all(), source='paid_by', write_only=True, required=False, allow_null=True)
     category = ExpenseCategorySerializer(read_only=True)

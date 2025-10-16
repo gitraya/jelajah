@@ -4,7 +4,7 @@ from .serializers import ExpenseSerializer, ExpenseSplitSerializer, ExpenseCateg
 from backend.permissions import TripAccessPermission
 from rest_framework.response import Response
 from django.db import models
-from trips.models import Trip
+from trips.models import Trip, TripMember
 
 class ExpenseCategoryViewSet(viewsets.ReadOnlyModelViewSet):
     """Expense categories."""
@@ -25,6 +25,26 @@ class ExpenseViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context()
         context['trip_id'] = self.kwargs.get('trip_id')
         return context
+    
+    def perform_create(self, serializer):
+        trip_id = self.kwargs.get('trip_id')
+        members = TripMember.objects.filter(trip_id=trip_id)
+        
+        # Calculate equal split amount for each member
+        total_amount = serializer.validated_data['amount']
+        split_amount = total_amount / len(members) if members.exists() else 0
+        
+        # Create splits data for each member
+        splits = [
+            {
+                'member': member,
+                'amount': split_amount,
+                'paid': False
+            }
+            for member in members
+        ]
+        
+        serializer.save(splits=splits)
 
 class ExpenseSplitViewSet(viewsets.ModelViewSet):
     """Expense splits for a specific expense."""

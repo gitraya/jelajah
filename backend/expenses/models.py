@@ -1,5 +1,5 @@
 from django.db import models
-from django.conf import settings
+from datetime import date
 from backend.models import BaseModel
 from trips.models import Trip, TripMember
 
@@ -18,7 +18,7 @@ class Expense(BaseModel):
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name='expenses')
     title = models.CharField(max_length=100)
     amount = models.DecimalField(max_digits=14, decimal_places=2)
-    date = models.DateField()
+    date = models.DateField(default=date.today)
     paid_by = models.ForeignKey(TripMember, on_delete=models.CASCADE, related_name='expenses_paid')
     notes = models.TextField(blank=True)
     category = models.ForeignKey(ExpenseCategory, on_delete=models.SET_NULL, null=True)
