@@ -50,6 +50,9 @@ export default function ExpenseDialog() {
   const [open, setOpen] = useState(false);
 
   const onSubmit = (data) => {
+    if (data.date === "") {
+      delete data.date;
+    }
     postRequest(`/trips/${tripId}/expenses/items/`, data)
       .then(() => {
         triggerUpdateExpenses();
@@ -68,6 +71,7 @@ export default function ExpenseDialog() {
   useEffect(() => {
     if (open) {
       reset();
+      setError("");
     }
   }, [open]);
 
@@ -152,6 +156,22 @@ export default function ExpenseDialog() {
               <p className="text-xs text-destructive">
                 {errors.amount.message}
               </p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="date">Date</Label>
+            <Input
+              id="date"
+              type="date"
+              className="mb-0"
+              aria-invalid={errors.date ? "true" : "false"}
+              {...register("date")}
+            />
+            <small className="mb-2 block text-gray-600">
+              Leave empty to use today's date
+            </small>
+            {errors.date && (
+              <p className="text-xs text-destructive">{errors.date.message}</p>
             )}
           </div>
           <div className="space-y-2">

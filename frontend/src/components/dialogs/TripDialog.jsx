@@ -1,5 +1,5 @@
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 
@@ -25,11 +25,13 @@ export default function TripDialog() {
   const navigate = useNavigate();
   const { postRequest } = useApi();
   const {
+    reset,
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
   const [error, setError] = useState("");
+  const [open, setOpen] = useState(false);
 
   const onSubmit = async (data) => {
     try {
@@ -50,8 +52,15 @@ export default function TripDialog() {
     }
   };
 
+  useEffect(() => {
+    if (open) {
+      reset();
+      setError("");
+    }
+  }, [open]);
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="w-full sm:w-auto mt-4 sm:mt-0">
           <Plus className="w-4 h-4 mr-2" />

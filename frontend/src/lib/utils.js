@@ -127,7 +127,10 @@ export const getErrorMessage = (error, defaultMessage) => {
       errorMessage = error.response.data.detail;
       return errorMessage;
     }
-    if (Array.isArray(error.response?.data)) {
+    if (
+      Array.isArray(error.response?.data) ||
+      typeof error.response?.data === "object"
+    ) {
       const [field, messages] = Object.entries(error.response.data)[0];
       const capitalizedField = field.charAt(0).toUpperCase() + field.slice(1);
       errorMessage = `${capitalizedField}: ${messages.join(", ")}`;

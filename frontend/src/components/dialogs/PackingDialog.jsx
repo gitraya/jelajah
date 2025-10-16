@@ -83,6 +83,7 @@ export default function PackingDialog() {
   useEffect(() => {
     if (open) {
       reset();
+      setError("");
     }
   }, [open]);
 
