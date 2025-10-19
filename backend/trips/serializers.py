@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.utils import timezone
 from django.utils.dateparse import parse_date
 from django.contrib.auth import get_user_model
-from .models import Trip, TripMember, Location, MemberStatus
+from .models import Trip, TripMember, MemberStatus
 
 User = get_user_model()
 
@@ -12,18 +12,6 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'email', 'first_name', 'last_name']
         read_only_fields = ['id']
-
-class LocationSerializer(serializers.ModelSerializer):
-    """Serializer for Location model"""
-    name = serializers.CharField(max_length=255)
-
-    class Meta:
-        model = Location
-        fields = "__all__"
-        read_only_fields = ['id']
-        extra_kwargs = {
-            'name': {'validators': []},
-        }
 
 class TripMemberSerializer(serializers.ModelSerializer):
     """Serializer for TripMember model with user details"""
@@ -39,7 +27,6 @@ class TripSerializer(serializers.ModelSerializer):
     """Detailed serializer for Trip model"""
     owner = UserSerializer(read_only=True)
     members = TripMemberSerializer(source='trip_members', many=True, read_only=True)
-    location = LocationSerializer()
     member_ids = serializers.ListField(
         child=serializers.UUIDField(),
         write_only=True,
@@ -87,14 +74,12 @@ class TripSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         validated_data.pop('member_emails', None)
-        location_data = validated_data.pop('location')
         member_ids = validated_data.pop('member_ids', [])
 
         request = self.context['request']
         owner = request.user
         
-        location, _ = Location.objects.get_or_create(**location_data)
-        trip = Trip.objects.create(owner=owner, location=location, **validated_data)
+        trip = Trip.objects.create(owner=owner, **validated_data)
         
         TripMember.objects.create(user=owner, trip=trip, status=MemberStatus.ACCEPTED)
         

@@ -35,12 +35,6 @@ class TripMember(BaseModel):
     def __str__(self):
         return f"{self.user.email} - {self.trip.title} ({self.role})"
 
-class Location(BaseModel):
-    name = models.CharField(max_length=255, unique=True)
-    description = models.TextField(blank=True)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
-
 class Tag(BaseModel):
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(max_length=50, unique=True)
@@ -52,7 +46,7 @@ class Trip(BaseModel):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='owned_trips')
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
-    location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='trips')
+    destination = models.CharField(max_length=255)
     start_date = models.DateField()
     end_date = models.DateField()
     members = models.ManyToManyField(settings.AUTH_USER_MODEL, through=TripMember, related_name='trips')
