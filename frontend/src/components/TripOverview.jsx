@@ -10,10 +10,12 @@ import {
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useExpenses } from "@/hooks/useExpenses";
+import { useTrips } from "@/hooks/useTrips";
 import { formatCurrency } from "@/lib/utils";
 
 export function TripOverview({ tripData }) {
   const { statistics } = useExpenses();
+  const { members } = useTrips();
   const { total_budget, total_spent } = statistics;
   const budgetPercentage = (total_spent / total_budget) * 100;
 
@@ -84,7 +86,7 @@ export function TripOverview({ tripData }) {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{tripData.members}</div>
+            <div className="text-2xl font-bold">{members.length}</div>
             <p className="text-xs text-muted-foreground">travelers</p>
           </CardContent>
         </Card>

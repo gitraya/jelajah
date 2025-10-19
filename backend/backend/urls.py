@@ -26,6 +26,7 @@ urlpatterns = [
     path('api/', include('itineraries.urls')),
     path('api/', include('expenses.urls')),
     path('api/', include('packing.urls')),
+    path('api/', include('checklist.urls')),
 ]
 
 if settings.DEBUG:
