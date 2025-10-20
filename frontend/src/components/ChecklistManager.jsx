@@ -26,7 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CHECKLIST_CATEGORIES } from "@/configs/checklist";
+import { CHECKLIST_CATEGORIES, CHECKLIST_PRIORITY } from "@/configs/checklist";
 import { useApi } from "@/hooks/useApi";
 import { useChecklist } from "@/hooks/useChecklist";
 import { getItineraryPriorityColor } from "@/lib/colors";
@@ -77,10 +77,13 @@ export function ChecklistManager() {
 
   useEffect(() => {
     fetchStatistics(tripId);
+  }, [updateChecklist]);
+
+  useEffect(() => {
     getRequest(`/trips/${tripId}/checklist/items/?upcoming=true`)
       .then((response) => setUpcomingItems(response.data))
       .finally(() => setIsLoading(false));
-  }, [updateChecklist]);
+  }, [updateChecklist, items]);
 
   const categories = [
     { id: "all", name: "All" },
@@ -210,7 +213,9 @@ export function ChecklistManager() {
                       </div>
                     </div>
                   </div>
-                  <Badge variant="outline">{item.category}</Badge>
+                  <Badge variant="outline">
+                    {CHECKLIST_CATEGORIES[item.category]}
+                  </Badge>
                 </div>
               ))
             )}
@@ -227,9 +232,11 @@ export function ChecklistManager() {
           {categoryStats?.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {categoryStats.map((stat) => (
-                <div key={stat.category?.name} className="space-y-2">
+                <div key={stat.category} className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">{stat.category?.name}</span>
+                    <span className="text-sm">
+                      {CHECKLIST_CATEGORIES[stat.category]}
+                    </span>
                     <Badge variant="outline">
                       {stat.completed}/{stat.total}
                     </Badge>
@@ -321,9 +328,11 @@ export function ChecklistManager() {
                           <Badge
                             className={getItineraryPriorityColor(item.priority)}
                           >
-                            {item.priority}
+                            {CHECKLIST_PRIORITY[item.priority]}
                           </Badge>
-                          <Badge variant="outline">{item.category}</Badge>
+                          <Badge variant="outline">
+                            {CHECKLIST_CATEGORIES[item.category]}
+                          </Badge>
                           <div className="flex items-center gap-1 text-sm text-muted-foreground">
                             <Calendar className="w-4 h-4" />
                             <span>{formatDate(item.due_date)}</span>

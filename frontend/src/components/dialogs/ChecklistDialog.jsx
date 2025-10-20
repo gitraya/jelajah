@@ -169,7 +169,7 @@ export default function ChecklistDialog() {
                 <SelectTrigger
                   aria-invalid={errors.priority ? "true" : "false"}
                 >
-                  <SelectValue />
+                  <SelectValue placeholder="Select priority" />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.entries(CHECKLIST_PRIORITY).map(
