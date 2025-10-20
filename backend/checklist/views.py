@@ -4,6 +4,7 @@ from .serializers import ChecklistItemSerializer
 from backend.permissions import TripAccessPermission
 from rest_framework.response import Response
 from django.db.models import Count, Case, When
+from django.utils import timezone
 
 class ChecklistItemViewSet(viewsets.ModelViewSet):
     """Checklist items for a specific trip."""
@@ -11,8 +12,16 @@ class ChecklistItemViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, TripAccessPermission]
     
     def get_queryset(self):
+        category = self.request.query_params.get("category")
+        upcoming = self.request.query_params.get("upcoming")
         trip_id = self.kwargs.get('trip_id')
-        return ChecklistItem.objects.filter(trip_id=trip_id)
+        queryset = ChecklistItem.objects.filter(trip_id=trip_id)
+        if category:
+            queryset = queryset.filter(category=category)
+        if upcoming == 'true':
+            now = timezone.now()
+            queryset = queryset.filter(is_completed=False, due_date__gte=now).order_by('due_date')[:3]
+        return queryset
     
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -37,5 +46,5 @@ class ChecklistStatisticsViewSet(viewsets.ViewSet):
             'total_items': total_items,
             'completed_items': completed_items,
             'pending_items': total_items - completed_items,
-            'category_stats': category_stats,
+            'categories': category_stats,
         })
