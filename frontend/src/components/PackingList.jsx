@@ -37,16 +37,19 @@ const getAssignedName = (assigned_to, user) => {
 
 export function PackingList() {
   const { id: tripId } = useParams();
-  const { categories, updatePackingItems } = usePacking();
+  const {
+    categories,
+    updatePackingItems,
+    statistics,
+    setStatistics,
+    fetchStatistics,
+  } = usePacking();
   const { getRequest, patchRequest, deleteRequest } = useApi();
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [items, setItems] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [
-    { total_items, packed_items, categories: categoryStats },
-    setStatistics,
-  ] = useState({});
+  const { total_items, packed_items, categories: categoryStats } = statistics;
 
   useEffect(() => {
     setIsLoading(true);
@@ -60,9 +63,7 @@ export function PackingList() {
   }, [updatePackingItems, selectedCategory]);
 
   useEffect(() => {
-    getRequest(`/trips/${tripId}/packing/statistics/`).then((response) =>
-      setStatistics(response.data)
-    );
+    fetchStatistics(tripId);
   }, [updatePackingItems]);
 
   const packedPercentage =
