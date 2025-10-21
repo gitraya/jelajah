@@ -3,3 +3,9 @@ export const TRIP_MEMBER_ROLES = {
   CO_ORGANIZER: "Co-Organizer",
   MEMBER: "Member",
 };
+
+export const TRIP_MEMBER_STATUSES = {
+  ACCEPTED: "Accepted",
+  PENDING: "Pending",
+  DECLINED: "Declined",
+};

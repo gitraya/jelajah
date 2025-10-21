@@ -6,10 +6,11 @@ import { TripsContext } from "@/hooks/useTrips";
 import { getErrorMessage } from "@/lib/utils";
 
 export const TripsProvider = ({ children }) => {
-  const { id: tripId } = useParams();
+  const { id } = useParams();
   const { getRequest } = useApi();
-  const [updateMembers, setUpdateMembers] = useState(Math.random());
   const [members, setMembers] = useState([]);
+  const [statistics, setStatistics] = useState({});
+  const [updateMembers, setUpdateMembers] = useState(Math.random());
 
   // Function to trigger re-fetching members
   const triggerUpdateMembers = () => {
@@ -18,23 +19,40 @@ export const TripsProvider = ({ children }) => {
 
   const fetchMembers = async () => {
     try {
-      const response = await getRequest(`/trips/${tripId}/members/`);
+      const response = await getRequest(`/trips/${id}/members/`);
       setMembers(response.data || []);
     } catch (error) {
       console.error("Failed to fetch trip members:", getErrorMessage(error));
     }
   };
 
+  const fetchStatistics = async (tripId) => {
+    try {
+      const response = await getRequest(`/trips/${tripId}/members/statistics/`);
+      setStatistics(response.data);
+    } catch (error) {
+      console.error(
+        "Failed to fetch member statistics:",
+        getErrorMessage(error)
+      );
+    }
+  };
+
   useEffect(() => {
     fetchMembers();
+    fetchStatistics(id);
   }, []);
 
   return (
     <TripsContext.Provider
       value={{
         members,
+        statistics,
         updateMembers,
+        setStatistics,
+        setMembers,
         fetchMembers,
+        fetchStatistics,
         triggerUpdateMembers,
       }}
     >

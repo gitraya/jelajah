@@ -61,18 +61,18 @@ export const getMapStatusColor = (status) => {
 
 export const getMemberStatusColor = (status) => {
   const colors = {
-    confirmed: "bg-green-100 text-green-800",
-    pending: "bg-yellow-100 text-yellow-800",
-    declined: "bg-red-100 text-red-800",
+    ACCEPTED: "bg-green-100 text-green-800",
+    PENDING: "bg-yellow-100 text-yellow-800",
+    DECLINED: "bg-red-100 text-red-800",
   };
   return colors[status];
 };
 
 export const getMemberRoleColor = (role) => {
   const colors = {
-    Organizer: "bg-purple-100 text-purple-800",
-    "Co-organizer": "bg-blue-100 text-blue-800",
-    Member: "bg-gray-100 text-gray-800",
+    ORGANIZER: "bg-purple-100 text-purple-800",
+    CO_ORGANIZER: "bg-blue-100 text-blue-800",
+    MEMBER: "bg-gray-100 text-gray-800",
   };
   return colors[role];
 };
