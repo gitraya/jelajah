@@ -1,4 +1,10 @@
-import { DollarSign, Trash2, TrendingDown, TrendingUp } from "lucide-react";
+import {
+  DollarSign,
+  Trash2,
+  TrendingDown,
+  TrendingUp,
+  Users,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 
@@ -18,6 +24,13 @@ import { getExpenseCategoryColor } from "@/lib/colors";
 import { formatCurrency } from "@/lib/utils";
 
 import ExpenseDialog from "./dialogs/ExpenseDialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
 
 const getPaidByName = (paid_by) => {
   return `${paid_by.user.first_name} ${paid_by.user.last_name}`;
@@ -30,6 +43,7 @@ export function ExpensesManager() {
   const { getRequest, deleteRequest } = useApi();
   const [isLoading, setIsLoading] = useState(true);
   const [expenses, setExpenses] = useState([]);
+  const [viewingSplitExpense, setViewingSplitExpense] = useState(null);
   const {
     total_budget,
     total_spent,
@@ -200,6 +214,14 @@ export function ExpensesManager() {
                       {formatCurrency(expense.amount)}
                     </span>
                     <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setViewingSplitExpense(expense)}
+                    >
+                      <Users className="w-4 h-4 mr-1" />
+                      View Split
+                    </Button>
+                    <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => deleteExpense(expense.id)}
@@ -218,6 +240,86 @@ export function ExpensesManager() {
           )}
         </CardContent>
       </Card>
+
+      {/* Split Details Dialog */}
+      <Dialog
+        open={viewingSplitExpense !== null}
+        onOpenChange={(open) => !open && setViewingSplitExpense(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Expense Split Details</DialogTitle>
+            <DialogDescription>{viewingSplitExpense?.title}</DialogDescription>
+          </DialogHeader>
+          {viewingSplitExpense && (
+            <div className="space-y-4">
+              <div className="flex justify-between items-center p-4 bg-muted rounded-lg">
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Amount</p>
+                  <p className="text-2xl font-bold">
+                    {formatCurrency(viewingSplitExpense.amount)}
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-medium mb-2">Paid by</h4>
+                <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <Badge
+                    variant="outline"
+                    className="bg-green-100 text-green-800"
+                  >
+                    Payer
+                  </Badge>
+                  <span>{getPaidByName(viewingSplitExpense.paid_by)}</span>
+                  <span className="text-sm text-muted-foreground ml-auto">
+                    Paid {formatCurrency(viewingSplitExpense.amount)}
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-medium mb-2">
+                  Split between {viewingSplitExpense.splits.length} people
+                </h4>
+                <div className="space-y-2">
+                  {viewingSplitExpense.splits.map((split) => {
+                    return (
+                      <div
+                        key={split.id}
+                        className="flex items-center justify-between p-3 border rounded-lg"
+                      >
+                        <span>{getPaidByName(split.member)}</span>
+                        <div className="text-right">
+                          <span className="font-medium">
+                            {formatCurrency(split.amount)}
+                          </span>
+                          {split.paid === true ? (
+                            <p className="text-xs text-green-600">
+                              Already paid
+                            </p>
+                          ) : (
+                            <p className="text-xs text-orange-600">
+                              Owes to{" "}
+                              {getPaidByName(viewingSplitExpense.paid_by)}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <Button onClick={() => setViewingSplitExpense(null)}>
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

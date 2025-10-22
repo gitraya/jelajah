@@ -13,12 +13,16 @@ class ExpenseCategorySerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 class ExpenseSplitSerializer(serializers.ModelSerializer):
+    member = TripMemberSerializer(read_only=True)
+    member_id = serializers.PrimaryKeyRelatedField(queryset=TripMember.objects.all(), source='member', write_only=True)
+    amount = serializers.DecimalField(max_digits=14, decimal_places=2, coerce_to_string=False)
+    
     class Meta:
         model = ExpenseSplit
-        fields = ['id', 'member', 'amount', 'paid']
+        fields = ['id', 'member', 'amount', 'paid', 'member_id']
         read_only_fields = ['expense']
         
-    def validate_member(self, value):
+    def validate_member_id(self, value):
         expense_id = self.context['expense_id']
         if expense_id:
             expense = Expense.objects.get(id=expense_id)
@@ -33,9 +37,9 @@ class ExpenseSplitSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 class ExpenseSerializer(serializers.ModelSerializer):
-    splits = ExpenseSplitSerializer(many=True, read_only=True)
+    splits = ExpenseSplitSerializer(many=True)
     paid_by = TripMemberSerializer(read_only=True)
-    paid_by_id = serializers.PrimaryKeyRelatedField(queryset=TripMember.objects.all(), source='paid_by', write_only=True, required=False, allow_null=True)
+    paid_by_id = serializers.PrimaryKeyRelatedField(queryset=TripMember.objects.all(), source='paid_by', write_only=True)
     category = ExpenseCategorySerializer(read_only=True)
     category_id = serializers.PrimaryKeyRelatedField(queryset=ExpenseCategory.objects.all(), source='category', write_only=True, required=True)
     amount = serializers.DecimalField(max_digits=14, decimal_places=2, coerce_to_string=False)
@@ -44,7 +48,43 @@ class ExpenseSerializer(serializers.ModelSerializer):
         model = Expense
         fields = ['id', 'title', 'amount', 'date', 'paid_by', 'notes', 'splits', 'category', 'category_id', 'paid_by_id']
     
-    def validate_paid_by(self, value):
+    def validate(self, attrs):
+        splits_data = attrs.get('splits', [])
+        total_split_amount = sum([split['amount'] for split in splits_data])
+        amount = attrs.get('amount')
+        
+        if splits_data and total_split_amount != amount:
+            raise serializers.ValidationError("Total of split amounts must equal the expense amount.")
+        
+        return attrs
+    
+    def validate_splits(self, value):
+        if not value:
+            raise serializers.ValidationError("At least one split is required.")
+        
+        trip_id = self.context['trip_id']
+        paid_by_id = self.initial_data.get('paid_by_id')
+        member_ids = set()
+        is_paid_by_in_splits = False
+        
+        for split in value:
+            member_id = split['member_id']
+            if not TripMember.objects.filter(id=member_id, trip_id=trip_id).exists():
+                raise serializers.ValidationError(f"Member {member_id} does not belong to this trip.")
+            if member_id in member_ids:
+                raise serializers.ValidationError(f"Member {member_id} is duplicated in splits.")
+            member_ids.add(member_id)
+            if member_id == paid_by_id:
+                is_paid_by_in_splits = True
+            if member_id == paid_by_id and not split.get('paid', False):
+                raise serializers.ValidationError(f"Paid by member {member_id} must have 'paid' set to True.")
+
+        if not is_paid_by_in_splits:
+            raise serializers.ValidationError("The 'paid_by' member must be included in the splits.")
+        
+        return value
+    
+    def validate_paid_by_id(self, value):
         trip_id = self.context['trip_id']
         if not TripMember.objects.filter(id=value.id, trip_id=trip_id).exists():
             raise serializers.ValidationError("Assigned member does not belong to this trip.")

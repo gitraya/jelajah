@@ -12,7 +12,7 @@ class ChecklistItemSerializer(serializers.ModelSerializer):
         model = ChecklistItem
         fields = ['id', 'title', 'description', 'priority', 'due_date', 'position', 'is_completed', 'category', 'assigned_to', 'assigned_to_id']
 
-    def validate_assigned_to(self, value):
+    def validate_assigned_to_id(self, value):
         if not value:
             return value
         trip_id = self.context['trip_id']
