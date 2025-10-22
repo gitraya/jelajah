@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TRIP_MEMBER_STATUSES } from "@/configs/trip";
+import { TRIP_MEMBER_ROLES, TRIP_MEMBER_STATUSES } from "@/configs/trip";
 import { useApi } from "@/hooks/useApi";
 import { useTrips } from "@/hooks/useTrips";
 import { getMemberRoleColor, getMemberStatusColor } from "@/lib/colors";
@@ -255,12 +255,12 @@ export function MembersManager() {
                             {getFullName(member.user)}
                           </h4>
                           <Badge className={getMemberRoleColor(member.role)}>
-                            {member.role}
+                            {TRIP_MEMBER_ROLES[member.role]}
                           </Badge>
                           <Badge
                             className={getMemberStatusColor(member.status)}
                           >
-                            {member.status}
+                            {TRIP_MEMBER_STATUSES[member.status]}
                           </Badge>
                         </div>
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
