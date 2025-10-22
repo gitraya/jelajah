@@ -29,6 +29,7 @@ class User(AbstractUser, BaseModel):
     bio = models.TextField(blank=True)
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     email = models.EmailField(unique=True, max_length=255)
+    phone = models.CharField(max_length=20, blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []  # Remove 'username' from required fields
