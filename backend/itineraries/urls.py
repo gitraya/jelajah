@@ -1,15 +1,16 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import ItineraryDayViewSet, ItineraryItemViewSet
+from .views import ItineraryTypeViewSet, ItineraryItemViewSet, ItineraryItemStatisticsViewSet
 
-# Nested routers for trip -> days -> items
-days_router = DefaultRouter()
-days_router.register(r'days', ItineraryDayViewSet, basename='itinerary-day')
+router = DefaultRouter()
+router.register(r'itinerary/types', ItineraryTypeViewSet, basename='itinerary-type')
 
-items_router = DefaultRouter()
-items_router.register(r'items', ItineraryItemViewSet, basename='itinerary-item')
+trip_router = DefaultRouter()
+trip_router.register(r'items', ItineraryItemViewSet, basename='itinerary-item')
+trip_router.register(r'statistics', ItineraryItemStatisticsViewSet, basename='itinerary-statistics')
+
 
 urlpatterns = [
-    path('trips/<int:trip_id>/', include(days_router.urls)),
-    path('days/<int:day_id>/', include(items_router.urls)),
+    path('', include(router.urls)),
+    path('trips/<uuid:trip_id>/itinerary/', include(trip_router.urls)),
 ]

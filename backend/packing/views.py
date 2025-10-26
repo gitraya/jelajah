@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions, mixins
+from rest_framework import viewsets, permissions
 from .models import PackingCategory, PackingItem
 from .serializers import PackingCategorySerializer, PackingItemSerializer
 from backend.permissions import TripAccessPermission
