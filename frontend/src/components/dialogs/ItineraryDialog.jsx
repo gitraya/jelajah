@@ -79,10 +79,7 @@ export default function ItineraryDialog() {
             Add a new place to your trip itinerary
           </DialogDescription>
         </DialogHeader>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-4 max-h-[60vh] overflow-y-auto"
-        >
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {error && (
             <Alert variant="destructive">
               <AlertDescription>{error}</AlertDescription>

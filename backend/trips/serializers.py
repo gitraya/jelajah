@@ -7,38 +7,93 @@ from .models import Trip, TripMember, MemberStatus
 User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
-    """Basic user serializer for member information"""
     class Meta:
         model = User
-        fields = ['id', 'email', 'first_name', 'last_name']
+        fields = ['id', 'email', 'first_name', 'last_name', 'phone']
         read_only_fields = ['id']
 
 class TripMemberSerializer(serializers.ModelSerializer):
     """Serializer for TripMember model with user details"""
     user = UserSerializer(read_only=True)
-    user_id = serializers.IntegerField(write_only=True)
+    user_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        source='user',
+        write_only=True,
+        required=False
+    )
+    first_name = serializers.CharField(
+        source='user.first_name',
+        write_only=True,
+        required=False
+    )
+    last_name = serializers.CharField(
+        source='user.last_name',
+        write_only=True,
+        required=False
+    )
+    email = serializers.EmailField(
+        source='user.email',
+        write_only=True,
+        required=False
+    )
+    phone = serializers.CharField(
+        source='user.phone',
+        write_only=True,
+        required=False
+    )
     
     class Meta:
         model = TripMember
-        fields = ['id', 'user', 'user_id', 'joined_at', 'status', 'role']
+        fields = ['id', 'user', 'user_id', 'joined_at', 'status', 'role', 'emergency_contact_name', 'emergency_contact_phone', 'dietary_restrictions', 'first_name', 'last_name', 'email', 'phone']
         read_only_fields = ['id', 'joined_at']
+        
+    def validate(self, attrs):
+        """Ensure that user information is provided either by user_id or email"""
+        user = attrs.get('user')
+        if not user:
+            email = attrs.get('email')
+            if not email:
+                raise serializers.ValidationError("Either user_id or email must be provided.")
+            
+            try:
+                user = User.objects.get(email=email)
+                attrs['user'] = user
+            except User.DoesNotExist:
+                first_name = user.get('first_name', '')
+                last_name = user.get('last_name', '')
+                phone = user.get('phone', '')
+                user = User.objects.create(email=email, first_name=first_name, last_name=last_name, phone=phone)
+                attrs['user'] = user
+                
+        if TripMember.objects.filter(user=attrs['user'], trip_id=self.context['trip']).exists():
+            raise serializers.ValidationError("This user is already a member of the trip.")
+        
+        return attrs
+        
+    def create(self, validated_data):
+        validated_data.pop('first_name', None)
+        validated_data.pop('last_name', None)
+        validated_data.pop('email', None)
+        validated_data.pop('phone', None)
+             
+        trip_id = self.context['trip']
+        validated_data['trip_id'] = trip_id
+        return super().create(validated_data)
+    
+    def update(self, instance, validated_data):
+        """Remove user because we only need on create"""
+        validated_data.pop('first_name', None)
+        validated_data.pop('last_name', None)
+        validated_data.pop('email', None)
+        validated_data.pop('phone', None)
+        validated_data.pop('user', None)
+        
+        return super().update(instance, validated_data)
 
 class TripSerializer(serializers.ModelSerializer):
     """Detailed serializer for Trip model"""
     owner = UserSerializer(read_only=True)
     members = TripMemberSerializer(source='trip_members', many=True, read_only=True)
-    member_ids = serializers.ListField(
-        child=serializers.UUIDField(),
-        write_only=True,
-        required=False,
-        help_text="List of user IDs to add as members"
-    )
-    member_emails = serializers.ListField(
-        child=serializers.EmailField(),
-        write_only=True,
-        required=False,
-        help_text="List of user emails to add as members"
-    )
     is_editable = serializers.SerializerMethodField()
     is_deletable = serializers.SerializerMethodField()
     
@@ -58,66 +113,20 @@ class TripSerializer(serializers.ModelSerializer):
         elif start_date < timezone.now().date():
             raise serializers.ValidationError("Start date cannot be in the past.")
         return start_date
-
-    def validate_member_ids(self, member_ids):
-        """Validate that member IDs correspond to existing users"""
-        member_ids = list(set(member_ids))  # Remove duplicates
-        
-        request = self.context['request']
-        if request.user.id in member_ids:
-            member_ids.remove(request.user.id)
-        
-        for user_id in member_ids:
-            if not User.objects.filter(id=user_id).exists():
-                raise serializers.ValidationError(f"User with ID {user_id} does not exist.")
-        return member_ids
     
     def create(self, validated_data):
-        validated_data.pop('member_emails', None)
-        member_ids = validated_data.pop('member_ids', [])
-
         request = self.context['request']
         owner = request.user
         
         trip = Trip.objects.create(owner=owner, **validated_data)
-        
-        TripMember.objects.create(user=owner, trip=trip, status=MemberStatus.ACCEPTED)
-        
-        for user_id in member_ids:
-            TripMember.objects.create(user_id=user_id, trip=trip, status=MemberStatus.ACCEPTED)
+        TripMember.objects.create(user=owner, trip=trip, status=MemberStatus.ACCEPTED, role='ORGANIZER')
 
         return trip
     
     def update(self, instance, validated_data):
-        validated_data.pop('member_emails', None)
-        location_data = validated_data.pop('location', None)
-        member_ids = validated_data.pop('member_ids', None)
-        
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        
-        if location_data:
-            location = instance.location
-            for attr, value in location_data.items():
-                setattr(location, attr, value)
-            location.save()
-        
-        instance.save()
-        
-        if member_ids is not None:
-            current_member_ids = set(instance.trip_members.values_list('user_id', flat=True))
-            new_member_ids = set(member_ids)
-            
-            to_add = new_member_ids - current_member_ids
-            to_remove = current_member_ids - new_member_ids
-            
-            for user_id in to_add:
-                TripMember.objects.create(user_id=user_id, trip=instance, status=MemberStatus.ACCEPTED)
-            
-            for user_id in to_remove:
-                TripMember.objects.filter(user_id=user_id, trip=instance).update(status=MemberStatus.BLOCKED)
-
-        return instance
+        """Remove owner because we don't want to update it"""
+        validated_data.pop('owner', None)
+        return super().update(instance, validated_data)
     
     def get_is_editable(self, obj):
         request = self.context.get('request')
