@@ -34,7 +34,7 @@ import { formatDate, isOverdue } from "@/lib/utils";
 
 import ChecklistDialog from "./dialogs/ChecklistDialog";
 
-export const ItineraryPriorityIcon = ({ priority }) => {
+export const ChecklistPriorityIcon = ({ priority }) => {
   switch (priority) {
     case "high":
       return <AlertCircle className="w-4 h-4" />;
@@ -201,7 +201,7 @@ export function ChecklistManager() {
                         item.priority
                       )}`}
                     >
-                      <ItineraryPriorityIcon priority={item.priority} />
+                      <ChecklistPriorityIcon priority={item.priority} />
                     </div>
                     <div>
                       <h4 className="font-medium">{item.title}</h4>
