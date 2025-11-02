@@ -5,8 +5,7 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,7 +17,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { useApi } from "@/hooks/useApi";
 import { useExpenses } from "@/hooks/useExpenses";
 import { getExpenseCategoryColor } from "@/lib/colors";
 import { formatCurrency } from "@/lib/utils";
@@ -38,53 +36,12 @@ const getPaidByName = (paid_by) => {
 };
 
 export function ExpensesManager() {
-  const { id: tripId } = useParams();
-  const { updateExpenses, statistics, setStatistics, fetchStatistics } =
-    useExpenses();
-  const { getRequest, deleteRequest } = useApi();
-  const [isLoading, setIsLoading] = useState(true);
-  const [expenses, setExpenses] = useState([]);
+  const { statistics, isLoading, expenses, deleteExpense } = useExpenses();
   const [viewingSplitExpense, setViewingSplitExpense] = useState(null);
-  const {
-    total_budget,
-    total_spent,
-    remaining_budget,
-    categories: categoryStats,
-  } = statistics;
+  const { trip_budget, amount_spent, budget_remaining, category_stats } =
+    statistics;
 
-  useEffect(() => {
-    setIsLoading(true);
-    getRequest(`/trips/${tripId}/expenses/items/`)
-      .then((response) => setExpenses(response.data))
-      .finally(() => setIsLoading(false));
-
-    fetchStatistics(tripId);
-  }, [updateExpenses]);
-
-  const budgetPercentage = (total_spent / total_budget) * 100;
-
-  const deleteExpense = (id) => {
-    const deletedExpense = expenses.find((item) => item.id === id);
-    setExpenses(expenses.filter((item) => item.id !== id));
-    setStatistics((prev) => ({
-      ...prev,
-      total_spent: prev.total_spent - deletedExpense.amount,
-      remaining_budget: prev.remaining_budget + deletedExpense.amount,
-      categories: prev.categories
-        .map((cat) => {
-          if (cat.category.id === deletedExpense.category.id) {
-            return {
-              ...cat,
-              amount: cat.amount - deletedExpense.amount,
-              count: cat.count - 1,
-            };
-          }
-          return cat;
-        })
-        .filter((cat) => cat.count > 0),
-    }));
-    deleteRequest(`/trips/${tripId}/expenses/items/${id}/`);
-  };
+  const budgetPercentage = (amount_spent / trip_budget) * 100;
 
   if (isLoading) {
     return <div className="space-y-6">Loading...</div>;
@@ -101,7 +58,7 @@ export function ExpensesManager() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(total_budget)}
+              {formatCurrency(trip_budget)}
             </div>
           </CardContent>
         </Card>
@@ -113,7 +70,7 @@ export function ExpensesManager() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(total_spent)}
+              {formatCurrency(amount_spent)}
             </div>
           </CardContent>
         </Card>
@@ -125,7 +82,7 @@ export function ExpensesManager() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(remaining_budget)}
+              {formatCurrency(budget_remaining)}
             </div>
           </CardContent>
         </Card>
@@ -153,9 +110,9 @@ export function ExpensesManager() {
           <CardTitle>Spending by Category</CardTitle>
         </CardHeader>
         <CardContent>
-          {categoryStats?.length > 0 ? (
+          {category_stats?.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {categoryStats.map((stat) => (
+              {category_stats.map((stat) => (
                 <div key={stat.category?.name} className="space-y-2">
                   <div className="flex justify-between items-center">
                     <span className="text-sm">{stat.category?.name}</span>

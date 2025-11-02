@@ -1,7 +1,6 @@
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useParams } from "react-router";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -24,11 +23,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { EXPENSE_SPLIT_TYPES } from "@/configs/expense";
-import { useApi } from "@/hooks/useApi";
 import { useAuth } from "@/hooks/useAuth";
 import { useExpenses } from "@/hooks/useExpenses";
 import { useTrips } from "@/hooks/useTrips";
-import { getErrorMessage, validator } from "@/lib/utils";
+import { validator } from "@/lib/utils";
 
 import { SelectInput } from "../ui/select-input";
 
@@ -70,7 +68,6 @@ const getSplits = (data) => {
 };
 
 export default function ExpenseDialog() {
-  const { postRequest } = useApi();
   const {
     register,
     handleSubmit,
@@ -81,10 +78,9 @@ export default function ExpenseDialog() {
     getValues,
     watch,
   } = useForm();
-  const { id: tripId } = useParams();
   const { user } = useAuth();
   const { members } = useTrips();
-  const { categories, triggerUpdateExpenses } = useExpenses();
+  const { categories, createExpense } = useExpenses();
   const [error, setError] = useState("");
   const [open, setOpen] = useState(false);
 
@@ -95,19 +91,7 @@ export default function ExpenseDialog() {
 
     data.splits = getSplits(data);
 
-    postRequest(`/trips/${tripId}/expenses/items/`, data)
-      .then(() => {
-        triggerUpdateExpenses();
-        setOpen(false);
-      })
-      .catch((error) =>
-        setError(
-          getErrorMessage(
-            error,
-            "An error occurred while creating the expense. Please try again later."
-          )
-        )
-      );
+    createExpense(data).then(() => setOpen(false));
   };
 
   const setAmountsForSplitBetween = () => {

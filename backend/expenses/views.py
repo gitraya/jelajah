@@ -47,9 +47,9 @@ class ExpenseStatisticsViewSet(viewsets.ViewSet):
     def list(self, request, trip_id=None):
         trip = Trip.objects.filter(id=trip_id).first()
         
-        total_budget = trip.budget if trip and trip.budget else 0
-        total_spent = Expense.objects.filter(trip_id=trip_id).aggregate(total=models.Sum('amount'))['total'] or 0
-        remaining_budget = total_budget - total_spent
+        trip_budget = trip.budget if trip and trip.budget else 0
+        amount_spent = Expense.objects.filter(trip_id=trip_id).aggregate(total=models.Sum('amount'))['total'] or 0
+        budget_remaining = trip_budget - amount_spent
         
         # list of categories with counts of expenses and total amounts
         category_stats = Expense.objects.filter(trip_id=trip_id).values('category__name', 'category__id').annotate(
@@ -72,9 +72,9 @@ class ExpenseStatisticsViewSet(viewsets.ViewSet):
         
 
         return Response({
-            "total_budget": total_budget,
-            "total_spent": total_spent,
-            "remaining_budget": remaining_budget,
-            "categories": category_stats,
+            "trip_budget": trip_budget,
+            "amount_spent": amount_spent,
+            "budget_remaining": budget_remaining,
+            "category_stats": category_stats,
         })
 
