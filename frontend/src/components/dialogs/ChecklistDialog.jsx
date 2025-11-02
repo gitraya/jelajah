@@ -1,13 +1,11 @@
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useParams } from "react-router";
 
 import { CHECKLIST_CATEGORIES, CHECKLIST_PRIORITY } from "@/configs/checklist";
-import { useApi } from "@/hooks/useApi";
 import { useChecklist } from "@/hooks/useChecklist";
 import { useTrips } from "@/hooks/useTrips";
-import { getErrorMessage, validator } from "@/lib/utils";
+import { validator } from "@/lib/utils";
 
 import { Alert, AlertDescription } from "../ui/alert";
 import { Button } from "../ui/button";
@@ -35,7 +33,6 @@ const getAssignedToLabel = (member) => {
 };
 
 export default function ChecklistDialog() {
-  const { postRequest } = useApi();
   const {
     register,
     handleSubmit,
@@ -43,26 +40,12 @@ export default function ChecklistDialog() {
     formState: { errors },
     reset,
   } = useForm();
-  const { id: tripId } = useParams();
   const { members } = useTrips();
-  const { triggerUpdateChecklist } = useChecklist();
-  const [error, setError] = useState("");
+  const { createChecklist, error, setError } = useChecklist();
   const [open, setOpen] = useState(false);
 
   const onSubmit = (data) => {
-    postRequest(`/trips/${tripId}/checklist/items/`, data)
-      .then(() => {
-        triggerUpdateChecklist();
-        setOpen(false);
-      })
-      .catch((error) =>
-        setError(
-          getErrorMessage(
-            error,
-            "An error occurred while creating the checklist item. Please try again later."
-          )
-        )
-      );
+    createChecklist(data).then(() => setOpen(false));
   };
 
   useEffect(() => {

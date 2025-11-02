@@ -5,8 +5,6 @@ import {
   Clock,
   Trash2,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useParams } from "react-router";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,7 +25,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CHECKLIST_CATEGORIES, CHECKLIST_PRIORITY } from "@/configs/checklist";
-import { useApi } from "@/hooks/useApi";
 import { useChecklist } from "@/hooks/useChecklist";
 import { getItineraryPriorityColor } from "@/lib/colors";
 import { formatDate, isOverdue } from "@/lib/utils";
@@ -50,40 +47,17 @@ const getAssignedName = (assignedTo) => {
 };
 
 export function ChecklistManager() {
-  const { id: tripId } = useParams();
-  const { statistics, setStatistics, fetchStatistics, updateChecklist } =
-    useChecklist();
-  const { getRequest, patchRequest, deleteRequest } = useApi();
-  const [isLoading, setIsLoading] = useState(true);
-  const [items, setItems] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("all");
   const {
-    total_items,
-    completed_items,
-    categories: categoryStats,
-  } = statistics;
-  const [upcomingItems, setUpcomingItems] = useState([]);
-
-  useEffect(() => {
-    setIsLoading(true);
-    getRequest(
-      `/trips/${tripId}/checklist/items${
-        selectedCategory !== "all" ? `?category=${selectedCategory}` : ""
-      }`
-    )
-      .then((response) => setItems(response.data))
-      .finally(() => setIsLoading(false));
-  }, [updateChecklist, selectedCategory]);
-
-  useEffect(() => {
-    fetchStatistics(tripId);
-  }, [updateChecklist]);
-
-  useEffect(() => {
-    getRequest(`/trips/${tripId}/checklist/items/?upcoming=true`)
-      .then((response) => setUpcomingItems(response.data))
-      .finally(() => setIsLoading(false));
-  }, [updateChecklist, items]);
+    statistics,
+    isLoading,
+    upcomingChecklistItems,
+    checklistItems,
+    selectedCategory,
+    setSelectedCategory,
+    toggleCompleted,
+    deleteItem,
+  } = useChecklist();
+  const { total_items, completed_items, category_stats } = statistics;
 
   const categories = [
     { id: "all", name: "All" },
@@ -95,59 +69,6 @@ export function ChecklistManager() {
 
   const completionPercentage =
     total_items > 0 ? (completed_items / total_items) * 100 : 0;
-
-  const toggleCompleted = (id) => {
-    const toggledItem = items.find((item) => item.id === id);
-    const is_completed = !toggledItem.is_completed;
-    setItems(
-      items.map((item) => (item.id === id ? { ...item, is_completed } : item))
-    );
-    setStatistics((prev) => ({
-      ...prev,
-      completed_items: is_completed
-        ? prev.completed_items + 1
-        : prev.completed_items - 1,
-      categories: prev.categories.map((cat) => {
-        if (cat.category?.id === toggledItem.category.id) {
-          return {
-            ...cat,
-            completed: is_completed ? cat.completed + 1 : cat.completed - 1,
-          };
-        }
-        return cat;
-      }),
-    }));
-    patchRequest(`/trips/${tripId}/checklist/items/${id}/`, {
-      is_completed,
-    });
-  };
-
-  const deleteItem = (id) => {
-    const deletedItem = items.find((item) => item.id === id);
-    setItems(items.filter((item) => item.id !== id));
-    setStatistics((prev) => ({
-      ...prev,
-      total_items: prev.total_items - 1,
-      completed_items: deletedItem.is_completed
-        ? prev.completed_items - 1
-        : prev.completed_items,
-      categories: prev.categories
-        .map((cat) => {
-          if (cat.category?.id === deletedItem.category.id) {
-            return {
-              ...cat,
-              total: cat.total - 1,
-              completed: deletedItem.is_completed
-                ? cat.completed - 1
-                : cat.completed,
-            };
-          }
-          return cat;
-        })
-        .filter((cat) => cat.total > 0),
-    }));
-    deleteRequest(`/trips/${tripId}/checklist/items/${id}/`);
-  };
 
   if (isLoading) {
     return <div className="space-y-6">Loading...</div>;
@@ -185,12 +106,12 @@ export function ChecklistManager() {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {upcomingItems.length === 0 ? (
+            {upcomingChecklistItems.length === 0 ? (
               <p className="text-muted-foreground text-center py-4">
                 No upcoming tasks
               </p>
             ) : (
-              upcomingItems.map((item) => (
+              upcomingChecklistItems.map((item) => (
                 <div
                   key={item.id}
                   className="flex items-center justify-between p-3 border rounded-lg"
@@ -229,9 +150,9 @@ export function ChecklistManager() {
           <CardTitle>Progress by Category</CardTitle>
         </CardHeader>
         <CardContent>
-          {categoryStats?.length > 0 ? (
+          {category_stats?.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {categoryStats.map((stat) => (
+              {category_stats.map((stat) => (
                 <div key={stat.category} className="space-y-2">
                   <div className="flex justify-between items-center">
                     <span className="text-sm">
@@ -283,9 +204,9 @@ export function ChecklistManager() {
           </div>
         </CardHeader>
         <CardContent>
-          {items?.length > 0 ? (
+          {checklistItems?.length > 0 ? (
             <div className="space-y-3">
-              {items.map((item) => (
+              {checklistItems.map((item) => (
                 <div
                   key={item.id}
                   className={`p-4 border rounded-lg transition-colors ${

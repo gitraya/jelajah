@@ -25,7 +25,7 @@ export const ExpensesProvider = ({ children }) => {
       return [{ id: "all", name: "All" }, ...response.data];
     } catch (error) {
       console.error(
-        "Failed to fetch packing categories:",
+        "Failed to fetch expense categories:",
         getErrorMessage(error)
       );
     }
@@ -143,8 +143,8 @@ export const ExpensesProvider = ({ children }) => {
 
   useEffect(() => {
     setIsLoading(true);
-    fetchExpenses(defaultTripId).finally(() => setIsLoading(false));
     fetchStatistics(defaultTripId);
+    fetchExpenses(defaultTripId).finally(() => setIsLoading(false));
   }, [updateExpenses]);
 
   return (

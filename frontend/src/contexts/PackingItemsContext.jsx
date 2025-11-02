@@ -166,8 +166,8 @@ export const PackingItemsProvider = ({ children }) => {
 
   useEffect(() => {
     setIsLoading(true);
-    fetchPackingItems(defaultTripId).finally(() => setIsLoading(false));
     fetchStatistics(defaultTripId);
+    fetchPackingItems(defaultTripId).finally(() => setIsLoading(false));
   }, [updatePackingItems, selectedCategory]);
 
   return (

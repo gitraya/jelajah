@@ -10,7 +10,7 @@ class ChecklistItemSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = ChecklistItem
-        fields = ['id', 'title', 'description', 'priority', 'due_date', 'position', 'is_completed', 'category', 'assigned_to', 'assigned_to_id']
+        fields = ['id', 'title', 'description', 'priority', 'due_date', 'position', 'is_completed', 'category', 'assigned_to', 'assigned_to_id', 'created_at', 'updated_at']
 
     def validate_assigned_to_id(self, value):
         if not value:

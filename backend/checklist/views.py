@@ -46,5 +46,5 @@ class ChecklistStatisticsViewSet(viewsets.ViewSet):
             'total_items': total_items,
             'completed_items': completed_items,
             'pending_items': total_items - completed_items,
-            'categories': category_stats,
+            'category_stats': category_stats,
         })
