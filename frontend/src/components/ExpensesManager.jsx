@@ -191,9 +191,9 @@ export function ExpensesManager() {
               {expenses.map((expense) => (
                 <div
                   key={expense.id}
-                  className="flex items-center justify-between p-4 border rounded-lg"
+                  className="flex flex-col md:flex-row items-center md:justify-between p-4 border rounded-lg gap-4"
                 >
-                  <div className="flex-1">
+                  <div className="flex-1 mr-auto md:mr-0">
                     <div className="flex items-center gap-2 mb-1">
                       <Badge
                         className={getExpenseCategoryColor(
@@ -209,7 +209,7 @@ export function ExpensesManager() {
                       • Split between {expense.splits?.length} people
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 ml-auto md:ml-0">
                     <span className="font-medium">
                       {formatCurrency(expense.amount)}
                     </span>
