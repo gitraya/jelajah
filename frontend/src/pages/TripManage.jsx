@@ -22,7 +22,7 @@ import { UserAvatar } from "@/components/UserAvatar";
 import { ChecklistProvider } from "@/contexts/ChecklistContext";
 import { ExpensesProvider } from "@/contexts/ExpensesContext";
 import { ItineraryProvider } from "@/contexts/ItineraryContext";
-import { PackingProvider } from "@/contexts/PackingContext";
+import { PackingItemsProvider } from "@/contexts/PackingItemsContext";
 import { TripsProvider } from "@/contexts/TripsContext";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -50,7 +50,7 @@ export default function TripManage() {
       <ItineraryProvider>
         <ChecklistProvider>
           <ExpensesProvider>
-            <PackingProvider>
+            <PackingItemsProvider>
               <div className="min-h-screen bg-background">
                 {/* Header */}
                 <div className="border-b">
@@ -173,7 +173,7 @@ export default function TripManage() {
                   </Tabs>
                 </div>
               </div>
-            </PackingProvider>
+            </PackingItemsProvider>
           </ExpensesProvider>
         </ChecklistProvider>
       </ItineraryProvider>

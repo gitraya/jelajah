@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select";
 import { TRIP_MEMBER_ROLES } from "@/configs/trip";
 import { useAuth } from "@/hooks/useAuth";
-import { usePacking } from "@/hooks/usePacking";
+import { usePackingItems } from "@/hooks/usePackingItems";
 import { useTrips } from "@/hooks/useTrips";
 import { validator } from "@/lib/utils";
 
@@ -54,7 +54,7 @@ export default function PackingDialog() {
   const { id: tripId } = useParams();
   const { user } = useAuth();
   const { members } = useTrips();
-  const { categories, error, setError, createPacking } = usePacking();
+  const { categories, error, setError, createPacking } = usePackingItems();
   const [open, setOpen] = useState(false);
 
   const onSubmit = (data) => {

@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
 
 import { useApi } from "@/hooks/useApi";
-import { PackingContext } from "@/hooks/usePacking";
+import { PackingItemsContext } from "@/hooks/usePackingItems";
 import { getAPIData, getErrorMessage } from "@/lib/utils";
 
-export const PackingProvider = ({ children }) => {
+export const PackingItemsProvider = ({ children }) => {
   const { id: defaultTripId } = useParams();
   const { getRequest, postRequest, deleteRequest, patchRequest } = useApi();
   const [isLoading, setIsLoading] = useState(false);
@@ -171,7 +171,7 @@ export const PackingProvider = ({ children }) => {
   }, [updatePackingItems, selectedCategory]);
 
   return (
-    <PackingContext.Provider
+    <PackingItemsContext.Provider
       value={{
         error,
         isLoading,
@@ -193,6 +193,6 @@ export const PackingProvider = ({ children }) => {
       }}
     >
       {children}
-    </PackingContext.Provider>
+    </PackingItemsContext.Provider>
   );
 };

@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
-import { usePacking } from "@/hooks/usePacking";
+import { usePackingItems } from "@/hooks/usePackingItems";
 import { getPackingCategoryColor } from "@/lib/colors";
 
 import PackingDialog from "./dialogs/PackingDialog";
@@ -42,7 +42,7 @@ export function PackingList() {
     deletePacking,
     setSelectedCategory,
     selectedCategory,
-  } = usePacking();
+  } = usePackingItems();
   const { user } = useAuth();
   const { total_items, packed_items, category_stats } = statistics;
 
