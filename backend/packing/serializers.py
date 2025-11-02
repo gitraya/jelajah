@@ -19,7 +19,7 @@ class PackingItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PackingItem
-        fields = ['id', 'name', 'category', 'quantity', 'packed', 'assigned_to', 'category_id', 'assigned_to_id']
+        fields = ['id', 'name', 'category', 'quantity', 'packed', 'assigned_to', 'category_id', 'assigned_to_id', 'created_at', 'updated_at']
     
     def validate_assigned_to_id(self, value):
         if not value:

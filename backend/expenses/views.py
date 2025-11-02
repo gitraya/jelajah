@@ -60,12 +60,12 @@ class ExpenseStatisticsViewSet(viewsets.ViewSet):
         # Transform the values to have nested category object
         category_stats = [
             {
-            'category': {
-                'id': item['category__id'],
-                'name': item['category__name']
-            },
-            'count': item['count'],
-            'amount': item['amount'] or 0
+                'category': {
+                    'id': item['category__id'],
+                    'name': item['category__name']
+                },
+                'count': item['count'],
+                'amount': item['amount'] or 0
             }
             for item in category_stats
         ]

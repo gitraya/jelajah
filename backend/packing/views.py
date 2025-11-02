@@ -46,12 +46,12 @@ class PackingItemStatisticsViewSet(viewsets.ViewSet):
         # Transform the values to have nested category object
         category_stats = [
             {
-            'category': {
-                'id': item['category__id'],
-                'name': item['category__name']
-            },
-            'total': item['total'],
-            'packed': item['packed']
+                'category': {
+                    'id': item['category__id'],
+                    'name': item['category__name']
+                },
+                'total': item['total'],
+                'packed': item['packed']
             }
             for item in category_stats
         ]
@@ -60,5 +60,5 @@ class PackingItemStatisticsViewSet(viewsets.ViewSet):
             "total_items": total_items,
             "packed_items": packed_items,
             "unpacked_items": total_items - packed_items,
-            "categories": category_stats
+            "category_stats": category_stats
         })

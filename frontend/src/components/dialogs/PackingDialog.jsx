@@ -24,11 +24,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { TRIP_MEMBER_ROLES } from "@/configs/trip";
-import { useApi } from "@/hooks/useApi";
 import { useAuth } from "@/hooks/useAuth";
 import { usePacking } from "@/hooks/usePacking";
 import { useTrips } from "@/hooks/useTrips";
-import { getErrorMessage, validator } from "@/lib/utils";
+import { validator } from "@/lib/utils";
 
 const getAssignedLabel = (assigned_to, user) => {
   if (!assigned_to?.user) {
@@ -45,7 +44,6 @@ const getAssignedLabel = (assigned_to, user) => {
 };
 
 export default function PackingDialog() {
-  const { postRequest } = useApi();
   const {
     register,
     handleSubmit,
@@ -56,8 +54,7 @@ export default function PackingDialog() {
   const { id: tripId } = useParams();
   const { user } = useAuth();
   const { members } = useTrips();
-  const { categories, triggerUpdatePackingItems } = usePacking();
-  const [error, setError] = useState("");
+  const { categories, error, setError, createPacking } = usePacking();
   const [open, setOpen] = useState(false);
 
   const onSubmit = (data) => {
@@ -65,19 +62,7 @@ export default function PackingDialog() {
       data.assigned_to_id = null;
     }
 
-    postRequest(`/trips/${tripId}/packing/items/`, data)
-      .then(() => {
-        triggerUpdatePackingItems();
-        setOpen(false);
-      })
-      .catch((error) =>
-        setError(
-          getErrorMessage(
-            error,
-            "An error occurred while creating the packing item. Please try again later."
-          )
-        )
-      );
+    createPacking(data, tripId).then(() => setOpen(false));
   };
 
   useEffect(() => {

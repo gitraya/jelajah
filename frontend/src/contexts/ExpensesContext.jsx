@@ -109,6 +109,7 @@ export const ExpensesProvider = ({ children }) => {
           "An error occurred while creating the expense. Please try again later."
         )
       );
+      throw error;
     }
   };
 
