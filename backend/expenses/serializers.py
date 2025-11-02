@@ -1,3 +1,4 @@
+from decimal import Decimal
 from rest_framework import serializers
 from .models import Expense, ExpenseSplit, ExpenseCategory
 from django.db import transaction
@@ -30,7 +31,7 @@ class ExpenseSplitSerializer(serializers.ModelSerializer):
                 trip_id = expense.trip_id
                 if not TripMember.objects.filter(id=value.id, trip_id=trip_id).exists():
                     raise serializers.ValidationError("Member does not belong to the trip associated with this expense.")
-            return value
+        return value
     
     def create(self, validated_data):
         expense_id = self.context['expense_id']
@@ -43,7 +44,7 @@ class ExpenseSerializer(serializers.ModelSerializer):
     paid_by_id = serializers.PrimaryKeyRelatedField(queryset=TripMember.objects.all(), source='paid_by', write_only=True)
     category = ExpenseCategorySerializer(read_only=True)
     category_id = serializers.PrimaryKeyRelatedField(queryset=ExpenseCategory.objects.all(), source='category', write_only=True, required=True)
-    amount = serializers.DecimalField(max_digits=14, decimal_places=2, coerce_to_string=False)
+    amount = serializers.DecimalField(max_digits=14, decimal_places=2, coerce_to_string=False, required=True)
     
     class Meta:
         model = Expense
@@ -91,6 +92,11 @@ class ExpenseSerializer(serializers.ModelSerializer):
 
         if not is_paid_by_in_splits:
             raise serializers.ValidationError("The 'paid_by' member must be included in the splits.")
+        
+        expense_amount = Decimal(str(self.initial_data.get('amount')))
+        total_split_amount = sum([split['amount'] for split in value])
+        if total_split_amount != expense_amount:
+            raise serializers.ValidationError("Total of split amounts must equal the expense amount.")
         
         return value
     

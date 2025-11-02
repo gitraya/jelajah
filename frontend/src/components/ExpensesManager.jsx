@@ -23,6 +23,7 @@ import { useExpenses } from "@/hooks/useExpenses";
 import { getExpenseCategoryColor } from "@/lib/colors";
 import { formatCurrency } from "@/lib/utils";
 
+import { ConfirmationDialog } from "./dialogs/ConfirmationDialog";
 import ExpenseDialog from "./dialogs/ExpenseDialog";
 import {
   Dialog,
@@ -221,14 +222,20 @@ export function ExpensesManager() {
                       <Users className="w-4 h-4 mr-1" />
                       View Split
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => deleteExpense(expense.id)}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <ConfirmationDialog
+                      title="Delete Expense"
+                      description="Are you sure you want to delete this expense? This action cannot be undone."
+                      onConfirm={() => deleteExpense(expense.id)}
+                      trigger={
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      }
+                    />
                   </div>
                 </div>
               ))}
