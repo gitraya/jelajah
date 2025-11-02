@@ -188,3 +188,17 @@ SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
 SENDGRID_SANDBOX_MODE_IN_DEBUG = False
 SENDGRID_ECHO_TO_STDOUT = True if os.getenv("DEBUG") == "True" else False  # Optional: Print emails to console for dev
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")  # Use the email you verify with SendGrid
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+}

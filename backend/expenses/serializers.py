@@ -23,13 +23,14 @@ class ExpenseSplitSerializer(serializers.ModelSerializer):
         read_only_fields = ['expense']
         
     def validate_member_id(self, value):
-        expense_id = self.context['expense_id']
-        if expense_id:
-            expense = Expense.objects.get(id=expense_id)
-            trip_id = expense.trip_id
-            if not TripMember.objects.filter(id=value.id, trip_id=trip_id).exists():
-                raise serializers.ValidationError("Member does not belong to the trip associated with this expense.")
-        return value
+        if 'trip_id' not in self.context:
+            expense_id = self.context['expense_id']
+            if expense_id:
+                expense = Expense.objects.get(id=expense_id)
+                trip_id = expense.trip_id
+                if not TripMember.objects.filter(id=value.id, trip_id=trip_id).exists():
+                    raise serializers.ValidationError("Member does not belong to the trip associated with this expense.")
+            return value
     
     def create(self, validated_data):
         expense_id = self.context['expense_id']
@@ -63,12 +64,21 @@ class ExpenseSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("At least one split is required.")
         
         trip_id = self.context['trip_id']
-        paid_by_id = self.initial_data.get('paid_by_id')
+        paid_by_raw = self.initial_data.get('paid_by_id')
+        try:
+            paid_by_id = TripMember.objects.only('id').get(pk=paid_by_raw).id
+        except TripMember.DoesNotExist:
+            raise serializers.ValidationError("Invalid 'paid_by_id'; member not found.")
+        
         member_ids = set()
         is_paid_by_in_splits = False
-        
         for split in value:
-            member_id = split['member_id']
+            # After nested validation, each split contains a 'member' instance, not 'member_id'
+            member = split.get('member')
+            if member is None:
+                raise serializers.ValidationError("Each split must include a member.")
+            member_id = member.id
+
             if not TripMember.objects.filter(id=member_id, trip_id=trip_id).exists():
                 raise serializers.ValidationError(f"Member {member_id} does not belong to this trip.")
             if member_id in member_ids:

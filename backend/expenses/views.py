@@ -4,7 +4,7 @@ from .serializers import ExpenseSerializer, ExpenseSplitSerializer, ExpenseCateg
 from backend.permissions import TripAccessPermission
 from rest_framework.response import Response
 from django.db import models
-from trips.models import Trip, TripMember
+from trips.models import Trip
 
 class ExpenseCategoryViewSet(viewsets.ReadOnlyModelViewSet):
     """Expense categories."""
@@ -34,6 +34,11 @@ class ExpenseSplitViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         expense_id = self.kwargs.get('expense_id')
         return ExpenseSplit.objects.filter(expense_id=expense_id)
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['expense_id'] = self.kwargs.get('expense_id')
+        return context
 
 class ExpenseStatisticsViewSet(viewsets.ViewSet):
     """Statistics for expenses in a trip."""

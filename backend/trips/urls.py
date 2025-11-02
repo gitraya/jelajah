@@ -10,5 +10,5 @@ trip_router.register(r'members', TripMemberViewSet, basename='trip-member')
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('trips/<uuid:trip_id>/members/', include(trip_router.urls)),
+    path('trips/<uuid:trip_id>/', include(trip_router.urls)),
 ]
