@@ -59,7 +59,7 @@ export const ExpensesProvider = ({ children }) => {
 
   const createExpense = async (data, tripId = defaultTripId) => {
     try {
-      setError(null);
+      setError("");
       const response = await postRequest(
         `/trips/${tripId}/expenses/items/`,
         data
@@ -155,6 +155,7 @@ export const ExpensesProvider = ({ children }) => {
         categories,
         statistics,
         updateExpenses,
+        setError,
         setExpenses,
         createExpense,
         deleteExpense,

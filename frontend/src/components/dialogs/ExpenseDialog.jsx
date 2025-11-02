@@ -80,8 +80,7 @@ export default function ExpenseDialog() {
   } = useForm();
   const { user } = useAuth();
   const { members } = useTrips();
-  const { categories, createExpense } = useExpenses();
-  const [error, setError] = useState("");
+  const { categories, createExpense, error, setError } = useExpenses();
   const [open, setOpen] = useState(false);
 
   const onSubmit = (data) => {
