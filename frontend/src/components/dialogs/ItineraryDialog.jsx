@@ -103,7 +103,7 @@ export default function ItineraryDialog() {
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="type_id">Category</Label>
+            <Label htmlFor="type_id">Type</Label>
             <Select
               id="type_id"
               onValueChange={(value) =>
@@ -112,12 +112,12 @@ export default function ItineraryDialog() {
               {...register("type_id", { required: validator.required })}
             >
               <SelectTrigger aria-invalid={errors.type_id ? "true" : "false"}>
-                <SelectValue placeholder="Select category" />
+                <SelectValue placeholder="Select type" />
               </SelectTrigger>
               <SelectContent>
-                {types.slice(1).map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.name}
+                {types.slice(1).map((type) => (
+                  <SelectItem key={type.id} value={type.id}>
+                    {type.name}
                   </SelectItem>
                 ))}
               </SelectContent>

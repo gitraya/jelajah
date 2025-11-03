@@ -3,3 +3,9 @@ export const ITINERARY_STATUSES = {
   VISITED: "Visited",
   SKIPPED: "Skipped",
 };
+
+export const ITINERARY_STATUSES_ENUM = {
+  PLANNED: "PLANNED",
+  VISITED: "VISITED",
+  SKIPPED: "SKIPPED",
+};

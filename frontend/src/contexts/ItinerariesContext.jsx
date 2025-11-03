@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
 
+import { ITINERARY_STATUSES_ENUM } from "@/configs/itinerary";
 import { useApi } from "@/hooks/useApi";
 import { ItinerariesContext } from "@/hooks/useItineraries";
 import { getAPIData, getErrorMessage } from "@/lib/utils";
+
+const { PLANNED, VISITED, SKIPPED } = ITINERARY_STATUSES_ENUM;
 
 export const ItinerariesProvider = ({ children }) => {
   const { id: defaultTripId } = useParams();
@@ -99,11 +102,11 @@ export const ItinerariesProvider = ({ children }) => {
         ...prev,
         total: prev.total + 1,
         planned:
-          response.data.status === "planned" ? prev.planned + 1 : prev.planned,
+          response.data.status === PLANNED ? prev.planned + 1 : prev.planned,
         visited:
-          response.data.status === "visited" ? prev.visited + 1 : prev.visited,
+          response.data.status === VISITED ? prev.visited + 1 : prev.visited,
         skipped:
-          response.data.status === "skipped" ? prev.skipped + 1 : prev.skipped,
+          response.data.status === SKIPPED ? prev.skipped + 1 : prev.skipped,
       }));
 
       return response.data;
@@ -126,11 +129,11 @@ export const ItinerariesProvider = ({ children }) => {
       ...prev,
       total: prev.total - 1,
       planned:
-        deletedLocation.status === "planned" ? prev.planned - 1 : prev.planned,
+        deletedLocation.status === PLANNED ? prev.planned - 1 : prev.planned,
       visited:
-        deletedLocation.status === "visited" ? prev.visited - 1 : prev.visited,
+        deletedLocation.status === VISITED ? prev.visited - 1 : prev.visited,
       skipped:
-        deletedLocation.status === "skipped" ? prev.skipped - 1 : prev.skipped,
+        deletedLocation.status === SKIPPED ? prev.skipped - 1 : prev.skipped,
     }));
     deleteRequest(`/trips/${tripId}/itineraries/items/${id}/`);
   };
@@ -147,21 +150,21 @@ export const ItinerariesProvider = ({ children }) => {
         .map((location) =>
           location.id === id ? { ...location, status } : location
         )
-        .filter((location) => location.status !== "skipped")
+        .filter((location) => location.status !== SKIPPED)
     );
     setStatistics((prev) => {
       const location = locations.find((loc) => loc.id === id);
       let { planned, visited, skipped } = prev;
 
       // Decrement old status count
-      if (location.status === "planned") planned -= 1;
-      else if (location.status === "visited") visited -= 1;
-      else if (location.status === "skipped") skipped -= 1;
+      if (location.status === PLANNED) planned -= 1;
+      else if (location.status === VISITED) visited -= 1;
+      else if (location.status === SKIPPED) skipped -= 1;
 
       // Increment new status count
-      if (status === "planned") planned += 1;
-      else if (status === "visited") visited += 1;
-      else if (status === "skipped") skipped += 1;
+      if (status === PLANNED) planned += 1;
+      else if (status === VISITED) visited += 1;
+      else if (status === SKIPPED) skipped += 1;
 
       return {
         ...prev,
