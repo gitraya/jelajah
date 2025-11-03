@@ -6,8 +6,6 @@ import {
   Star,
   Trash2,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useParams } from "react-router";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,8 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ITINERARY_STATUSES } from "@/configs/itinerary";
-import { useApi } from "@/hooks/useApi";
-import { useItinerary } from "@/hooks/useItinerary";
+import { useItineraries } from "@/hooks/useItineraries";
 import { getMapStatusColor, getMapTypeColor } from "@/lib/colors";
 import { formatDate } from "@/lib/utils";
 
@@ -41,46 +38,20 @@ const generateGoogleMapsUrl = (location) => {
 };
 
 export function ItinerariesManager() {
-  const { id: tripId } = useParams();
-  const { types, updateItinerary, statistics, setStatistics, fetchStatistics } =
-    useItinerary();
-  const { getRequest, deleteRequest, patchRequest } = useApi();
-  const [isLoading, setIsLoading] = useState(true);
-  const [locations, setLocations] = useState([]);
-  const [itinerary, setItinerary] = useState([]);
-  const [selectedType, setSelectedType] = useState("all");
-  const [selectedStatus, setSelectedStatus] = useState("all");
-  const { total_items, planned_items, visited_items, skipped_items } =
-    statistics;
-
-  useEffect(() => {
-    setIsLoading(true);
-    getRequest(
-      `/trips/${tripId}/itinerary/items${
-        selectedType !== "all" ? `?type_id=${selectedType}` : ""
-      }`
-    )
-      .then((response) => setLocations(response.data))
-      .finally(() => setIsLoading(false));
-
-    getRequest(`/trips/${tripId}/itinerary/items/`)
-      .then((response) => {
-        setItinerary(
-          response.data
-            .filter((l) => l.visit_time && l.status !== "skipped")
-            .sort(
-              (a, b) =>
-                new Date(a.visit_time).getTime() -
-                new Date(b.visit_time).getTime()
-            )
-        );
-      })
-      .finally(() => setIsLoading(false));
-  }, [updateItinerary, selectedType]);
-
-  useEffect(() => {
-    fetchStatistics(tripId);
-  }, [updateItinerary]);
+  const {
+    types,
+    deleteLocation,
+    updateStatus,
+    statistics,
+    isLoading,
+    selectedType,
+    selectedStatus,
+    setSelectedStatus,
+    setSelectedType,
+    locations,
+    itineraries,
+  } = useItineraries();
+  const { total, planned, visited, skipped } = statistics;
 
   const statuses = [
     { id: "all", name: "All" },
@@ -89,67 +60,6 @@ export function ItinerariesManager() {
       name: value,
     })),
   ];
-
-  const deleteLocation = (id) => {
-    const deletedLocation = locations.find((location) => location.id === id);
-    setLocations(locations.filter((location) => location.id !== id));
-    setItinerary(itinerary.filter((location) => location.id !== id));
-    setStatistics((prev) => ({
-      ...prev,
-      total_items: prev.total_items - 1,
-      planned_items:
-        deletedLocation.status === "planned"
-          ? prev.planned_items - 1
-          : prev.planned_items,
-      visited_items:
-        deletedLocation.status === "visited"
-          ? prev.visited_items - 1
-          : prev.visited_items,
-      skipped_items:
-        deletedLocation.status === "skipped"
-          ? prev.skipped_items - 1
-          : prev.skipped_items,
-    }));
-    deleteRequest(`/trips/${tripId}/itinerary/items/${id}/`);
-  };
-
-  // : 'planned' | 'visited' | 'skipped'
-  const updateStatus = (id, status) => {
-    setLocations(
-      locations.map((location) =>
-        location.id === id ? { ...location, status } : location
-      )
-    );
-    setItinerary(
-      itinerary
-        .map((location) =>
-          location.id === id ? { ...location, status } : location
-        )
-        .filter((location) => location.status !== "skipped")
-    );
-    setStatistics((prev) => {
-      const location = locations.find((loc) => loc.id === id);
-      let { planned_items, visited_items, skipped_items } = prev;
-
-      // Decrement old status count
-      if (location.status === "planned") planned_items -= 1;
-      else if (location.status === "visited") visited_items -= 1;
-      else if (location.status === "skipped") skipped_items -= 1;
-
-      // Increment new status count
-      if (status === "planned") planned_items += 1;
-      else if (status === "visited") visited_items += 1;
-      else if (status === "skipped") skipped_items += 1;
-
-      return {
-        ...prev,
-        planned_items,
-        visited_items,
-        skipped_items,
-      };
-    });
-    patchRequest(`/trips/${tripId}/itinerary/items/${id}/`, { status });
-  };
 
   if (isLoading) {
     return <div className="space-y-6">Loading...</div>;
@@ -167,7 +77,7 @@ export function ItinerariesManager() {
             <MapPin className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{total_items}</div>
+            <div className="text-2xl font-bold">{total}</div>
           </CardContent>
         </Card>
 
@@ -177,7 +87,7 @@ export function ItinerariesManager() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{planned_items}</div>
+            <div className="text-2xl font-bold">{planned}</div>
           </CardContent>
         </Card>
 
@@ -187,7 +97,7 @@ export function ItinerariesManager() {
             <Star className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{visited_items}</div>
+            <div className="text-2xl font-bold">{visited}</div>
           </CardContent>
         </Card>
 
@@ -197,7 +107,7 @@ export function ItinerariesManager() {
             <Navigation className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{skipped_items}</div>
+            <div className="text-2xl font-bold">{skipped}</div>
           </CardContent>
         </Card>
       </div>
@@ -263,8 +173,10 @@ export function ItinerariesManager() {
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
                             <h4 className="font-medium">{location.name}</h4>
-                            <Badge className={getMapTypeColor(location.type)}>
-                              {location.type}
+                            <Badge
+                              className={getMapTypeColor(location.type?.name)}
+                            >
+                              {location.type?.name}
                             </Badge>
                             <Badge
                               className={getMapStatusColor(location.status)}
@@ -314,7 +226,7 @@ export function ItinerariesManager() {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              {statuses.map((status) => (
+                              {statuses.slice(1).map((status) => (
                                 <SelectItem key={status.id} value={status.id}>
                                   {status.name}
                                 </SelectItem>
@@ -361,13 +273,13 @@ export function ItinerariesManager() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {itinerary.length === 0 ? (
+                {itineraries.length === 0 ? (
                   <p className="text-muted-foreground text-center py-8">
                     No scheduled locations. Add visit dates to your locations to
                     see them here.
                   </p>
                 ) : (
-                  itinerary.map((location) => (
+                  itineraries.map((location) => (
                     <div
                       key={location.id}
                       className="flex items-center gap-4 p-4 border rounded-lg"
@@ -380,8 +292,10 @@ export function ItinerariesManager() {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <h4 className="font-medium">{location.name}</h4>
-                          <Badge className={getMapTypeColor(location.type)}>
-                            {location.type}
+                          <Badge
+                            className={getMapTypeColor(location.type?.name)}
+                          >
+                            {location.type?.name}
                           </Badge>
                           <Badge className={getMapStatusColor(location.status)}>
                             {location.status}

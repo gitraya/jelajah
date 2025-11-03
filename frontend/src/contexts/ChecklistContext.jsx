@@ -190,19 +190,20 @@ export const ChecklistProvider = ({ children }) => {
     <ChecklistContext.Provider
       value={{
         error,
+        isLoading,
         checklistItems,
         upcomingChecklistItems,
         selectedCategory,
-        isLoading,
         statistics,
         updateChecklistItems,
+        setError,
+        setChecklistItems,
         createChecklist,
         deleteItem,
         toggleCompleted,
-        setError,
-        fetchChecklistItems,
         setSelectedCategory,
         setStatistics,
+        fetchChecklistItems,
         fetchStatistics,
         triggerUpdateChecklist,
       }}

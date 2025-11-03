@@ -9,7 +9,7 @@ import {
 
 import { useChecklist } from "@/hooks/useChecklist";
 import { useExpenses } from "@/hooks/useExpenses";
-import { useItinerary } from "@/hooks/useItinerary";
+import { useItineraries } from "@/hooks/useItineraries";
 import { useTrips } from "@/hooks/useTrips";
 import { formatCurrency } from "@/lib/utils";
 
@@ -31,7 +31,7 @@ export function TripOverview({ tripData }) {
   const { statistics: expenseStatistics } = useExpenses();
   const { total_budget, total_spent } = expenseStatistics;
   const budgetPercentage = (total_spent / total_budget) * 100;
-  const { statistics: itineraryStatistics } = useItinerary();
+  const { statistics: itineraryStatistics } = useItineraries();
   const { total_items: total_locations, visited_items: visited_locations } =
     itineraryStatistics;
 

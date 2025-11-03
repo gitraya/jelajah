@@ -25,7 +25,7 @@ class ItineraryItem(BaseModel):
     description = models.TextField(blank=True)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
-    estimated_time = models.DurationField(null=True, blank=True)
+    estimated_time = models.CharField(max_length=50, null=True, blank=True, help_text="e.g., '2-3 hours', 'Half Day'")
     visit_time = models.DateTimeField(null=True, blank=True)
     notes = models.TextField(blank=True)
     status = models.CharField(max_length=10, choices=ItineraryStatus.choices, default=ItineraryStatus.PLANNED)

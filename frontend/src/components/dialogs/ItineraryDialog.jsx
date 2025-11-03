@@ -1,11 +1,9 @@
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useParams } from "react-router";
 
-import { useApi } from "@/hooks/useApi";
-import { useItinerary } from "@/hooks/useItinerary";
-import { getErrorMessage, validator } from "@/lib/utils";
+import { useItineraries } from "@/hooks/useItineraries";
+import { validator } from "@/lib/utils";
 
 import { Button } from "../ui/button";
 import {
@@ -28,7 +26,6 @@ import {
 import { Textarea } from "../ui/textarea";
 
 export default function ItineraryDialog() {
-  const { postRequest } = useApi();
   const {
     register,
     handleSubmit,
@@ -36,25 +33,11 @@ export default function ItineraryDialog() {
     formState: { errors },
     reset,
   } = useForm();
-  const { id: tripId } = useParams();
-  const { triggerUpdateItinerary, types } = useItinerary();
-  const [error, setError] = useState("");
+  const { createItinerary, types, setError, error } = useItineraries();
   const [open, setOpen] = useState(false);
 
   const onSubmit = (data) => {
-    postRequest(`/trips/${tripId}/itinerary/items/`, data)
-      .then(() => {
-        triggerUpdateItinerary();
-        setOpen(false);
-      })
-      .catch((error) =>
-        setError(
-          getErrorMessage(
-            error,
-            "An error occurred while creating the itinerary item. Please try again later."
-          )
-        )
-      );
+    createItinerary(data).then(() => setOpen(false));
   };
 
   useEffect(() => {

@@ -21,7 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserAvatar } from "@/components/UserAvatar";
 import { ChecklistProvider } from "@/contexts/ChecklistContext";
 import { ExpensesProvider } from "@/contexts/ExpensesContext";
-import { ItineraryProvider } from "@/contexts/ItineraryContext";
+import { ItinerariesProvider } from "@/contexts/ItinerariesContext";
 import { PackingItemsProvider } from "@/contexts/PackingItemsContext";
 import { TripsProvider } from "@/contexts/TripsContext";
 import { useAuth } from "@/hooks/useAuth";
@@ -47,7 +47,7 @@ export default function TripManage() {
   // Manage view (original trip management interface)
   return (
     <TripsProvider>
-      <ItineraryProvider>
+      <ItinerariesProvider>
         <ChecklistProvider>
           <ExpensesProvider>
             <PackingItemsProvider>
@@ -176,7 +176,7 @@ export default function TripManage() {
             </PackingItemsProvider>
           </ExpensesProvider>
         </ChecklistProvider>
-      </ItineraryProvider>
+      </ItinerariesProvider>
     </TripsProvider>
   );
 }
