@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, generics
 from rest_framework.response import Response
 from backend.permissions import TripAccessPermission
 from .models import ItineraryType, ItineraryItem
@@ -40,11 +40,11 @@ class ItineraryOrganizedListViewSet(viewsets.ViewSet):
         serializer = ItineraryItemSerializer(items, many=True)
         return Response(serializer.data)
 
-class ItineraryItemStatisticsViewSet(viewsets.ViewSet):
+class ItineraryItemStatisticsViewSet(generics.GenericAPIView):
     """Statistics for itinerary items in a trip."""
     permission_classes = [permissions.IsAuthenticated, TripAccessPermission]
 
-    def list(self, request, trip_id=None):
+    def get(self, request, trip_id=None):
         total = ItineraryItem.objects.filter(trip_id=trip_id).count()
         visited = ItineraryItem.objects.filter(trip_id=trip_id, status='VISITED').count()
         planned = ItineraryItem.objects.filter(trip_id=trip_id, status='PLANNED').count()

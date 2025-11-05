@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, generics
 from .models import PackingCategory, PackingItem
 from .serializers import PackingCategorySerializer, PackingItemSerializer
 from backend.permissions import TripAccessPermission
@@ -29,11 +29,11 @@ class PackingItemViewSet(viewsets.ModelViewSet):
         context['trip_id'] = self.kwargs.get('trip_id')
         return context
 
-class PackingItemStatisticsViewSet(viewsets.ViewSet):
+class PackingItemStatisticsViewSet(generics.GenericAPIView):
     """Statistics for packing items in a trip."""
     permission_classes = [permissions.IsAuthenticated, TripAccessPermission]
 
-    def list(self, request, trip_id=None):
+    def get(self, request, trip_id=None):
         total_items = PackingItem.objects.filter(trip_id=trip_id).count()
         packed_items = PackingItem.objects.filter(trip_id=trip_id, packed=True).count()
         

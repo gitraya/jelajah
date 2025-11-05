@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, generics
 from .models import Expense, ExpenseSplit, ExpenseCategory
 from .serializers import ExpenseSerializer, ExpenseSplitSerializer, ExpenseCategorySerializer
 from backend.permissions import TripAccessPermission
@@ -40,11 +40,11 @@ class ExpenseSplitViewSet(viewsets.ModelViewSet):
         context['expense_id'] = self.kwargs.get('expense_id')
         return context
 
-class ExpenseStatisticsViewSet(viewsets.ViewSet):
+class ExpenseStatisticsViewSet(generics.GenericAPIView):
     """Statistics for expenses in a trip."""
     permission_classes = [permissions.IsAuthenticated, TripAccessPermission]
 
-    def list(self, request, trip_id=None):
+    def get(self, request, trip_id=None):
         trip = Trip.objects.filter(id=trip_id).first()
         
         trip_budget = trip.budget if trip and trip.budget else 0

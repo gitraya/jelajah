@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, generics
 from .models import ChecklistItem
 from .serializers import ChecklistItemSerializer
 from backend.permissions import TripAccessPermission
@@ -27,12 +27,12 @@ class ChecklistItemViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context()
         context['trip_id'] = self.kwargs.get('trip_id')
         return context
-    
-class ChecklistStatisticsViewSet(viewsets.ViewSet):
+
+class ChecklistStatisticsViewSet(generics.GenericAPIView):
     """Statistics for checklist items in a trip."""
     permission_classes = [permissions.IsAuthenticated, TripAccessPermission]
-    
-    def list(self, request, trip_id=None):
+
+    def get(self, request, trip_id=None):
         total_items = ChecklistItem.objects.filter(trip_id=trip_id).count()
         completed_items = ChecklistItem.objects.filter(trip_id=trip_id, is_completed=True).count()
         
