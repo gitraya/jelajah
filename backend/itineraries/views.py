@@ -40,7 +40,7 @@ class ItineraryOrganizedListViewSet(viewsets.ViewSet):
         serializer = ItineraryItemSerializer(items, many=True)
         return Response(serializer.data)
 
-class ItineraryItemStatisticsViewSet(generics.GenericAPIView):
+class ItineraryItemStatisticsView(generics.RetrieveAPIView):
     """Statistics for itinerary items in a trip."""
     permission_classes = [permissions.IsAuthenticated, TripAccessPermission]
 

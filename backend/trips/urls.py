@@ -1,14 +1,15 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import TripViewSet, TripMemberViewSet
+from .views import TripViewSet, TripMemberViewSet, TripMemberStatisticsView
 
 router = DefaultRouter()
 router.register(r'trips', TripViewSet, basename='trip')
 
-trip_router = DefaultRouter()
-trip_router.register(r'members', TripMemberViewSet, basename='trip-member')
+members_router = DefaultRouter()
+members_router.register(r'members', TripMemberViewSet, basename='trip-member')
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('trips/<uuid:trip_id>/', include(trip_router.urls)),
+    path('trips/<uuid:trip_id>/members/', include(members_router.urls)),
+    path('trips/<uuid:trip_id>/members/statistics/', TripMemberStatisticsView.as_view(), name='trip-member-statistics'),
 ]

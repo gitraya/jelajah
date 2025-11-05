@@ -2,15 +2,16 @@ from rest_framework import status, generics
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
 from django.contrib.auth import get_user_model
-import time
+from django.db import models
 
 from .models import Trip, TripStatus, MemberStatus, TripMember
-from rest_framework.permissions import IsAuthenticated
 from .serializers import TripSerializer, TripMemberSerializer
 from .permissions import IsTripAccessible
 from backend.services import send_templated_email
+from expenses.models import ExpenseSplit
 
 User = get_user_model()
 
@@ -63,3 +64,29 @@ class TripMemberViewSet(ModelViewSet):
         context = super().get_serializer_context()
         context['trip_id'] = self.kwargs.get('trip_id')
         return context
+    
+class TripMemberStatisticsView(generics.RetrieveAPIView):
+    """
+    View to get statistics of trip members by their status
+    """
+    permission_classes = [IsAuthenticated, IsTripAccessible]
+
+    def get(self, request, trip_id=None):
+        total = TripMember.objects.filter(trip_id=trip_id).count()
+        pending = TripMember.objects.filter(trip_id=trip_id, status=MemberStatus.PENDING).count()
+        accepted = TripMember.objects.filter(trip_id=trip_id, status=MemberStatus.ACCEPTED).count()
+        declined = TripMember.objects.filter(trip_id=trip_id, status=MemberStatus.DECLINED).count()
+        blocked = TripMember.objects.filter(trip_id=trip_id, status=MemberStatus.BLOCKED).count()
+        average_expense = ExpenseSplit.objects.filter(
+            expense__trip_id=trip_id,
+            member__in=TripMember.objects.filter(trip_id=trip_id, status=MemberStatus.ACCEPTED)
+        ).aggregate(avg=models.Avg('amount'))['avg'] or 0
+
+        return Response({
+            "total": total,
+            "pending": pending,
+            "accepted": accepted,
+            "declined": declined,
+            "blocked": blocked,
+            "average_expense": average_expense
+        })

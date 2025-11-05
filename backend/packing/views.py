@@ -29,7 +29,7 @@ class PackingItemViewSet(viewsets.ModelViewSet):
         context['trip_id'] = self.kwargs.get('trip_id')
         return context
 
-class PackingItemStatisticsViewSet(generics.GenericAPIView):
+class PackingItemStatisticsView(generics.RetrieveAPIView):
     """Statistics for packing items in a trip."""
     permission_classes = [permissions.IsAuthenticated, TripAccessPermission]
 

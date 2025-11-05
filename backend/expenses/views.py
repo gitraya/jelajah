@@ -40,7 +40,7 @@ class ExpenseSplitViewSet(viewsets.ModelViewSet):
         context['expense_id'] = self.kwargs.get('expense_id')
         return context
 
-class ExpenseStatisticsViewSet(generics.GenericAPIView):
+class ExpenseStatisticsView(generics.RetrieveAPIView):
     """Statistics for expenses in a trip."""
     permission_classes = [permissions.IsAuthenticated, TripAccessPermission]
 

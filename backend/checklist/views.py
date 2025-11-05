@@ -28,7 +28,7 @@ class ChecklistItemViewSet(viewsets.ModelViewSet):
         context['trip_id'] = self.kwargs.get('trip_id')
         return context
 
-class ChecklistStatisticsViewSet(generics.GenericAPIView):
+class ChecklistStatisticsView(generics.RetrieveAPIView):
     """Statistics for checklist items in a trip."""
     permission_classes = [permissions.IsAuthenticated, TripAccessPermission]
 
