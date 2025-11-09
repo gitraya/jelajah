@@ -45,7 +45,7 @@ export default function MemberDialog() {
   const [open, setOpen] = useState(false);
 
   const onSubmit = (data) => {
-    postRequest(`/trips/${tripId}/members/`, data)
+    postRequest(`/trips/${tripId}/members/items/`, data)
       .then(() => {
         triggerUpdateMembers();
         setOpen(false);

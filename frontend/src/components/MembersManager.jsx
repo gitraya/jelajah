@@ -52,18 +52,18 @@ export function MembersManager() {
 
   useEffect(() => {
     setIsLoading(true);
-    getRequest(`/trips/${tripId}/members/`)
+    getRequest(`/trips/${tripId}/members/items/`)
       .then((response) => setMembers(response.data))
       .finally(() => setIsLoading(false));
 
     return () => {
-      getRequest(`/trips/${tripId}/members/`);
+      getRequest(`/trips/${tripId}/members/items/`);
     };
   }, [updateMembers, selectedStatus]);
 
   useEffect(() => {
     getRequest(
-      `/trips/${tripId}/members${
+      `/trips/${tripId}/members/items/${
         selectedStatus !== "all" ? `?status=${selectedStatus}` : ""
       }`
     ).then((response) => setFilteredMembers(response.data));
@@ -103,7 +103,7 @@ export function MembersManager() {
       declined:
         previousStatus === "DECLINED" ? prev.declined - 1 : prev.declined,
     }));
-    deleteRequest(`/trips/${tripId}/members/${id}/`);
+    deleteRequest(`/trips/${tripId}/members/items/${id}/`);
   };
 
   const updateMemberStatus = (id, status) => {
@@ -135,7 +135,7 @@ export function MembersManager() {
           ? prev.declined + 1
           : prev.declined,
     }));
-    patchRequest(`/trips/${tripId}/members/${id}/`, { status });
+    patchRequest(`/trips/${tripId}/members/items/${id}/`, { status });
   };
 
   const expenseStats = members
