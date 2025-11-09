@@ -1,8 +1,10 @@
 from rest_framework import serializers
+from django.db import models
 from django.utils import timezone
 from django.utils.dateparse import parse_date
 from django.contrib.auth import get_user_model
 from .models import Trip, TripMember, MemberStatus
+from expenses.models import ExpenseSplit
 
 User = get_user_model()
 
@@ -41,10 +43,11 @@ class TripMemberSerializer(serializers.ModelSerializer):
         write_only=True,
         required=False
     )
+    expenses = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     
     class Meta:
         model = TripMember
-        fields = ['id', 'user', 'user_id', 'joined_at', 'status', 'role', 'emergency_contact_name', 'emergency_contact_phone', 'dietary_restrictions', 'first_name', 'last_name', 'email', 'phone']
+        fields = ['id', 'user', 'user_id', 'joined_at', 'status', 'role', 'emergency_contact_name', 'emergency_contact_phone', 'dietary_restrictions', 'first_name', 'last_name', 'email', 'phone', 'expenses']
         read_only_fields = ['id', 'joined_at']
         
     def validate(self, attrs):
@@ -89,6 +92,15 @@ class TripMemberSerializer(serializers.ModelSerializer):
         validated_data.pop('user', None)
         
         return super().update(instance, validated_data)
+    
+    def to_representation(self, instance):
+        """Add expenses field to the representation"""
+        representation = super().to_representation(instance)
+        expenses = ExpenseSplit.objects.filter(
+            member=instance
+        ).aggregate(total=models.Sum('amount'))['total'] or 0
+        representation['expenses'] = expenses
+        return representation
 
 class TripSerializer(serializers.ModelSerializer):
     """Detailed serializer for Trip model"""

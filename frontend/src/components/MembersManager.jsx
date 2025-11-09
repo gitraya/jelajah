@@ -48,7 +48,8 @@ export function MembersManager() {
   const [members, setMembers] = useState([]);
   const [filteredMembers, setFilteredMembers] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState("all");
-  const { total, confirmed, pending } = statistics;
+  const { total, accepted, pending, average_expense, total_expenses } =
+    statistics;
 
   useEffect(() => {
     setIsLoading(true);
@@ -84,21 +85,14 @@ export function MembersManager() {
     })),
   ];
 
-  const totalExpenses = members.reduce(
-    (sum, member) => sum + member.expenses,
-    0
-  );
-  const averageExpense =
-    members.length > 0 ? totalExpenses / members.length : 0;
-
   const deleteMember = (id) => {
     const previousStatus = members.find((member) => member.id === id)?.status;
     setMembers(members.filter((member) => member.id !== id));
     setStatistics((prev) => ({
       ...prev,
       total: prev.total - 1,
-      confirmed:
-        previousStatus === "ACCEPTED" ? prev.confirmed - 1 : prev.confirmed,
+      accepted:
+        previousStatus === "ACCEPTED" ? prev.accepted - 1 : prev.accepted,
       pending: previousStatus === "PENDING" ? prev.pending - 1 : prev.pending,
       declined:
         previousStatus === "DECLINED" ? prev.declined - 1 : prev.declined,
@@ -116,12 +110,12 @@ export function MembersManager() {
     );
     setStatistics((prev) => ({
       ...prev,
-      confirmed:
+      accepted:
         previousStatus === "ACCEPTED"
-          ? prev.confirmed - 1
+          ? prev.accepted - 1
           : status === "ACCEPTED"
-          ? prev.confirmed + 1
-          : prev.confirmed,
+          ? prev.accepted + 1
+          : prev.accepted,
       pending:
         previousStatus === "PENDING"
           ? prev.pending - 1
@@ -142,13 +136,17 @@ export function MembersManager() {
     .map((member) => ({
       ...member,
       percentage:
-        totalExpenses > 0 ? (member.expenses / totalExpenses) * 100 : 0,
+        total_expenses > 0 ? (member.expenses / total_expenses) * 100 : 0,
     }))
     .sort((a, b) => b.expenses - a.expenses);
 
   if (isLoading) {
     return <div className="space-y-6">Loading...</div>;
   }
+
+  const membersWithContacts = members.filter(
+    (m) => m.emergency_contact_name && m.emergency_contact_phone
+  );
 
   return (
     <div className="space-y-6">
@@ -166,11 +164,11 @@ export function MembersManager() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Confirmed</CardTitle>
+            <CardTitle className="text-sm font-medium">Accepted</CardTitle>
             <Users className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{confirmed}</div>
+            <div className="text-2xl font-bold text-green-600">{accepted}</div>
           </CardContent>
         </Card>
 
@@ -193,7 +191,7 @@ export function MembersManager() {
           </CardHeader>
           <CardContent>
             <div className="text-lg font-bold">
-              {formatCurrency(averageExpense)}
+              {formatCurrency(average_expense)}
             </div>
           </CardContent>
         </Card>
@@ -366,12 +364,12 @@ export function MembersManager() {
                   <div className="flex justify-between items-center">
                     <span className="font-medium">Total Expenses</span>
                     <span className="font-bold text-lg">
-                      {formatCurrency(totalExpenses)}
+                      {formatCurrency(total_expenses)}
                     </span>
                   </div>
                   <div className="flex justify-between items-center text-sm text-muted-foreground">
                     <span>Average per person</span>
-                    <span>{formatCurrency(averageExpense)}</span>
+                    <span>{formatCurrency(average_expense)}</span>
                   </div>
                 </div>
               </div>
@@ -388,12 +386,13 @@ export function MembersManager() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {members
-                  .filter(
-                    (m) => m.emergency_contact_name && m.emergency_contact_phone
-                  )
-                  .map((member) => (
+              {membersWithContacts.length === 0 ? (
+                <div className="text-center text-muted-foreground">
+                  No emergency contact information available.
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {membersWithContacts.map((member) => (
                     <div
                       key={member.id}
                       className="flex items-center justify-between p-3 border rounded-lg"
@@ -425,7 +424,8 @@ export function MembersManager() {
                       </div>
                     </div>
                   ))}
-              </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

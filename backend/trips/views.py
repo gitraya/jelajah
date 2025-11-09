@@ -77,10 +77,19 @@ class TripMemberStatisticsView(generics.RetrieveAPIView):
         accepted = TripMember.objects.filter(trip_id=trip_id, status=MemberStatus.ACCEPTED).count()
         declined = TripMember.objects.filter(trip_id=trip_id, status=MemberStatus.DECLINED).count()
         blocked = TripMember.objects.filter(trip_id=trip_id, status=MemberStatus.BLOCKED).count()
-        average_expense = ExpenseSplit.objects.filter(
+        # Calculate total expenses for all accepted members
+        accepted_members = TripMember.objects.filter(trip_id=trip_id, status=MemberStatus.ACCEPTED)
+        total_expenses = sum(
+            ExpenseSplit.objects.filter(
             expense__trip_id=trip_id,
-            member__in=TripMember.objects.filter(trip_id=trip_id, status=MemberStatus.ACCEPTED)
-        ).aggregate(avg=models.Avg('amount'))['avg'] or 0
+            member=member
+            ).aggregate(total=models.Sum('amount'))['total'] or 0
+            for member in accepted_members
+        )
+        
+        # Calculate average expense
+        accepted_count = accepted_members.count()
+        average_expense = total_expenses / accepted_count if accepted_count > 0 else 0
 
         return Response({
             "total": total,
@@ -88,5 +97,6 @@ class TripMemberStatisticsView(generics.RetrieveAPIView):
             "accepted": accepted,
             "declined": declined,
             "blocked": blocked,
-            "average_expense": average_expense
+            "average_expense": average_expense,
+            "total_expenses": total_expenses,
         })

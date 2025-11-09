@@ -6,7 +6,7 @@ router = DefaultRouter()
 router.register(r'trips', TripViewSet, basename='trip')
 
 members_router = DefaultRouter()
-members_router.register(r'members', TripMemberViewSet, basename='trip-member')
+members_router.register(r'items', TripMemberViewSet, basename='trip-member')
 
 urlpatterns = [
     path('', include(router.urls)),
