@@ -22,8 +22,8 @@ import { UserAvatar } from "@/components/UserAvatar";
 import { ChecklistProvider } from "@/contexts/ChecklistContext";
 import { ExpensesProvider } from "@/contexts/ExpensesContext";
 import { ItinerariesProvider } from "@/contexts/ItinerariesContext";
+import { MembersProvider } from "@/contexts/MembersContext";
 import { PackingItemsProvider } from "@/contexts/PackingItemsContext";
-import { TripsProvider } from "@/contexts/TripsContext";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function TripManage() {
@@ -46,7 +46,7 @@ export default function TripManage() {
 
   // Manage view (original trip management interface)
   return (
-    <TripsProvider>
+    <MembersProvider>
       <ItinerariesProvider>
         <ChecklistProvider>
           <ExpensesProvider>
@@ -177,6 +177,6 @@ export default function TripManage() {
           </ExpensesProvider>
         </ChecklistProvider>
       </ItinerariesProvider>
-    </TripsProvider>
+    </MembersProvider>
   );
 }

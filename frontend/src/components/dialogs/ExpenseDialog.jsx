@@ -25,7 +25,7 @@ import {
 import { EXPENSE_SPLIT_TYPES } from "@/configs/expense";
 import { useAuth } from "@/hooks/useAuth";
 import { useExpenses } from "@/hooks/useExpenses";
-import { useTrips } from "@/hooks/useTrips";
+import { useMembers } from "@/hooks/useMembers";
 import { validator } from "@/lib/utils";
 
 import { SelectInput } from "../ui/select-input";
@@ -79,7 +79,7 @@ export default function ExpenseDialog() {
     watch,
   } = useForm();
   const { user } = useAuth();
-  const { members } = useTrips();
+  const { members } = useMembers();
   const { categories, createExpense, error, setError } = useExpenses();
   const [open, setOpen] = useState(false);
 

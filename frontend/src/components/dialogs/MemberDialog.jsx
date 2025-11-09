@@ -1,12 +1,10 @@
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useParams } from "react-router";
 
 import { TRIP_MEMBER_ROLES } from "@/configs/trip";
-import { useApi } from "@/hooks/useApi";
-import { useTrips } from "@/hooks/useTrips";
-import { getErrorMessage, validator } from "@/lib/utils";
+import { useMembers } from "@/hooks/useMembers";
+import { validator } from "@/lib/utils";
 
 import { Alert, AlertDescription } from "../ui/alert";
 import { Button } from "../ui/button";
@@ -30,8 +28,6 @@ import {
 import { Textarea } from "../ui/textarea";
 
 export default function MemberDialog() {
-  const { postRequest } = useApi();
-
   const {
     register,
     handleSubmit,
@@ -39,26 +35,10 @@ export default function MemberDialog() {
     formState: { errors },
     reset,
   } = useForm();
-  const { id: tripId } = useParams();
-  const { triggerUpdateMembers } = useTrips();
-  const [error, setError] = useState("");
+  const { createMember, error, setError } = useMembers();
   const [open, setOpen] = useState(false);
 
-  const onSubmit = (data) => {
-    postRequest(`/trips/${tripId}/members/items/`, data)
-      .then(() => {
-        triggerUpdateMembers();
-        setOpen(false);
-      })
-      .catch((error) =>
-        setError(
-          getErrorMessage(
-            error,
-            "An error occurred while creating the checklist item. Please try again later."
-          )
-        )
-      );
-  };
+  const onSubmit = (data) => createMember(data).then(() => setOpen(false));
 
   useEffect(() => {
     if (open) {

@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 
 import { CHECKLIST_CATEGORIES, CHECKLIST_PRIORITY } from "@/configs/checklist";
 import { useChecklist } from "@/hooks/useChecklist";
-import { useTrips } from "@/hooks/useTrips";
+import { useMembers } from "@/hooks/useMembers";
 import { validator } from "@/lib/utils";
 
 import { Alert, AlertDescription } from "../ui/alert";
@@ -40,7 +40,7 @@ export default function ChecklistDialog() {
     formState: { errors },
     reset,
   } = useForm();
-  const { members } = useTrips();
+  const { members } = useMembers();
   const { createChecklist, error, setError } = useChecklist();
   const [open, setOpen] = useState(false);
 

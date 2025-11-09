@@ -10,7 +10,7 @@ import {
 import { useChecklist } from "@/hooks/useChecklist";
 import { useExpenses } from "@/hooks/useExpenses";
 import { useItineraries } from "@/hooks/useItineraries";
-import { useTrips } from "@/hooks/useTrips";
+import { useMembers } from "@/hooks/useMembers";
 import { formatCurrency } from "@/lib/utils";
 
 import { Badge } from "./ui/badge";
@@ -24,16 +24,19 @@ import {
 import { Progress } from "./ui/progress";
 
 export function TripOverview({ tripData }) {
-  const { members } = useTrips();
+  const { statistics: memberStatistics } = useMembers();
   const { statistics: checklistStatistics } = useChecklist();
+  const { statistics: expenseStatistics } = useExpenses();
+  const { statistics: itineraryStatistics } = useItineraries();
+
+  const { trip_budget, amount_spent } = expenseStatistics;
+  const { total: total_members } = memberStatistics;
   const { total_items: total_tasks, completed_items: completed_tasks } =
     checklistStatistics;
-  const { statistics: expenseStatistics } = useExpenses();
-  const { total_budget, total_spent } = expenseStatistics;
-  const budgetPercentage = (total_spent / total_budget) * 100;
-  const { statistics: itineraryStatistics } = useItineraries();
-  const { total_items: total_locations, visited_items: visited_locations } =
+  const { total: total_locations, visited: visited_locations } =
     itineraryStatistics;
+
+  const budgetPercentage = (amount_spent / trip_budget) * 100;
 
   // Mock summarized data - in real app, this would be derived from ChecklistManager and MapsManager
   const itinerarySummary = [
@@ -78,10 +81,10 @@ export function TripOverview({ tripData }) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(tripData.totalBudget)}
+              {formatCurrency(trip_budget)}
             </div>
             <p className="text-xs text-muted-foreground">
-              {formatCurrency(tripData.spentBudget)} spent
+              {formatCurrency(amount_spent)} spent
             </p>
           </CardContent>
         </Card>
@@ -92,7 +95,7 @@ export function TripOverview({ tripData }) {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{members?.length || 0}</div>
+            <div className="text-2xl font-bold">{total_members || 0}</div>
             <p className="text-xs text-muted-foreground">travelers</p>
           </CardContent>
         </Card>
@@ -138,8 +141,8 @@ export function TripOverview({ tripData }) {
             </div>
             <Progress value={budgetPercentage} className="w-full" />
             <div className="flex justify-between text-sm text-muted-foreground">
-              <span>{formatCurrency(tripData.spentBudget)}</span>
-              <span>{formatCurrency(tripData.totalBudget)}</span>
+              <span>{formatCurrency(amount_spent)}</span>
+              <span>{formatCurrency(trip_budget)}</span>
             </div>
           </div>
         </CardContent>

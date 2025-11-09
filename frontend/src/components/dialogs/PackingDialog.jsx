@@ -25,8 +25,8 @@ import {
 } from "@/components/ui/select";
 import { TRIP_MEMBER_ROLES } from "@/configs/trip";
 import { useAuth } from "@/hooks/useAuth";
+import { useMembers } from "@/hooks/useMembers";
 import { usePackingItems } from "@/hooks/usePackingItems";
-import { useTrips } from "@/hooks/useTrips";
 import { validator } from "@/lib/utils";
 
 const getAssignedLabel = (assigned_to, user) => {
@@ -53,7 +53,7 @@ export default function PackingDialog() {
   } = useForm();
   const { id: tripId } = useParams();
   const { user } = useAuth();
-  const { members } = useTrips();
+  const { members } = useMembers();
   const { categories, error, setError, createPacking } = usePackingItems();
   const [open, setOpen] = useState(false);
 

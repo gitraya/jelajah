@@ -6,8 +6,6 @@ import {
   Trash2,
   Users,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useParams } from "react-router";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -28,8 +26,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TRIP_MEMBER_ROLES, TRIP_MEMBER_STATUSES } from "@/configs/trip";
-import { useApi } from "@/hooks/useApi";
-import { useTrips } from "@/hooks/useTrips";
+import { useMembers } from "@/hooks/useMembers";
 import { getMemberRoleColor, getMemberStatusColor } from "@/lib/colors";
 import { formatCurrency, getInitials } from "@/lib/utils";
 
@@ -40,39 +37,18 @@ const getFullName = (user) => {
 };
 
 export function MembersManager() {
-  const { id: tripId } = useParams();
-  const { updateMembers, statistics, setStatistics, fetchStatistics } =
-    useTrips();
-  const { getRequest, patchRequest, deleteRequest } = useApi();
-  const [isLoading, setIsLoading] = useState(true);
-  const [members, setMembers] = useState([]);
-  const [filteredMembers, setFilteredMembers] = useState([]);
-  const [selectedStatus, setSelectedStatus] = useState("all");
+  const {
+    statistics,
+    isLoading,
+    filteredMembers,
+    members,
+    selectedStatus,
+    setSelectedStatus,
+    updateMemberStatus,
+    deleteMember,
+  } = useMembers();
   const { total, accepted, pending, average_expense, total_expenses } =
     statistics;
-
-  useEffect(() => {
-    setIsLoading(true);
-    getRequest(`/trips/${tripId}/members/items/`)
-      .then((response) => setMembers(response.data))
-      .finally(() => setIsLoading(false));
-
-    return () => {
-      getRequest(`/trips/${tripId}/members/items/`);
-    };
-  }, [updateMembers, selectedStatus]);
-
-  useEffect(() => {
-    getRequest(
-      `/trips/${tripId}/members/items/${
-        selectedStatus !== "all" ? `?status=${selectedStatus}` : ""
-      }`
-    ).then((response) => setFilteredMembers(response.data));
-  }, [members, selectedStatus]);
-
-  useEffect(() => {
-    fetchStatistics(tripId);
-  }, [updateMembers]);
 
   const statuses = [
     {
@@ -84,53 +60,6 @@ export function MembersManager() {
       name: value,
     })),
   ];
-
-  const deleteMember = (id) => {
-    const previousStatus = members.find((member) => member.id === id)?.status;
-    setMembers(members.filter((member) => member.id !== id));
-    setStatistics((prev) => ({
-      ...prev,
-      total: prev.total - 1,
-      accepted:
-        previousStatus === "ACCEPTED" ? prev.accepted - 1 : prev.accepted,
-      pending: previousStatus === "PENDING" ? prev.pending - 1 : prev.pending,
-      declined:
-        previousStatus === "DECLINED" ? prev.declined - 1 : prev.declined,
-    }));
-    deleteRequest(`/trips/${tripId}/members/items/${id}/`);
-  };
-
-  const updateMemberStatus = (id, status) => {
-    const previousStatus = members.find((member) => member.id === id)?.status;
-    if (previousStatus === status) return;
-    setMembers(
-      members.map((member) =>
-        member.id === id ? { ...member, status } : member
-      )
-    );
-    setStatistics((prev) => ({
-      ...prev,
-      accepted:
-        previousStatus === "ACCEPTED"
-          ? prev.accepted - 1
-          : status === "ACCEPTED"
-          ? prev.accepted + 1
-          : prev.accepted,
-      pending:
-        previousStatus === "PENDING"
-          ? prev.pending - 1
-          : status === "PENDING"
-          ? prev.pending + 1
-          : prev.pending,
-      declined:
-        previousStatus === "DECLINED"
-          ? prev.declined - 1
-          : status === "DECLINED"
-          ? prev.declined + 1
-          : prev.declined,
-    }));
-    patchRequest(`/trips/${tripId}/members/items/${id}/`, { status });
-  };
 
   const expenseStats = members
     .map((member) => ({
