@@ -11,6 +11,7 @@ import { useChecklist } from "@/hooks/useChecklist";
 import { useExpenses } from "@/hooks/useExpenses";
 import { useItineraries } from "@/hooks/useItineraries";
 import { useMembers } from "@/hooks/useMembers";
+import { useTrip } from "@/hooks/useTrip";
 import { formatCurrency } from "@/lib/utils";
 
 import { Badge } from "./ui/badge";
@@ -24,6 +25,7 @@ import {
 import { Progress } from "./ui/progress";
 
 export function TripOverview({ tripData }) {
+  const { itinerarySummary } = useTrip();
   const { statistics: memberStatistics } = useMembers();
   const { statistics: checklistStatistics } = useChecklist();
   const { statistics: expenseStatistics } = useExpenses();
@@ -37,38 +39,6 @@ export function TripOverview({ tripData }) {
     itineraryStatistics;
 
   const budgetPercentage = (amount_spent / trip_budget) * 100;
-
-  // Mock summarized data - in real app, this would be derived from ChecklistManager and MapsManager
-  const itinerarySummary = [
-    {
-      date: "March 15",
-      locations: ["Airport pickup", "Hotel check-in"],
-      tasks: 1,
-      locationsVisited: 0,
-      tasksCompleted: 0,
-    },
-    {
-      date: "March 16",
-      locations: ["Tegallalang Rice Terraces", "Ubud Monkey Forest"],
-      tasks: 0,
-      locationsVisited: 1,
-      tasksCompleted: 0,
-    },
-    {
-      date: "March 17",
-      locations: ["Tanah Lot Temple", "Uluwatu Temple"],
-      tasks: 0,
-      locationsVisited: 0,
-      tasksCompleted: 0,
-    },
-    {
-      date: "March 18",
-      locations: ["Seminyak Beach"],
-      tasks: 0,
-      locationsVisited: 0,
-      tasksCompleted: 0,
-    },
-  ];
 
   return (
     <div className="space-y-6">

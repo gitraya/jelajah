@@ -24,6 +24,7 @@ import { ExpensesProvider } from "@/contexts/ExpensesContext";
 import { ItinerariesProvider } from "@/contexts/ItinerariesContext";
 import { MembersProvider } from "@/contexts/MembersContext";
 import { PackingItemsProvider } from "@/contexts/PackingItemsContext";
+import { TripProvider } from "@/contexts/TripContext";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function TripManage() {
@@ -46,137 +47,139 @@ export default function TripManage() {
 
   // Manage view (original trip management interface)
   return (
-    <MembersProvider>
-      <ItinerariesProvider>
-        <ChecklistProvider>
-          <ExpensesProvider>
-            <PackingItemsProvider>
-              <div className="min-h-screen bg-background">
-                {/* Header */}
-                <div className="border-b">
-                  <div className="container mx-auto px-4 py-6">
-                    <div className="flex lg:items-center gap-4 flex-col lg:flex-row">
-                      <Link
-                        to={user ? "/trips/my" : "/login?redirect=/trips/my"}
-                        className="text-sm text-muted-foreground hover:text-foreground transition-colors mr-auto lg:mr-0"
-                      >
-                        ← Back to Trips
-                      </Link>
+    <TripProvider>
+      <MembersProvider>
+        <ItinerariesProvider>
+          <ChecklistProvider>
+            <ExpensesProvider>
+              <PackingItemsProvider>
+                <div className="min-h-screen bg-background">
+                  {/* Header */}
+                  <div className="border-b">
+                    <div className="container mx-auto px-4 py-6">
+                      <div className="flex lg:items-center gap-4 flex-col lg:flex-row">
+                        <Link
+                          to={user ? "/trips/my" : "/login?redirect=/trips/my"}
+                          className="text-sm text-muted-foreground hover:text-foreground transition-colors mr-auto lg:mr-0"
+                        >
+                          ← Back to Trips
+                        </Link>
 
-                      <div className="flex-1 flex items-center gap-4">
-                        <div>
-                          <h1 className="mb-2 font-semibold">
-                            {tripData.title}
-                          </h1>
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <MapPin className="w-4 h-4" />
-                              <span>{tripData.destination}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Calendar className="w-4 h-4" />
-                              <span>{tripData.dates}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Users className="w-4 h-4" />
-                              <span>{tripData.members} members</span>
+                        <div className="flex-1 flex items-center gap-4">
+                          <div>
+                            <h1 className="mb-2 font-semibold">
+                              {tripData.title}
+                            </h1>
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-muted-foreground">
+                              <div className="flex items-center gap-1">
+                                <MapPin className="w-4 h-4" />
+                                <span>{tripData.destination}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Calendar className="w-4 h-4" />
+                                <span>{tripData.dates}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Users className="w-4 h-4" />
+                                <span>{tripData.members} members</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                        <div className="flex items-center gap-4 ml-auto">
-                          <Badge variant="secondary" className="px-3 py-1">
-                            {tripData.duration}
-                          </Badge>
-                          <UserAvatar />
+                          <div className="flex items-center gap-4 ml-auto">
+                            <Badge variant="secondary" className="px-3 py-1">
+                              {tripData.duration}
+                            </Badge>
+                            <UserAvatar />
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
+
+                  {/* Main Content */}
+                  <div className="container mx-auto px-4 py-6">
+                    <Tabs
+                      value={activeTab}
+                      onValueChange={setActiveTab}
+                      className="w-full"
+                    >
+                      <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 h-auto gap-2">
+                        <TabsTrigger
+                          value="overview"
+                          className="flex items-center gap-2"
+                        >
+                          <Calendar className="w-4 h-4" />
+                          Overview
+                        </TabsTrigger>
+                        <TabsTrigger
+                          value="expenses"
+                          className="flex items-center gap-2"
+                        >
+                          <DollarSign className="w-4 h-4" />
+                          Expenses
+                        </TabsTrigger>
+                        <TabsTrigger
+                          value="packing"
+                          className="flex items-center gap-2"
+                        >
+                          <Package className="w-4 h-4" />
+                          Packing
+                        </TabsTrigger>
+                        <TabsTrigger
+                          value="checklist"
+                          className="flex items-center gap-2"
+                        >
+                          <CheckSquare className="w-4 h-4" />
+                          Checklist
+                        </TabsTrigger>
+                        <TabsTrigger
+                          value="maps"
+                          className="flex items-center gap-2"
+                        >
+                          <Map className="w-4 h-4" />
+                          Maps
+                        </TabsTrigger>
+                        <TabsTrigger
+                          value="members"
+                          className="flex items-center gap-2"
+                        >
+                          <Users className="w-4 h-4" />
+                          Members
+                        </TabsTrigger>
+                      </TabsList>
+
+                      <TabsContent value="overview" className="mt-6">
+                        <TripOverview tripData={tripData} />
+                      </TabsContent>
+
+                      <TabsContent value="expenses" className="mt-6">
+                        <ExpensesManager />
+                      </TabsContent>
+
+                      <TabsContent value="packing" className="mt-6">
+                        <PackingList />
+                      </TabsContent>
+
+                      <TabsContent value="checklist" className="mt-6">
+                        <ChecklistManager />
+                      </TabsContent>
+
+                      <TabsContent value="maps" className="mt-6">
+                        <ItinerariesManager />
+                      </TabsContent>
+
+                      <TabsContent value="members" className="mt-6">
+                        <MembersManager />
+                      </TabsContent>
+                    </Tabs>
+                  </div>
                 </div>
-
-                {/* Main Content */}
-                <div className="container mx-auto px-4 py-6">
-                  <Tabs
-                    value={activeTab}
-                    onValueChange={setActiveTab}
-                    className="w-full"
-                  >
-                    <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 h-auto gap-2">
-                      <TabsTrigger
-                        value="overview"
-                        className="flex items-center gap-2"
-                      >
-                        <Calendar className="w-4 h-4" />
-                        Overview
-                      </TabsTrigger>
-                      <TabsTrigger
-                        value="expenses"
-                        className="flex items-center gap-2"
-                      >
-                        <DollarSign className="w-4 h-4" />
-                        Expenses
-                      </TabsTrigger>
-                      <TabsTrigger
-                        value="packing"
-                        className="flex items-center gap-2"
-                      >
-                        <Package className="w-4 h-4" />
-                        Packing
-                      </TabsTrigger>
-                      <TabsTrigger
-                        value="checklist"
-                        className="flex items-center gap-2"
-                      >
-                        <CheckSquare className="w-4 h-4" />
-                        Checklist
-                      </TabsTrigger>
-                      <TabsTrigger
-                        value="maps"
-                        className="flex items-center gap-2"
-                      >
-                        <Map className="w-4 h-4" />
-                        Maps
-                      </TabsTrigger>
-                      <TabsTrigger
-                        value="members"
-                        className="flex items-center gap-2"
-                      >
-                        <Users className="w-4 h-4" />
-                        Members
-                      </TabsTrigger>
-                    </TabsList>
-
-                    <TabsContent value="overview" className="mt-6">
-                      <TripOverview tripData={tripData} />
-                    </TabsContent>
-
-                    <TabsContent value="expenses" className="mt-6">
-                      <ExpensesManager />
-                    </TabsContent>
-
-                    <TabsContent value="packing" className="mt-6">
-                      <PackingList />
-                    </TabsContent>
-
-                    <TabsContent value="checklist" className="mt-6">
-                      <ChecklistManager />
-                    </TabsContent>
-
-                    <TabsContent value="maps" className="mt-6">
-                      <ItinerariesManager />
-                    </TabsContent>
-
-                    <TabsContent value="members" className="mt-6">
-                      <MembersManager />
-                    </TabsContent>
-                  </Tabs>
-                </div>
-              </div>
-            </PackingItemsProvider>
-          </ExpensesProvider>
-        </ChecklistProvider>
-      </ItinerariesProvider>
-    </MembersProvider>
+              </PackingItemsProvider>
+            </ExpensesProvider>
+          </ChecklistProvider>
+        </ItinerariesProvider>
+      </MembersProvider>
+    </TripProvider>
   );
 }

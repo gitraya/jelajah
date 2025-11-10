@@ -12,6 +12,9 @@ from .serializers import TripSerializer, TripMemberSerializer
 from .permissions import IsTripAccessible
 from backend.services import send_templated_email
 from expenses.models import ExpenseSplit
+from itineraries.models import ItineraryItem
+from checklist.models import ChecklistItem
+from datetime import timedelta
 
 User = get_user_model()
 
@@ -100,3 +103,49 @@ class TripMemberStatisticsView(generics.RetrieveAPIView):
             "average_expense": average_expense,
             "total_expenses": total_expenses,
         })
+        
+class TripItinerarySummaryView(generics.RetrieveAPIView):
+    """
+    View to get itinerary summary for a trip
+    """
+    permission_classes = [IsAuthenticated, IsTripAccessible]
+    queryset = Trip.objects.all()
+
+    def get(self, request, trip_id=None):
+        trip = Trip.objects.filter(id=trip_id).only('start_date', 'end_date').first()
+        start_date, end_date = trip.start_date, trip.end_date
+        if not start_date or not end_date:
+            return Response({"detail": "Trip dates are not set."}, status=status.HTTP_400_BAD_REQUEST)
+
+        allChecklistItems = ChecklistItem.objects.filter(trip_id=trip_id)
+        allLocations = ItineraryItem.objects.filter(trip_id=trip_id)
+
+
+        summary = []
+        day_count = (end_date - start_date).days + 1
+        for i in range(day_count):
+            d = start_date + timedelta(days=i)
+            
+            # "Month Day" label like "March 17"
+            date_label = f"{d.strftime('%B')} {d.day}"
+
+            tasks = allChecklistItems.filter(due_date=d).count()
+            tasks_completed = allChecklistItems.filter(
+                due_date=d, is_completed=True
+            ).count()
+            
+            locations = allLocations.filter(
+                visit_time__date=d
+            ).only('name', 'address', 'status')
+            locations_visited = locations.filter(status='VISITED').count()
+
+            summary.append({
+                "date": date_label,
+                "locations": [loc.name for loc in locations],
+                "tasks": tasks,
+                "locationsVisited": locations_visited,
+                "tasksCompleted": tasks_completed,
+            })
+        
+        
+        return Response(summary)
