@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router";
 
 import { useApi } from "@/hooks/useApi";
@@ -14,25 +14,23 @@ export const PackingItemsProvider = ({ children }) => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [categories, setCategories] = useState([]);
   const [statistics, setStatistics] = useState({});
-  const [updatePackingItems, setUpdatePackingItems] = useState(Math.random());
 
-  // Function to trigger re-fetching packing items
-  const triggerUpdatePackingItems = () => setUpdatePackingItems(Math.random());
-
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const response = await getAPIData("/packing/categories/");
-      setCategories([{ id: "all", name: "All" }, ...response.data]);
-      return [{ id: "all", name: "All" }, ...response.data];
+      const allCategories = [{ id: "all", name: "All" }, ...response.data];
+      setCategories(allCategories);
+      return allCategories;
     } catch (error) {
       console.error(
         "Failed to fetch packing categories:",
         getErrorMessage(error)
       );
+      return [];
     }
-  };
+  }, []);
 
-  const fetchStatistics = async (tripId) => {
+  const fetchStatistics = useCallback(async (tripId) => {
     try {
       const response = await getRequest(`/trips/${tripId}/packing/statistics/`);
       setStatistics(response.data);
@@ -42,62 +40,78 @@ export const PackingItemsProvider = ({ children }) => {
         "Failed to fetch packing statistics:",
         getErrorMessage(error)
       );
+      return {};
     }
-  };
+  }, []);
 
-  const fetchPackingItems = async (tripId) => {
-    try {
-      const response = await getRequest(
-        `/trips/${tripId}/packing/items${
+  const fetchPackingItems = useCallback(
+    async (tripId) => {
+      try {
+        const url = `/trips/${tripId}/packing/items${
           selectedCategory !== "all" ? `?category_id=${selectedCategory}` : ""
-        }`
-      );
-      setPackingItems(response.data);
-      return response.data;
-    } catch (error) {
-      console.error("Failed to fetch packing items:", getErrorMessage(error));
-      return [];
-    }
-  };
+        }`;
+        const response = await getRequest(url);
+        setPackingItems(response.data);
+        return response.data;
+      } catch (error) {
+        console.error("Failed to fetch packing items:", getErrorMessage(error));
+        return [];
+      }
+    },
+    [selectedCategory]
+  );
 
-  const createPacking = async (data, tripId = defaultTripId) => {
+  const updateCategoryStats = useCallback((prevStats, item, operation) => {
+    const categoryStats = prevStats.category_stats || [];
+    const existingCatIndex = categoryStats.findIndex(
+      (cat) => cat.category?.id === item.category.id
+    );
+
+    if (operation === "add") {
+      if (existingCatIndex >= 0) {
+        categoryStats[existingCatIndex] = {
+          ...categoryStats[existingCatIndex],
+          total: categoryStats[existingCatIndex].total + 1,
+        };
+      } else {
+        categoryStats.push({
+          category: item.category,
+          total: 1,
+          packed: 0,
+        });
+      }
+    } else if (operation === "remove") {
+      if (existingCatIndex >= 0) {
+        categoryStats[existingCatIndex] = {
+          ...categoryStats[existingCatIndex],
+          total: categoryStats[existingCatIndex].total - 1,
+          packed: item.packed
+            ? categoryStats[existingCatIndex].packed - 1
+            : categoryStats[existingCatIndex].packed,
+        };
+      }
+    }
+
+    return categoryStats.filter((cat) => cat.total > 0);
+  }, []);
+
+  const createPacking = useCallback(async (data, tripId = defaultTripId) => {
     try {
       setError("");
       const response = await postRequest(
         `/trips/${tripId}/packing/items/`,
         data
       );
+
       setPackingItems((prev) =>
-        [...prev, response.data].sort(
+        [response.data, ...prev].sort(
           (a, b) => new Date(b.created_at) - new Date(a.created_at)
         )
       );
       setStatistics((prev) => ({
         ...prev,
-        total_items: prev.total_items + 1,
-        category_stats: prev.category_stats.map((cat) => {
-          const existingCategory = prev.category_stats.find(
-            (cat) => cat.category.id === response.data.category.id
-          );
-          if (existingCategory) {
-            if (cat.category?.id === response.data.category.id) {
-              return {
-                ...cat,
-                total: cat.total + 1,
-              };
-            }
-            return cat;
-          } else {
-            return [
-              ...prev.category_stats,
-              {
-                category: response.data.category,
-                total: 1,
-                packed: 0,
-              },
-            ];
-          }
-        }),
+        total_items: (prev.total_items || 0) + 1,
+        category_stats: updateCategoryStats(prev, response.data, "add"),
       }));
 
       return response.data;
@@ -110,86 +124,84 @@ export const PackingItemsProvider = ({ children }) => {
       );
       throw error;
     }
-  };
+  }, []);
 
-  const togglePacking = (id, tripId = defaultTripId) => {
-    const toggledItem = packingItems.find((item) => item.id === id);
-    const packed = !toggledItem.packed;
-    setPackingItems(
-      packingItems.map((item) => (item.id === id ? { ...item, packed } : item))
-    );
-    setStatistics((prev) => ({
-      ...prev,
-      packed_items: packed ? prev.packed_items + 1 : prev.packed_items - 1,
-      category_stats: prev.category_stats.map((cat) => {
-        if (cat.category?.id === toggledItem.category.id) {
-          return {
-            ...cat,
-            packed: packed ? cat.packed + 1 : cat.packed - 1,
-          };
-        }
-        return cat;
-      }),
-    }));
-    patchRequest(`/trips/${tripId}/packing/items/${id}/`, { packed });
-  };
+  const togglePacking = useCallback(
+    async (id, tripId = defaultTripId) => {
+      const toggledItem = packingItems.find((item) => item.id === id);
+      if (!toggledItem) return;
 
-  const deletePacking = (id, tripId = defaultTripId) => {
-    const deletedItem = packingItems.find((item) => item.id === id);
-    setPackingItems(packingItems.filter((item) => item.id !== id));
-    setStatistics((prev) => ({
-      ...prev,
-      total_items: prev.total_items - 1,
-      packed_items: deletedItem.packed
-        ? prev.packed_items - 1
-        : prev.packed_items,
-      category_stats: prev.category_stats
-        .map((cat) => {
-          if (cat.category.id === deletedItem.category.id) {
+      const packed = !toggledItem.packed;
+
+      setPackingItems((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, packed } : item))
+      );
+      setStatistics((prev) => ({
+        ...prev,
+        packed_items: packed
+          ? (prev.packed_items || 0) + 1
+          : (prev.packed_items || 0) - 1,
+        category_stats: (prev.category_stats || []).map((cat) => {
+          if (cat.category?.id === toggledItem.category.id) {
             return {
               ...cat,
-              total: cat.total - 1,
-              packed: deletedItem.packed ? cat.packed - 1 : cat.packed,
+              packed: packed ? cat.packed + 1 : cat.packed - 1,
             };
           }
           return cat;
-        })
-        .filter((cat) => cat.total > 0),
-    }));
-    deleteRequest(`/trips/${tripId}/packing/items/${id}/`);
-  };
+        }),
+      }));
+      patchRequest(`/trips/${tripId}/packing/items/${id}/`, { packed });
+    },
+    [packingItems]
+  );
+
+  const deletePacking = useCallback(
+    async (id, tripId = defaultTripId) => {
+      const deletedItem = packingItems.find((item) => item.id === id);
+      if (!deletedItem) return;
+
+      setPackingItems((prev) => prev.filter((item) => item.id !== id));
+      setStatistics((prev) => ({
+        ...prev,
+        total_items: (prev.total_items || 0) - 1,
+        packed_items: deletedItem.packed
+          ? (prev.packed_items || 0) - 1
+          : prev.packed_items,
+        category_stats: updateCategoryStats(prev, deletedItem, "remove"),
+      }));
+      deleteRequest(`/trips/${tripId}/packing/items/${id}/`);
+    },
+    [packingItems]
+  );
 
   useEffect(() => {
     fetchCategories();
-    fetchStatistics(defaultTripId);
   }, []);
 
   useEffect(() => {
+    if (!defaultTripId) return;
     setIsLoading(true);
-    fetchStatistics(defaultTripId);
-    fetchPackingItems(defaultTripId).finally(() => setIsLoading(false));
-  }, [updatePackingItems, selectedCategory]);
+    Promise.all([
+      fetchStatistics(defaultTripId),
+      fetchPackingItems(defaultTripId),
+    ]).finally(() => setIsLoading(false));
+  }, [selectedCategory]);
 
   return (
     <PackingItemsContext.Provider
       value={{
-        error,
         isLoading,
+        error,
         packingItems,
         selectedCategory,
         categories,
         statistics,
-        updatePackingItems,
         setError,
-        setPackingItems,
         createPacking,
         togglePacking,
         deletePacking,
-        setStatistics,
         setSelectedCategory,
-        fetchCategories,
-        fetchStatistics,
-        triggerUpdatePackingItems,
       }}
     >
       {children}

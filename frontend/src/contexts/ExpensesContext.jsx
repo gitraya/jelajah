@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router";
 
 import { useApi } from "@/hooks/useApi";
@@ -13,25 +13,23 @@ export const ExpensesProvider = ({ children }) => {
   const [expenses, setExpenses] = useState([]);
   const [categories, setCategories] = useState([]);
   const [statistics, setStatistics] = useState({});
-  const [updateExpenses, setUpdateExpenses] = useState(Math.random());
 
-  // Function to trigger re-fetching expenses
-  const triggerUpdateExpenses = () => setUpdateExpenses(Math.random());
-
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const response = await getAPIData("/expenses/categories/");
-      setCategories([{ id: "all", name: "All" }, ...response.data]);
-      return [{ id: "all", name: "All" }, ...response.data];
+      const categoriesData = [{ id: "all", name: "All" }, ...response.data];
+      setCategories(categoriesData);
+      return categoriesData;
     } catch (error) {
       console.error(
         "Failed to fetch expense categories:",
         getErrorMessage(error)
       );
+      return [];
     }
-  };
+  }, []);
 
-  const fetchStatistics = async (tripId) => {
+  const fetchStatistics = useCallback(async (tripId) => {
     try {
       const response = await getRequest(
         `/trips/${tripId}/expenses/statistics/`
@@ -43,10 +41,11 @@ export const ExpensesProvider = ({ children }) => {
         "Failed to fetch expense statistics:",
         getErrorMessage(error)
       );
+      return {};
     }
-  };
+  }, []);
 
-  const fetchExpenses = async (tripId) => {
+  const fetchExpenses = useCallback(async (tripId) => {
     try {
       const response = await getRequest(`/trips/${tripId}/expenses/items/`);
       setExpenses(response.data);
@@ -55,15 +54,44 @@ export const ExpensesProvider = ({ children }) => {
       console.error("Failed to fetch expenses:", getErrorMessage(error));
       return [];
     }
-  };
+  }, []);
 
-  const createExpense = async (data, tripId = defaultTripId) => {
+  const updateCategoryStats = useCallback(
+    (prevStats, expense, isAdding = true) => {
+      const multiplier = isAdding ? 1 : -1;
+      const existingCategoryIndex = prevStats.category_stats.findIndex(
+        (cat) => cat.category.id === expense.category.id
+      );
+
+      if (existingCategoryIndex !== -1) {
+        const updatedStats = [...prevStats.category_stats];
+        updatedStats[existingCategoryIndex] = {
+          ...updatedStats[existingCategoryIndex],
+          amount:
+            updatedStats[existingCategoryIndex].amount +
+            expense.amount * multiplier,
+          count: updatedStats[existingCategoryIndex].count + 1 * multiplier,
+        };
+        return updatedStats.filter((cat) => cat.count > 0);
+      } else if (isAdding) {
+        return [
+          ...prevStats.category_stats,
+          { category: expense.category, amount: expense.amount, count: 1 },
+        ];
+      }
+      return prevStats.category_stats;
+    },
+    []
+  );
+
+  const createExpense = useCallback(async (data, tripId = defaultTripId) => {
     try {
       setError("");
       const response = await postRequest(
         `/trips/${tripId}/expenses/items/`,
         data
       );
+
       setExpenses((prev) =>
         [...prev, response.data].sort(
           (a, b) => new Date(b.date) - new Date(a.date)
@@ -73,32 +101,7 @@ export const ExpensesProvider = ({ children }) => {
         ...prev,
         amount_spent: prev.amount_spent + response.data.amount,
         budget_remaining: prev.budget_remaining - response.data.amount,
-        category_stats: (() => {
-          const existingCategory = prev.category_stats.find(
-            (cat) => cat.category.id === response.data.category.id
-          );
-          if (existingCategory) {
-            return prev.category_stats.map((cat) => {
-              if (cat.category.id === response.data.category.id) {
-                return {
-                  ...cat,
-                  amount: cat.amount + response.data.amount,
-                  count: cat.count + 1,
-                };
-              }
-              return cat;
-            });
-          } else {
-            return [
-              ...prev.category_stats,
-              {
-                category: response.data.category,
-                amount: response.data.amount,
-                count: 1,
-              },
-            ];
-          }
-        })(),
+        category_stats: updateCategoryStats(prev, response.data, true),
       }));
 
       return response.data;
@@ -111,41 +114,37 @@ export const ExpensesProvider = ({ children }) => {
       );
       throw error;
     }
-  };
+  }, []);
 
-  const deleteExpense = (id, tripId = defaultTripId) => {
-    const deletedExpense = expenses.find((item) => item.id === id);
-    setExpenses(expenses.filter((item) => item.id !== id));
-    setStatistics((prev) => ({
-      ...prev,
-      amount_spent: prev.amount_spent - deletedExpense.amount,
-      budget_remaining: prev.budget_remaining + deletedExpense.amount,
-      category_stats: prev.category_stats
-        .map((cat) => {
-          if (cat.category.id === deletedExpense.category.id) {
-            return {
-              ...cat,
-              amount: cat.amount - deletedExpense.amount,
-              count: cat.count - 1,
-            };
-          }
-          return cat;
-        })
-        .filter((cat) => cat.count > 0),
-    }));
-    deleteRequest(`/trips/${tripId}/expenses/items/${id}/`);
-  };
+  const deleteExpense = useCallback(
+    async (id, tripId = defaultTripId) => {
+      const deletedExpense = expenses.find((item) => item.id === id);
+      if (!deletedExpense) return;
+
+      setExpenses((prev) => prev.filter((item) => item.id !== id));
+      setStatistics((prev) => ({
+        ...prev,
+        amount_spent: prev.amount_spent - deletedExpense.amount,
+        budget_remaining: prev.budget_remaining + deletedExpense.amount,
+        category_stats: updateCategoryStats(prev, deletedExpense, false),
+      }));
+      deleteRequest(`/trips/${tripId}/expenses/items/${id}/`);
+    },
+    [expenses]
+  );
 
   useEffect(() => {
     fetchCategories();
-    fetchStatistics(defaultTripId);
   }, []);
 
   useEffect(() => {
+    if (!defaultTripId) return;
     setIsLoading(true);
-    fetchStatistics(defaultTripId);
-    fetchExpenses(defaultTripId).finally(() => setIsLoading(false));
-  }, [updateExpenses]);
+    Promise.all([
+      fetchStatistics(defaultTripId),
+      fetchExpenses(defaultTripId),
+    ]).finally(() => setIsLoading(false));
+  }, []);
 
   return (
     <ExpensesContext.Provider
@@ -155,16 +154,9 @@ export const ExpensesProvider = ({ children }) => {
         expenses,
         categories,
         statistics,
-        updateExpenses,
         setError,
-        setExpenses,
         createExpense,
         deleteExpense,
-        setStatistics,
-        fetchCategories,
-        fetchStatistics,
-        fetchExpenses,
-        triggerUpdateExpenses,
       }}
     >
       {children}

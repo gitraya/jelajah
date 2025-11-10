@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router";
 
 import { useApi } from "@/hooks/useApi";
@@ -14,16 +14,8 @@ export const ChecklistProvider = ({ children }) => {
   const [upcomingChecklistItems, setUpcomingChecklistItems] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [statistics, setStatistics] = useState({});
-  const [updateChecklistItems, setUpdateChecklistItems] = useState(
-    Math.random()
-  );
 
-  // Function to trigger re-fetching of checklist items
-  const triggerUpdateChecklist = () => {
-    setUpdateChecklistItems(Math.random());
-  };
-
-  const fetchStatistics = async (tripId) => {
+  const fetchStatistics = useCallback(async (tripId) => {
     try {
       const response = await getRequest(
         `/trips/${tripId}/checklist/statistics/`
@@ -35,25 +27,32 @@ export const ChecklistProvider = ({ children }) => {
         "Failed to fetch checklist statistics:",
         getErrorMessage(error)
       );
+      return {};
     }
-  };
+  }, []);
 
-  const fetchChecklistItems = async (tripId) => {
-    try {
-      const response = await getRequest(
-        `/trips/${tripId}/checklist/items${
-          selectedCategory !== "all" ? `?category=${selectedCategory}` : ""
-        }`
-      );
-      setChecklistItems(response.data);
-      return response.data;
-    } catch (error) {
-      console.error("Failed to fetch checklist items:", getErrorMessage(error));
-      return [];
-    }
-  };
+  const fetchChecklistItems = useCallback(
+    async (tripId) => {
+      try {
+        const queryParams =
+          selectedCategory !== "all" ? `?category=${selectedCategory}` : "";
+        const response = await getRequest(
+          `/trips/${tripId}/checklist/items${queryParams}`
+        );
+        setChecklistItems(response.data);
+        return response.data;
+      } catch (error) {
+        console.error(
+          "Failed to fetch checklist items:",
+          getErrorMessage(error)
+        );
+        return [];
+      }
+    },
+    [selectedCategory]
+  );
 
-  const fetchUpcomingChecklistItems = async (tripId) => {
+  const fetchUpcomingChecklistItems = useCallback(async (tripId) => {
     try {
       const response = await getRequest(
         `/trips/${tripId}/checklist/items?upcoming=true`
@@ -67,124 +66,139 @@ export const ChecklistProvider = ({ children }) => {
       );
       return [];
     }
-  };
+  }, []);
 
-  const createChecklist = async (data, tripId = defaultTripId) => {
+  const updateCategoryStats = useCallback((prevStats, item, operation) => {
+    const categoryStats = [...prevStats.category_stats];
+    const categoryIndex = categoryStats.findIndex(
+      (cat) => cat.category?.id === item.category.id
+    );
+
+    if (operation === "add") {
+      if (categoryIndex >= 0) {
+        categoryStats[categoryIndex] = {
+          ...categoryStats[categoryIndex],
+          total: categoryStats[categoryIndex].total + 1,
+        };
+      } else {
+        categoryStats.push({ category: item.category, total: 1, completed: 0 });
+      }
+    } else if (operation === "remove") {
+      if (categoryIndex >= 0) {
+        categoryStats[categoryIndex] = {
+          ...categoryStats[categoryIndex],
+          total: categoryStats[categoryIndex].total - 1,
+          completed: item.is_completed
+            ? categoryStats[categoryIndex].completed - 1
+            : categoryStats[categoryIndex].completed,
+        };
+      }
+    }
+
+    return categoryStats.filter((cat) => cat.total > 0);
+  }, []);
+
+  const createChecklist = useCallback(async (data, tripId = defaultTripId) => {
     try {
-      setError("");
+      setError(null);
       const response = await postRequest(
         `/trips/${tripId}/checklist/items/`,
         data
       );
 
-      fetchUpcomingChecklistItems(tripId);
-
       setChecklistItems((prev) =>
-        [...prev, response.data].sort(
+        [response.data, ...prev].sort(
           (a, b) => new Date(b.created_at) - new Date(a.created_at)
         )
       );
       setStatistics((prev) => ({
         ...prev,
         total_items: prev.total_items + 1,
-        category_stats: prev.category_stats.map((cat) => {
-          const existingCategory = prev.category_stats.find(
-            (cat) => cat.category?.id === response.data.category.id
-          );
-          if (existingCategory) {
-            if (cat.category?.id === response.data.category.id) {
-              return {
-                ...cat,
-                total: cat.total + 1,
-              };
-            }
-            return cat;
-          } else {
-            return [
-              ...prev.category_stats,
-              { category: response.data.category, total: 1, completed: 0 },
-            ];
-          }
-        }),
+        category_stats: updateCategoryStats(prev, response.data, "add"),
       }));
+
+      if (new Date(response.data.due_date) >= new Date()) {
+        setUpcomingChecklistItems((prev) =>
+          [response.data, ...prev].sort(
+            (a, b) => new Date(a.due_date) - new Date(b.due_date)
+          )
+        );
+      }
 
       return response.data;
     } catch (error) {
-      setError(
-        getErrorMessage(
-          error,
-          "An error occurred while creating the checklist item. Please try again later."
-        )
+      const errorMsg = getErrorMessage(
+        error,
+        "An error occurred while creating the checklist item. Please try again later."
       );
+      setError(errorMsg);
       throw error;
     }
-  };
-
-  const toggleCompleted = (id, tripId = defaultTripId) => {
-    const toggledItem = checklistItems.find((item) => item.id === id);
-    const is_completed = !toggledItem.is_completed;
-    setChecklistItems(
-      checklistItems.map((item) =>
-        item.id === id ? { ...item, is_completed } : item
-      )
-    );
-    setStatistics((prev) => ({
-      ...prev,
-      completed_items: is_completed
-        ? prev.completed_items + 1
-        : prev.completed_items - 1,
-      category_stats: prev.category_stats.map((cat) => {
-        if (cat.category?.id === toggledItem.category.id) {
-          return {
-            ...cat,
-            completed: is_completed ? cat.completed + 1 : cat.completed - 1,
-          };
-        }
-        return cat;
-      }),
-    }));
-    patchRequest(`/trips/${tripId}/checklist/items/${id}/`, {
-      is_completed,
-    });
-  };
-
-  const deleteItem = (id, tripId = defaultTripId) => {
-    const deletedItem = checklistItems.find((item) => item.id === id);
-    setChecklistItems(checklistItems.filter((item) => item.id !== id));
-    setStatistics((prev) => ({
-      ...prev,
-      total_items: prev.total_items - 1,
-      completed_items: deletedItem.is_completed
-        ? prev.completed_items - 1
-        : prev.completed_items,
-      category_stats: prev.category_stats
-        .map((cat) => {
-          if (cat.category?.id === deletedItem.category.id) {
-            return {
-              ...cat,
-              total: cat.total - 1,
-              completed: deletedItem.is_completed
-                ? cat.completed - 1
-                : cat.completed,
-            };
-          }
-          return cat;
-        })
-        .filter((cat) => cat.total > 0),
-    }));
-    deleteRequest(`/trips/${tripId}/checklist/items/${id}/`);
-  };
-
-  useEffect(() => {
-    fetchStatistics(defaultTripId);
   }, []);
 
+  const toggleCompleted = useCallback(
+    (id, tripId = defaultTripId) => {
+      const toggledItem = checklistItems.find((item) => item.id === id);
+      if (!toggledItem) return;
+
+      const is_completed = !toggledItem.is_completed;
+
+      setChecklistItems((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, is_completed } : item))
+      );
+      setUpcomingChecklistItems((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, is_completed } : item))
+      );
+      setStatistics((prev) => ({
+        ...prev,
+        completed_items: is_completed
+          ? prev.completed_items + 1
+          : prev.completed_items - 1,
+        category_stats: prev.category_stats.map((cat) =>
+          cat.category?.id === toggledItem.category.id
+            ? {
+                ...cat,
+                completed: is_completed ? cat.completed + 1 : cat.completed - 1,
+              }
+            : cat
+        ),
+      }));
+      patchRequest(`/trips/${tripId}/checklist/items/${id}/`, { is_completed });
+    },
+    [checklistItems]
+  );
+
+  const deleteItem = useCallback(
+    (id, tripId = defaultTripId) => {
+      const deletedItem = checklistItems.find((item) => item.id === id);
+      if (!deletedItem) return;
+
+      setChecklistItems((prev) => prev.filter((item) => item.id !== id));
+      setUpcomingChecklistItems((prev) =>
+        prev.filter((item) => item.id !== id)
+      );
+      setStatistics((prev) => ({
+        ...prev,
+        total_items: prev.total_items - 1,
+        completed_items: deletedItem.is_completed
+          ? prev.completed_items - 1
+          : prev.completed_items,
+        category_stats: updateCategoryStats(prev, deletedItem, "remove"),
+      }));
+      deleteRequest(`/trips/${tripId}/checklist/items/${id}/`);
+    },
+    [checklistItems]
+  );
+
   useEffect(() => {
+    if (!defaultTripId) return;
     setIsLoading(true);
-    fetchStatistics(defaultTripId);
-    fetchUpcomingChecklistItems(defaultTripId);
-    fetchChecklistItems(defaultTripId).finally(() => setIsLoading(false));
-  }, [updateChecklistItems, selectedCategory]);
+    Promise.all([
+      fetchStatistics(defaultTripId),
+      fetchUpcomingChecklistItems(defaultTripId),
+      fetchChecklistItems(defaultTripId),
+    ]).finally(() => setIsLoading(false));
+  }, [selectedCategory]);
 
   return (
     <ChecklistContext.Provider
@@ -195,17 +209,11 @@ export const ChecklistProvider = ({ children }) => {
         upcomingChecklistItems,
         selectedCategory,
         statistics,
-        updateChecklistItems,
         setError,
-        setChecklistItems,
+        setSelectedCategory,
         createChecklist,
         deleteItem,
         toggleCompleted,
-        setSelectedCategory,
-        setStatistics,
-        fetchChecklistItems,
-        fetchStatistics,
-        triggerUpdateChecklist,
       }}
     >
       {children}

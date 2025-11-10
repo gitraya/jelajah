@@ -15,19 +15,16 @@ export const MembersProvider = ({ children }) => {
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [statistics, setStatistics] = useState({});
 
-  const fetchMembers = useCallback(
-    async (tripId) => {
-      try {
-        const response = await getRequest(`/trips/${tripId}/members/items/`);
-        setMembers(response.data || []);
-        return response.data;
-      } catch (error) {
-        console.error("Failed to fetch trip members:", getErrorMessage(error));
-        return [];
-      }
-    },
-    [getRequest]
-  );
+  const fetchMembers = useCallback(async (tripId) => {
+    try {
+      const response = await getRequest(`/trips/${tripId}/members/items/`);
+      setMembers(response.data || []);
+      return response.data;
+    } catch (error) {
+      console.error("Failed to fetch trip members:", getErrorMessage(error));
+      return [];
+    }
+  }, []);
 
   const fetchFilteredMembers = useCallback(
     async (tripId) => {
@@ -44,27 +41,22 @@ export const MembersProvider = ({ children }) => {
         return [];
       }
     },
-    [getRequest, selectedStatus]
+    [selectedStatus]
   );
 
-  const fetchStatistics = useCallback(
-    async (tripId) => {
-      try {
-        const response = await getRequest(
-          `/trips/${tripId}/members/statistics/`
-        );
-        setStatistics(response.data);
-        return response.data;
-      } catch (error) {
-        console.error(
-          "Failed to fetch member statistics:",
-          getErrorMessage(error)
-        );
-        return {};
-      }
-    },
-    [getRequest]
-  );
+  const fetchStatistics = useCallback(async (tripId) => {
+    try {
+      const response = await getRequest(`/trips/${tripId}/members/statistics/`);
+      setStatistics(response.data);
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Failed to fetch member statistics:",
+        getErrorMessage(error)
+      );
+      return {};
+    }
+  }, []);
 
   const createMember = useCallback(
     async (data, tripId = defaultTripId) => {
@@ -101,7 +93,7 @@ export const MembersProvider = ({ children }) => {
         throw error;
       }
     },
-    [defaultTripId, postRequest, selectedStatus]
+    [selectedStatus]
   );
 
   const deleteMember = useCallback(
@@ -110,6 +102,7 @@ export const MembersProvider = ({ children }) => {
       if (!member) return;
 
       setMembers((prev) => prev.filter((m) => m.id !== id));
+      setFilteredMembers((prev) => prev.filter((m) => m.id !== id));
       setStatistics((prev) => ({
         ...prev,
         total: prev.total - 1,
@@ -118,7 +111,7 @@ export const MembersProvider = ({ children }) => {
       }));
       deleteRequest(`/trips/${tripId}/members/items/${id}/`);
     },
-    [defaultTripId, deleteRequest, members]
+    [members]
   );
 
   const updateMemberStatus = useCallback(
@@ -129,6 +122,9 @@ export const MembersProvider = ({ children }) => {
       setMembers((prev) =>
         prev.map((m) => (m.id === id ? { ...m, status } : m))
       );
+      setFilteredMembers((prev) =>
+        prev.map((m) => (m.id === id ? { ...m, status } : m))
+      );
       setStatistics((prev) => ({
         ...prev,
         [member.status.toLowerCase()]:
@@ -137,7 +133,7 @@ export const MembersProvider = ({ children }) => {
       }));
       patchRequest(`/trips/${tripId}/members/items/${id}/`, { status });
     },
-    [defaultTripId, patchRequest, members]
+    [members]
   );
 
   useEffect(() => {
