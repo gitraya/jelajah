@@ -143,8 +143,8 @@ class TripItinerarySummaryView(generics.RetrieveAPIView):
                 "date": date_label,
                 "locations": [loc.name for loc in locations],
                 "tasks": tasks,
-                "locationsVisited": locations_visited,
-                "tasksCompleted": tasks_completed,
+                "locations_visited": locations_visited,
+                "tasks_completed": tasks_completed,
             })
         
         

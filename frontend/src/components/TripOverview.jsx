@@ -230,7 +230,7 @@ export function TripOverview({ tripData }) {
               itinerarySummary.map((day, index) => {
                 const totalItems = day.locations.length + day.tasks;
                 const completedItems =
-                  day.locationsVisited + day.tasksCompleted;
+                  day.locations_visited + day.tasks_completed;
                 const isFullyComplete =
                   totalItems > 0 && completedItems === totalItems;
                 const hasProgress = completedItems > 0;
@@ -264,7 +264,7 @@ export function TripOverview({ tripData }) {
                           <div className="flex items-center gap-1 text-sm text-muted-foreground mb-1">
                             <MapPin className="w-3 h-3" />
                             <span>
-                              Locations ({day.locationsVisited}/
+                              Locations ({day.locations_visited}/
                               {day.locations.length} visited)
                             </span>
                           </div>
@@ -286,7 +286,7 @@ export function TripOverview({ tripData }) {
                         <div className="flex items-center gap-1 text-sm text-muted-foreground">
                           <CheckCircle className="w-3 h-3" />
                           <span>
-                            {day.tasksCompleted}/{day.tasks} tasks completed
+                            {day.tasks_completed}/{day.tasks} tasks completed
                           </span>
                         </div>
                       )}
