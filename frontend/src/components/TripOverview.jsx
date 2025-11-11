@@ -24,8 +24,8 @@ import {
 } from "./ui/card";
 import { Progress } from "./ui/progress";
 
-export function TripOverview({ tripData }) {
-  const { itinerarySummary } = useTrip();
+export function TripOverview() {
+  const { itinerarySummary, trip } = useTrip();
   const { statistics: memberStatistics } = useMembers();
   const { statistics: checklistStatistics } = useChecklist();
   const { statistics: expenseStatistics } = useExpenses();
@@ -76,8 +76,8 @@ export function TripOverview({ tripData }) {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{tripData.duration}</div>
-            <p className="text-xs text-muted-foreground">{tripData.dates}</p>
+            <div className="text-2xl font-bold">{trip?.durationLabel}</div>
+            <p className="text-xs text-muted-foreground">{trip?.dates}</p>
           </CardContent>
         </Card>
 
@@ -149,7 +149,7 @@ export function TripOverview({ tripData }) {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-orange-600">
-                    {total_tasks - completed_tasks}
+                    {`${total_tasks - completed_tasks}`}
                   </p>
                   <p className="text-xs text-muted-foreground">Pending</p>
                 </div>
@@ -191,7 +191,7 @@ export function TripOverview({ tripData }) {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-blue-600">
-                    {total_locations - visited_locations}
+                    {`${total_locations - visited_locations}`}
                   </p>
                   <p className="text-xs text-muted-foreground">Planned</p>
                 </div>

@@ -26,24 +26,14 @@ import { MembersProvider } from "@/contexts/MembersContext";
 import { PackingItemsProvider } from "@/contexts/PackingItemsContext";
 import { TripProvider } from "@/contexts/TripContext";
 import { useAuth } from "@/hooks/useAuth";
+import { useMembers } from "@/hooks/useMembers";
+import { useTrip } from "@/hooks/useTrip";
 
 export default function TripManage() {
-  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState(
     searchParams.get("tab") || "overview"
   );
-
-  // Mock trip data
-  const tripData = {
-    title: "Jelajah Bali Adventure",
-    destination: "Bali, Indonesia",
-    dates: "March 15-22, 2024",
-    duration: "8 days",
-    members: 6,
-    totalBudget: 15000000,
-    spentBudget: 8500000,
-  };
 
   // Manage view (original trip management interface)
   return (
@@ -55,48 +45,7 @@ export default function TripManage() {
               <PackingItemsProvider>
                 <div className="min-h-screen bg-background">
                   {/* Header */}
-                  <div className="border-b">
-                    <div className="container mx-auto px-4 py-6">
-                      <div className="flex lg:items-center gap-4 flex-col lg:flex-row">
-                        <Link
-                          to={user ? "/trips/my" : "/login?redirect=/trips/my"}
-                          className="text-sm text-muted-foreground hover:text-foreground transition-colors mr-auto lg:mr-0"
-                        >
-                          ← Back to Trips
-                        </Link>
-
-                        <div className="flex-1 flex items-center gap-4">
-                          <div>
-                            <h1 className="mb-2 font-semibold">
-                              {tripData.title}
-                            </h1>
-                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-muted-foreground">
-                              <div className="flex items-center gap-1">
-                                <MapPin className="w-4 h-4" />
-                                <span>{tripData.destination}</span>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <Calendar className="w-4 h-4" />
-                                <span>{tripData.dates}</span>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <Users className="w-4 h-4" />
-                                <span>{tripData.members} members</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-4 ml-auto">
-                            <Badge variant="secondary" className="px-3 py-1">
-                              {tripData.duration}
-                            </Badge>
-                            <UserAvatar />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
+                  <Header />
                   {/* Main Content */}
                   <div className="container mx-auto px-4 py-6">
                     <Tabs
@@ -150,7 +99,7 @@ export default function TripManage() {
                       </TabsList>
 
                       <TabsContent value="overview" className="mt-6">
-                        <TripOverview tripData={tripData} />
+                        <TripOverview />
                       </TabsContent>
 
                       <TabsContent value="expenses" className="mt-6">
@@ -183,3 +132,56 @@ export default function TripManage() {
     </TripProvider>
   );
 }
+
+const Header = () => {
+  const { user } = useAuth();
+  const { trip, isLoading } = useTrip();
+  const { statistics } = useMembers();
+  const memberCount = statistics?.total || 0;
+
+  if (isLoading) {
+    return <div className="border-b">Loading...</div>;
+  }
+
+  return (
+    <div className="border-b">
+      <div className="container mx-auto px-4 py-6">
+        <div className="flex lg:items-center gap-4 flex-col lg:flex-row">
+          <Link
+            to={user ? "/trips/my" : "/login?redirect=/trips/my"}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors mr-auto lg:mr-0"
+          >
+            ← Back to Trips
+          </Link>
+
+          <div className="flex-1 flex items-center gap-4">
+            <div>
+              <h1 className="mb-2 font-semibold">{trip.title}</h1>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <MapPin className="w-4 h-4" />
+                  <span>{trip.destination}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Calendar className="w-4 h-4" />
+                  <span>{trip.dates}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Users className="w-4 h-4" />
+                  <span>{memberCount} members</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 ml-auto">
+              <Badge variant="secondary" className="px-3 py-1">
+                {trip.durationLabel}
+              </Badge>
+              <UserAvatar />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

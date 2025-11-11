@@ -32,8 +32,8 @@ class TripViewSet(ModelViewSet):
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
-        qs = Trip.objects.select_related("owner", "location").prefetch_related("trip_members__user")
-
+        qs = Trip.objects.select_related('owner').prefetch_related('trip_members__user').all()
+        
         if self.action == "list":
             is_public = self.request.query_params.get("is_public")
             if not self.request.user.is_authenticated or is_public:
