@@ -21,10 +21,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { UserAvatar } from "@/components/UserAvatar";
+import { ITINERARY_TYPES_ICONS } from "@/configs/itinerary";
 import { ExpensesProvider } from "@/contexts/ExpensesContext";
+import { ItinerariesProvider } from "@/contexts/ItinerariesContext";
 import { MembersProvider } from "@/contexts/MembersContext";
 import { TripProvider } from "@/contexts/TripContext";
 import { useExpenses } from "@/hooks/useExpenses";
+import { useItineraries } from "@/hooks/useItineraries";
 import { useTrip } from "@/hooks/useTrip";
 import { formatCurrency, getInitials } from "@/lib/utils";
 
@@ -33,9 +36,11 @@ export default function TripDetail() {
     <TripProvider>
       <MembersProvider>
         <ExpensesProvider>
-          <div className="min-h-screen bg-background">
-            <TripDetailContent />
-          </div>
+          <ItinerariesProvider>
+            <div className="min-h-screen bg-background">
+              <TripDetailContent />
+            </div>
+          </ItinerariesProvider>
         </ExpensesProvider>
       </MembersProvider>
     </TripProvider>
@@ -46,6 +51,7 @@ const TripDetailContent = () => {
   const navigate = useNavigate();
   const { trip, isLoading, itinerarySummary } = useTrip();
   const { statistics: expenseStatistics } = useExpenses();
+  const { itineraries } = useItineraries();
   const { trip_budget } = expenseStatistics;
 
   const highlights = [
@@ -277,22 +283,24 @@ const TripDetailContent = () => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {highlights.map((highlight, index) => (
+              {itineraries.map((item, index) => (
                 <div
                   key={index}
                   className="flex items-start space-x-4 p-4 border rounded-lg"
                 >
-                  <div className="text-2xl">{highlight.image}</div>
+                  <div className="text-2xl">
+                    {ITINERARY_TYPES_ICONS[item.type.name] || "📍"}
+                  </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-medium">{highlight.title}</h4>
-                      <div className="flex items-center gap-1">
+                      <h4 className="font-medium">{item.name}</h4>
+                      {/* <div className="flex items-center gap-1">
                         <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                        <span className="text-sm">{highlight.rating}</span>
-                      </div>
+                        <span className="text-sm">{item.rating}</span>
+                      </div> */}
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      {highlight.description}
+                      {item.description}
                     </p>
                   </div>
                 </div>
