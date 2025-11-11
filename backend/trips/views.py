@@ -141,7 +141,8 @@ class TripItinerarySummaryView(generics.RetrieveAPIView):
 
             summary.append({
                 "date": date_label,
-                "locations": [loc.name for loc in locations],
+                "locations": [loc.address for loc in locations],
+                "itineraries": [loc.name for loc in locations],
                 "tasks": tasks,
                 "locations_visited": locations_visited,
                 "tasks_completed": tasks_completed,

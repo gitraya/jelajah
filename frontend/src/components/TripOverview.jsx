@@ -228,7 +228,7 @@ export function TripOverview() {
               </div>
             ) : (
               itinerarySummary.map((day, index) => {
-                const totalItems = day.locations.length + day.tasks;
+                const totalItems = day.itineraries.length + day.tasks;
                 const completedItems =
                   day.locations_visited + day.tasks_completed;
                 const isFullyComplete =
@@ -259,23 +259,23 @@ export function TripOverview() {
                         )}
                       </div>
 
-                      {day.locations.length > 0 && (
+                      {day.itineraries.length > 0 && (
                         <div className="mb-2">
                           <div className="flex items-center gap-1 text-sm text-muted-foreground mb-1">
                             <MapPin className="w-3 h-3" />
                             <span>
                               Locations ({day.locations_visited}/
-                              {day.locations.length} visited)
+                              {day.itineraries.length} visited)
                             </span>
                           </div>
                           <div className="flex flex-wrap gap-1">
-                            {day.locations.map((location, idx) => (
+                            {day.itineraries.map((name, idx) => (
                               <Badge
                                 key={idx}
                                 variant="outline"
                                 className="text-xs"
                               >
-                                {location}
+                                {name}
                               </Badge>
                             ))}
                           </div>

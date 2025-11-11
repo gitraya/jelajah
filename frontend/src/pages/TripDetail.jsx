@@ -1,6 +1,7 @@
 import {
   Calendar,
   CheckCircle,
+  Clock,
   Map,
   MapPin,
   Package,
@@ -11,7 +12,7 @@ import { Link, useNavigate } from "react-router";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -19,78 +20,33 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { UserAvatar } from "@/components/UserAvatar";
+import { ExpensesProvider } from "@/contexts/ExpensesContext";
+import { MembersProvider } from "@/contexts/MembersContext";
+import { TripProvider } from "@/contexts/TripContext";
+import { useExpenses } from "@/hooks/useExpenses";
+import { useTrip } from "@/hooks/useTrip";
 import { formatCurrency, getInitials } from "@/lib/utils";
 
 export default function TripDetail() {
+  return (
+    <TripProvider>
+      <MembersProvider>
+        <ExpensesProvider>
+          <div className="min-h-screen bg-background">
+            <TripDetailContent />
+          </div>
+        </ExpensesProvider>
+      </MembersProvider>
+    </TripProvider>
+  );
+}
+
+const TripDetailContent = () => {
   const navigate = useNavigate();
-  // Mock trip data - in a real app, you'd fetch this based on tripId
-  const tripData = {
-    title: "Jelajah Bali Adventure",
-    destination: "Bali, Indonesia",
-    dates: "March 15-22, 2024",
-    duration: "8 days",
-    members: 6,
-    totalBudget: 15000000,
-    spentBudget: 8500000,
-    description:
-      "An amazing adventure exploring the cultural and natural beauty of Bali with friends. Join us as we discover ancient temples, pristine beaches, lush rice terraces, and vibrant local culture.",
-    organizer: {
-      name: "John Smith",
-      avatar: "",
-      email: "john.smith@email.com",
-    },
-  };
-
-  const budgetPercentage = (tripData.spentBudget / tripData.totalBudget) * 100;
-
-  const itinerary = [
-    {
-      day: 1,
-      date: "March 15",
-      title: "Arrival in Denpasar",
-      activities: ["Airport pickup", "Hotel check-in", "Welcome dinner"],
-      location: "Denpasar Airport & Hotel",
-      status: "completed",
-    },
-    {
-      day: 2,
-      date: "March 16",
-      title: "Ubud Cultural Tour",
-      activities: [
-        "Tegallalang Rice Terraces",
-        "Monkey Forest",
-        "Traditional market",
-      ],
-      location: "Ubud",
-      status: "completed",
-    },
-    {
-      day: 3,
-      date: "March 17",
-      title: "Temple Hopping",
-      activities: ["Tanah Lot Temple", "Uluwatu Temple", "Kecak Fire Dance"],
-      location: "Tabanan & Uluwatu",
-      status: "upcoming",
-    },
-    {
-      day: 4,
-      date: "March 18",
-      title: "Beach Day",
-      activities: ["Seminyak Beach", "Water sports", "Beach club"],
-      location: "Seminyak",
-      status: "upcoming",
-    },
-    {
-      day: 5,
-      date: "March 19",
-      title: "Adventure Day",
-      activities: ["White water rafting", "ATV ride", "Volcano tour"],
-      location: "Ubud & Mount Batur",
-      status: "upcoming",
-    },
-  ];
+  const { trip, isLoading, itinerarySummary } = useTrip();
+  const { statistics: expenseStatistics } = useExpenses();
+  const { trip_budget } = expenseStatistics;
 
   const highlights = [
     {
@@ -123,8 +79,14 @@ export default function TripDetail() {
     },
   ];
 
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  const name = `${trip.owner.first_name} ${trip.owner.last_name}`;
+
   return (
-    <div className="min-h-screen bg-background">
+    <>
       {/* Header */}
       <div className="border-b">
         <div className="container mx-auto px-4 py-6">
@@ -141,26 +103,26 @@ export default function TripDetail() {
 
             <div className="flex-1 flex items-center gap-4">
               <div>
-                <h1 className="mb-2 font-semibold">{tripData.title}</h1>
+                <h1 className="mb-2 font-semibold">{trip.title}</h1>
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <MapPin className="w-4 h-4" />
-                    <span>{tripData.destination}</span>
+                    <span>{trip.destination}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Calendar className="w-4 h-4" />
-                    <span>{tripData.dates}</span>
+                    <span>{trip.dates}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Users className="w-4 h-4" />
-                    <span>{tripData.members} members</span>
+                    <span>{trip.member_spots} members</span>
                   </div>
                 </div>
               </div>
 
               <div className="flex items-center gap-4 ml-auto">
                 <Badge variant="secondary" className="px-3 py-1">
-                  {tripData.duration}
+                  {trip.durationLabel}
                 </Badge>
                 <UserAvatar />
               </div>
@@ -168,18 +130,17 @@ export default function TripDetail() {
           </div>
         </div>
       </div>
-
       <div className="container mx-auto px-4 py-6 space-y-8">
         {/* Trip Overview */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Map className="w-5 h-5" />
-              Trip Overview
+              About This Trip
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground mb-6">{tripData.description}</p>
+            <p className="text-muted-foreground mb-6">{trip.description}</p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Organizer */}
@@ -187,56 +148,49 @@ export default function TripDetail() {
                 <h4>Trip Organizer</h4>
                 <div className="flex items-center gap-3">
                   <Avatar>
-                    <AvatarImage src={tripData.organizer.avatar} />
-                    <AvatarFallback>
-                      {getInitials(tripData.organizer.name)}
-                    </AvatarFallback>
+                    <AvatarImage src={trip.owner.avatar} />
+                    <AvatarFallback>{getInitials(name)}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <div className="font-medium">{tripData.organizer.name}</div>
+                    <div className="font-medium">{name}</div>
                     <div className="text-sm text-muted-foreground">
-                      {tripData.organizer.email}
+                      {trip.owner.email}
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Budget */}
+              {/* Trip Info */}
               <div className="space-y-2">
-                <h4>Budget Progress</h4>
-                <div className="space-y-1">
-                  <div className="flex justify-between text-sm">
-                    <span>Spent</span>
-                    <span>{Math.round(budgetPercentage)}%</span>
+                <h4>Trip Details</h4>
+                <div className="space-y-1 text-sm">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-muted-foreground" />
+                    <span>{trip.durationLabel}</span>
                   </div>
-                  <Progress value={budgetPercentage} className="w-full" />
-                  <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>{formatCurrency(tripData.spentBudget)}</span>
-                    <span>{formatCurrency(tripData.totalBudget)}</span>
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-muted-foreground" />
+                    <span>{trip.member_spots} travelers</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-muted-foreground" />
+                    <span>{trip.dates}</span>
                   </div>
                 </div>
               </div>
 
-              {/* Stats */}
+              {/* Budget Info */}
               <div className="space-y-2">
-                <h4>Trip Stats</h4>
+                <h4>Budget Estimate</h4>
                 <div className="space-y-1 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Duration:</span>
-                    <span className="break-words">{tripData.duration}</span>
+                    <span className="text-muted-foreground">Total budget:</span>
+                    <span>{formatCurrency(trip_budget)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Group size:</span>
-                    <span className="break-words">
-                      {tripData.members} people
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      Cost per person:
-                    </span>
-                    <span className="break-words">
-                      {formatCurrency(tripData.totalBudget / tripData.members)}
+                    <span className="text-muted-foreground">Per person:</span>
+                    <span className="font-medium">
+                      {formatCurrency(trip_budget / trip.member_spots)}
                     </span>
                   </div>
                 </div>
@@ -255,54 +209,60 @@ export default function TripDetail() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {itinerary.map((day) => (
-                <div
-                  key={day.day}
-                  className="flex items-start space-x-4 p-4 border rounded-lg"
-                >
-                  <div className="flex-shrink-0">
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                        day.status === "completed"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-primary text-primary-foreground"
-                      }`}
-                    >
-                      {day.status === "completed" ? (
-                        <CheckCircle className="w-4 h-4" />
-                      ) : (
-                        day.day
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4>{day.title}</h4>
-                      <Badge
-                        variant={
-                          day.status === "completed" ? "default" : "secondary"
-                        }
+              {itinerarySummary.map((day, index) => {
+                const totalItems = day.itineraries.length + day.tasks;
+                const completedItems =
+                  day.locations_visited + day.tasks_completed;
+                const isFullyComplete =
+                  totalItems > 0 && completedItems === totalItems;
+
+                return (
+                  <div
+                    key={index}
+                    className="flex items-start space-x-4 p-4 border rounded-lg"
+                  >
+                    <div className="flex-shrink-0">
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                          isFullyComplete
+                            ? "bg-green-100 text-green-800"
+                            : "bg-primary text-primary-foreground"
+                        }`}
                       >
-                        {day.status}
-                      </Badge>
+                        {isFullyComplete ? (
+                          <CheckCircle className="w-4 h-4" />
+                        ) : (
+                          day.date.split(" ")[1]
+                        )}
+                      </div>
                     </div>
-                    <div className="text-sm text-muted-foreground mb-2">
-                      {day.date} • {day.location}
-                    </div>
-                    <div className="flex flex-wrap gap-1">
-                      {day.activities.map((activity, index) => (
-                        <Badge
-                          key={index}
-                          variant="outline"
-                          className="text-xs"
-                        >
-                          {activity}
-                        </Badge>
-                      ))}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4>{day.date}</h4>
+                        {isFullyComplete && (
+                          <Badge variant="default" className="bg-green-600">
+                            Completed
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="text-sm text-muted-foreground mb-2">
+                        {day.locations.join(", ")}
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {day.itineraries.map((name, index) => (
+                          <Badge
+                            key={index}
+                            variant="outline"
+                            className="text-xs"
+                          >
+                            {name}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>
@@ -390,11 +350,10 @@ export default function TripDetail() {
         {/* Footer */}
         <div className="text-center py-8">
           <p className="text-muted-foreground">
-            Want to join this adventure? Contact {tripData.organizer.name} at{" "}
-            {tripData.organizer.email}
+            Want to join this adventure? Contact {name} at {trip.owner.email}
           </p>
         </div>
       </div>
-    </div>
+    </>
   );
-}
+};
