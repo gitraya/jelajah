@@ -3,7 +3,7 @@ from django.conf import settings
 from backend.models import BaseModel
 
 class TripStatus(models.TextChoices):
-    PLANNED = 'PLANNED', 'Planned'
+    PLANNING = 'PLANNING', 'Planning'
     ONGOING = 'ONGOING', 'Ongoing'
     COMPLETED = 'COMPLETED', 'Completed'
     CANCELLED = 'CANCELLED', 'Cancelled'
@@ -58,9 +58,10 @@ class Trip(BaseModel):
     member_spots = models.PositiveIntegerField(default=1)
     duration = models.PositiveIntegerField(help_text="Duration in days", default=1)
     budget = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
-    status = models.CharField(max_length=10, choices=TripStatus.choices, default=TripStatus.PLANNED)
+    status = models.CharField(max_length=10, choices=TripStatus.choices, default=TripStatus.PLANNING)
     difficulty = models.CharField(max_length=15, choices=TripDifficulty.choices, default=TripDifficulty.EASY)
     tags = models.ManyToManyField(Tag, related_name='trips', blank=True)
+    is_joinable = models.BooleanField(default=True)
 
     def __str__(self):
         return self.title

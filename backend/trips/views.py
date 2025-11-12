@@ -37,7 +37,7 @@ class TripViewSet(ModelViewSet):
         if self.action == "list":
             is_public = self.request.query_params.get("is_public")
             if not self.request.user.is_authenticated or is_public:
-                return qs.filter(is_public=True).exclude(status=TripStatus.DELETED)
+                return qs.filter(is_public=True).exclude(status=TripStatus.DELETED).exclude(status=TripStatus.CANCELLED)
             user = self.request.user
             return qs.filter(
                 (Q(is_public=True) | Q(owner=user) | 
@@ -150,3 +150,30 @@ class TripItinerarySummaryView(generics.RetrieveAPIView):
         
         
         return Response(summary)
+
+class TripStatisticsView(generics.RetrieveAPIView):
+    """
+    View to get overall trip statistics
+    """
+    permission_classes = []
+    
+    def get(self, request):
+        total = Trip.objects.exclude(status=TripStatus.DELETED).exclude(status=TripStatus.CANCELLED).count()
+        public = Trip.objects.filter(is_public=True).exclude(status=TripStatus.DELETED).exclude(status=TripStatus.CANCELLED).count()
+        private = Trip.objects.filter(is_public=False).exclude(status=TripStatus.DELETED).exclude(status=TripStatus.CANCELLED).count()
+        joinable = Trip.objects.filter(is_joinable=True).exclude(status=TripStatus.DELETED).exclude(status=TripStatus.CANCELLED).count()
+        public_destinations = Trip.objects.filter(is_public=True).values_list('destination', flat=True).distinct()
+        private_destinations = Trip.objects.filter(is_public=False).values_list('destination', flat=True).distinct()
+        public_average_budget = Trip.objects.filter(is_public=True).exclude(status=TripStatus.DELETED).exclude(status=TripStatus.CANCELLED).aggregate(models.Avg('budget'))['budget__avg'] or 0
+        private_average_budget = Trip.objects.filter(is_public=False).exclude(status=TripStatus.DELETED).exclude(status=TripStatus.CANCELLED).aggregate(models.Avg('budget'))['budget__avg'] or 0
+
+        return Response({
+            "total": total,
+            "public": public,
+            "private": private,
+            "joinable": joinable,
+            "public_destinations": list(public_destinations),
+            "private_destinations": list(private_destinations),
+            "public_average_budget": public_average_budget,
+            "private_average_budget": private_average_budget,
+        })

@@ -53,7 +53,7 @@ class Migration(migrations.Migration):
                 ('end_date', models.DateField()),
                 ('is_public', models.BooleanField(default=False)),
                 ('notes', models.TextField(blank=True)),
-                ('status', models.CharField(choices=[('PLANNED', 'Planned'), ('ONGOING', 'Ongoing'), ('COMPLETED', 'Completed'), ('CANCELLED', 'Cancelled'), ('DELETED', 'Deleted')], default='PLANNED', max_length=10)),
+                ('status', models.CharField(choices=[('PLANNING', 'Planning'), ('ONGOING', 'Ongoing'), ('COMPLETED', 'Completed'), ('CANCELLED', 'Cancelled'), ('DELETED', 'Deleted')], default='PLANNING', max_length=10)),
                 ('location', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='trips', to='trips.location')),
             ],
             options={

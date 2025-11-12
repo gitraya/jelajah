@@ -5,6 +5,7 @@ from django.utils.dateparse import parse_date
 from django.contrib.auth import get_user_model
 from .models import Trip, TripMember, MemberStatus
 from expenses.models import ExpenseSplit
+from itineraries.models import ItineraryItem
 
 User = get_user_model()
 
@@ -108,6 +109,7 @@ class TripSerializer(serializers.ModelSerializer):
     members = TripMemberSerializer(source='trip_members', many=True, read_only=True)
     is_editable = serializers.SerializerMethodField()
     is_deletable = serializers.SerializerMethodField()
+    highlights = serializers.ListField(child=serializers.CharField(), read_only=True)
     
     class Meta:
         model = Trip
@@ -161,3 +163,12 @@ class TripSerializer(serializers.ModelSerializer):
         if user == obj.owner and obj.status != 'DELETED':
             return True
         return False
+    
+    def to_representation(self, instance):
+        """Add highlights field to the representation"""
+        representation = super().to_representation(instance)
+        highlights = ItineraryItem.objects.filter(
+            trip=instance,
+        ).values_list('name', flat=True)
+        representation['highlights'] = list(highlights)
+        return representation
