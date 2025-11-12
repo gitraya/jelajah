@@ -97,20 +97,20 @@ export default function TripDialog() {
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="location.name">Destination</Label>
+            <Label htmlFor="destination">Destination</Label>
             <Input
-              id="location.name"
+              id="destination"
               placeholder="Where are you going?"
-              aria-invalid={errors.location?.name ? "true" : "false"}
-              {...register("location.name", {
+              aria-invalid={errors.destination ? "true" : "false"}
+              {...register("destination", {
                 required: validator.required,
                 minLength: validator.minLength(2),
                 maxLength: validator.maxLength(255),
               })}
             />
-            {errors.location?.name && (
+            {errors.destination && (
               <p className="text-xs text-destructive">
-                {errors.location.name.message}
+                {errors.destination.message}
               </p>
             )}
           </div>

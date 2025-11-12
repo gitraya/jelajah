@@ -54,37 +54,6 @@ const TripDetailContent = () => {
   const { itineraries } = useItineraries();
   const { trip_budget } = expenseStatistics;
 
-  const highlights = [
-    {
-      title: "Tegallalang Rice Terraces",
-      description:
-        "UNESCO World Heritage rice terraces with stunning valley views",
-      rating: 4.8,
-      image: "🌾",
-    },
-    {
-      title: "Uluwatu Temple",
-      description:
-        "Clifftop temple with spectacular sunset views and Kecak dance",
-      rating: 4.7,
-      image: "🏛️",
-    },
-    {
-      title: "Seminyak Beach",
-      description:
-        "Premium beach destination with world-class dining and surfing",
-      rating: 4.6,
-      image: "🏖️",
-    },
-    {
-      title: "White Water Rafting",
-      description:
-        "Thrilling adventure through Bali's lush tropical landscapes",
-      rating: 4.9,
-      image: "🚣",
-    },
-  ];
-
   if (isLoading) {
     return <div>Loading...</div>;
   }

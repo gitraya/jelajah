@@ -7,7 +7,7 @@ import {
   Search,
   Users,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 
 import HowItWorksDialog from "@/components/dialogs/HowItWorksDialog";
@@ -24,165 +24,36 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { UserAvatar } from "@/components/UserAvatar";
+import { TripsProvider } from "@/contexts/TripsContext";
 import { useAuth } from "@/hooks/useAuth";
+import { useTrips } from "@/hooks/useTrips";
 import { getTripDifficultyColor, getTripStatusColor } from "@/lib/colors";
 import { formatCurrency, formatDate, getInitials } from "@/lib/utils";
 
 export default function Home() {
+  return (
+    <TripsProvider>
+      <div className="min-h-screen bg-background">
+        <HomeContent />
+      </div>
+    </TripsProvider>
+  );
+}
+
+const HomeContent = () => {
   const { user } = useAuth();
+  const {
+    fetchPublicTrips,
+    publicTrips,
+    tripsStatistics,
+    fetchTripsStatistics,
+  } = useTrips();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDestination, setSelectedDestination] = useState("All");
   const [selectedStatus, setSelectedStatus] = useState("All");
   const [selectedDifficulty, setSelectedDifficulty] = useState("All");
-
-  // Mock public trips data
-  const publicTrips = [
-    {
-      id: "1",
-      title: "Jelajah Bali Adventure",
-      destination: "Bali, Indonesia",
-      startDate: "2024-03-15",
-      endDate: "2024-03-22",
-      duration: 8,
-      members: 6,
-      maxMembers: 8,
-      totalBudget: 15000000,
-      spentBudget: 8500000,
-      status: "ongoing",
-      description:
-        "Explore the cultural and natural beauty of Bali with fellow adventurers.",
-      organizer: {
-        name: "John Smith",
-        avatar: "",
-      },
-      highlights: ["Ubud Rice Terraces", "Uluwatu Temple", "Seminyak Beach"],
-      difficulty: "moderate",
-      tags: ["Culture", "Nature", "Beach"],
-      createdAt: "2024-02-01",
-      joinable: true,
-    },
-    {
-      id: "2",
-      title: "Tokyo Cherry Blossom Tour",
-      destination: "Tokyo, Japan",
-      startDate: "2024-04-05",
-      endDate: "2024-04-12",
-      duration: 7,
-      members: 4,
-      maxMembers: 6,
-      totalBudget: 20000000,
-      spentBudget: 2500000,
-      status: "planning",
-      description:
-        "Experience cherry blossom season in Tokyo with traditional temples and modern city life.",
-      organizer: {
-        name: "Sarah Johnson",
-        avatar: "",
-      },
-      highlights: ["Shibuya Crossing", "Senso-ji Temple", "Cherry Blossoms"],
-      difficulty: "easy",
-      tags: ["Culture", "City", "Festival"],
-      createdAt: "2024-02-15",
-      joinable: true,
-    },
-    {
-      id: "3",
-      title: "Backpacking Southeast Asia",
-      destination: "Thailand, Vietnam, Cambodia",
-      startDate: "2024-01-10",
-      endDate: "2024-02-10",
-      duration: 31,
-      members: 2,
-      maxMembers: 4,
-      totalBudget: 25000000,
-      spentBudget: 24800000,
-      status: "completed",
-      description:
-        "Budget backpacking adventure through Southeast Asia highlights.",
-      organizer: {
-        name: "Mike Chen",
-        avatar: "",
-      },
-      highlights: ["Angkor Wat", "Ha Long Bay", "Bangkok Markets"],
-      difficulty: "challenging",
-      tags: ["Backpacking", "Budget", "Adventure"],
-      createdAt: "2023-12-01",
-      joinable: false,
-    },
-    {
-      id: "4",
-      title: "Iceland Northern Lights",
-      destination: "Reykjavik, Iceland",
-      startDate: "2024-02-20",
-      endDate: "2024-02-27",
-      duration: 7,
-      members: 5,
-      maxMembers: 8,
-      totalBudget: 30000000,
-      spentBudget: 28000000,
-      status: "completed",
-      description:
-        "Chase the Northern Lights and explore Iceland's dramatic landscapes.",
-      organizer: {
-        name: "Lisa Rodriguez",
-        avatar: "",
-      },
-      highlights: ["Northern Lights", "Blue Lagoon", "Golden Circle"],
-      difficulty: "moderate",
-      tags: ["Nature", "Aurora", "Winter"],
-      createdAt: "2024-01-15",
-      joinable: false,
-    },
-    {
-      id: "5",
-      title: "Patagonia Hiking Expedition",
-      destination: "Chile & Argentina",
-      startDate: "2024-05-10",
-      endDate: "2024-05-24",
-      duration: 14,
-      members: 3,
-      maxMembers: 6,
-      totalBudget: 35000000,
-      spentBudget: 0,
-      status: "planning",
-      description:
-        "Epic hiking adventure through Patagonia's most spectacular trails.",
-      organizer: {
-        name: "Tom Wilson",
-        avatar: "",
-      },
-      highlights: ["Torres del Paine", "Fitz Roy", "Perito Moreno"],
-      difficulty: "challenging",
-      tags: ["Hiking", "Nature", "Adventure"],
-      createdAt: "2024-03-01",
-      joinable: true,
-    },
-    {
-      id: "6",
-      title: "European Summer Roadtrip",
-      destination: "France, Italy, Switzerland",
-      startDate: "2024-06-20",
-      endDate: "2024-07-05",
-      duration: 15,
-      members: 6,
-      maxMembers: 8,
-      totalBudget: 35000000,
-      spentBudget: 0,
-      status: "planning",
-      description:
-        "Road trip through Europe's most beautiful destinations this summer.",
-      organizer: {
-        name: "Anna Davis",
-        avatar: "",
-      },
-      highlights: ["Swiss Alps", "Tuscany", "French Riviera"],
-      difficulty: "easy",
-      tags: ["Roadtrip", "Culture", "Summer"],
-      createdAt: "2024-03-01",
-      joinable: true,
-    },
-  ];
 
   // Filter trips based on search and filters
   const filteredTrips = publicTrips.filter((trip) => {
@@ -192,7 +63,7 @@ export default function Home() {
       trip.destination.toLowerCase().includes(searchQuery.toLowerCase()) ||
       trip.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       trip.tags.some((tag) =>
-        tag.toLowerCase().includes(searchQuery.toLowerCase())
+        tag.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
 
     const matchesDestination =
@@ -200,40 +71,38 @@ export default function Home() {
       trip.destination.includes(selectedDestination);
 
     const matchesStatus =
-      selectedStatus === "All" || trip.status === selectedStatus;
+      selectedStatus === "All" || trip.status.toLowerCase() === selectedStatus;
 
     const matchesDifficulty =
-      selectedDifficulty === "All" || trip.difficulty === selectedDifficulty;
+      selectedDifficulty === "All" ||
+      trip.difficulty.toLowerCase() === selectedDifficulty;
 
     return (
       matchesSearch && matchesDestination && matchesStatus && matchesDifficulty
     );
   });
 
-  const destinations = [
-    "All",
-    "Bali",
-    "Tokyo",
-    "Thailand",
-    "Iceland",
-    "Patagonia",
-    "Europe",
-  ];
   const statuses = ["All", "planning", "ongoing", "completed"];
   const difficulties = ["All", "easy", "moderate", "challenging"];
+  const destinations = ["All", ...tripsStatistics.public_destinations];
 
-  const stats = {
-    total: publicTrips.length,
-    joinable: publicTrips.filter((t) => t.joinable).length,
-    destinations: new Set(publicTrips.map((t) => t.destination.split(",")[0]))
-      .size,
-    avgBudget:
-      publicTrips.reduce((sum, trip) => sum + trip.totalBudget, 0) /
-      publicTrips.length,
-  };
+  useEffect(() => {
+    setIsLoading(true);
+    Promise.all([fetchPublicTrips(), fetchTripsStatistics()]).finally(() => {
+      setIsLoading(false);
+    });
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-lg">Loading trips...</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-background">
+    <>
       {/* Header with User Avatar */}
       {user && (
         <div className="border-b">
@@ -299,7 +168,7 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold break-words">
-                {stats.total}
+                {tripsStatistics.total}
               </div>
             </CardContent>
           </Card>
@@ -313,7 +182,7 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-600 break-words">
-                {stats.joinable}
+                {tripsStatistics.joinable}
               </div>
             </CardContent>
           </Card>
@@ -327,7 +196,7 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold break-words">
-                {stats.destinations}
+                {tripsStatistics.public_destinations.length}
               </div>
             </CardContent>
           </Card>
@@ -339,7 +208,7 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <div className="text-lg font-bold break-words">
-                {formatCurrency(stats.avgBudget)}
+                {formatCurrency(tripsStatistics.public_average_budget)}
               </div>
             </CardContent>
           </Card>
@@ -428,7 +297,7 @@ export default function Home() {
         {/* Trips Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredTrips.map((trip) => {
-            const spotsLeft = trip.maxMembers - trip.members;
+            const spotsLeft = trip.member_spots - trip.members.length;
 
             return (
               <Link key={trip.id} to={`/trips/${trip.id}`}>
@@ -446,16 +315,21 @@ export default function Home() {
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <Calendar className="w-4 h-4" />
                           <span>
-                            {formatDate(trip.startDate)} -{" "}
-                            {formatDate(trip.endDate)}
+                            {formatDate(trip.start_date)} -{" "}
+                            {formatDate(trip.end_date)}
                           </span>
                         </div>
                       </div>
                       <div className="flex flex-col gap-1">
-                        <Badge className={getTripStatusColor(trip.status)}>
-                          {trip.status}
+                        <Badge
+                          className={getTripStatusColor(
+                            trip.status.toLowerCase()
+                          )}
+                        >
+                          {trip.status.charAt(0) +
+                            trip.status.slice(1).toLowerCase()}
                         </Badge>
-                        {trip.joinable && spotsLeft > 0 && (
+                        {trip.is_joinable && spotsLeft > 0 && (
                           <Badge
                             variant="outline"
                             className="text-green-600 border-green-600"
@@ -474,13 +348,15 @@ export default function Home() {
                     {/* Organizer */}
                     <div className="flex items-center gap-2 mb-3">
                       <Avatar className="w-6 h-6">
-                        <AvatarImage src={trip.organizer.avatar} />
+                        <AvatarImage src={trip.owner.avatar} />
                         <AvatarFallback className="text-xs">
-                          {getInitials(trip.organizer.name)}
+                          {getInitials(
+                            `${trip.owner.first_name} ${trip.owner.last_name}`
+                          )}
                         </AvatarFallback>
                       </Avatar>
                       <span className="text-sm text-muted-foreground">
-                        by {trip.organizer.name}
+                        by {trip.owner.first_name} {trip.owner.last_name}
                       </span>
                     </div>
 
@@ -495,7 +371,7 @@ export default function Home() {
                       <div>
                         <span className="text-muted-foreground">Group:</span>
                         <span className="ml-1 font-medium">
-                          {trip.members}/{trip.maxMembers} people
+                          {trip.members.length}/{trip.member_spots} people
                         </span>
                       </div>
                     </div>
@@ -503,17 +379,20 @@ export default function Home() {
                     <div className="mb-3">
                       <span className="text-muted-foreground">Budget:</span>
                       <span className="ml-1 font-medium">
-                        {formatCurrency(trip.totalBudget / trip.maxMembers)}
+                        {formatCurrency(trip.budget / trip.member_spots)}
                         /person
                       </span>
                     </div>
                     <div className="flex items-center gap-1 mb-3">
                       <span className="text-muted-foreground">Level:</span>
                       <Badge
-                        className={getTripDifficultyColor(trip.difficulty)}
+                        className={getTripDifficultyColor(
+                          trip.difficulty.toLowerCase()
+                        )}
                         size="sm"
                       >
-                        {trip.difficulty}
+                        {trip.difficulty.charAt(0) +
+                          trip.difficulty.slice(1).toLowerCase()}
                       </Badge>
                     </div>
 
@@ -543,7 +422,7 @@ export default function Home() {
                           variant="secondary"
                           className="text-xs"
                         >
-                          {tag}
+                          {tag.name}
                         </Badge>
                       ))}
                     </div>
@@ -551,14 +430,14 @@ export default function Home() {
                     {/* Action */}
                     <Button
                       className="w-full"
-                      variant={trip.joinable ? "default" : "outline"}
+                      variant={trip.is_joinable ? "default" : "outline"}
                       onClick={(e) => {
                         e.stopPropagation();
                         navigate(`/trips/${trip.id}`);
                       }}
                     >
                       <Eye className="w-4 h-4 mr-2" />
-                      {trip.joinable ? "View & Join" : "View Trip"}
+                      {trip.is_joinable ? "View & Join" : "View Trip"}
                     </Button>
                   </CardContent>
                 </Card>
@@ -615,6 +494,6 @@ export default function Home() {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
-}
+};
