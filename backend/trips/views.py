@@ -6,8 +6,8 @@ from django.db.models import Q
 from django.contrib.auth import get_user_model
 from django.db import models
 
-from .models import Trip, TripStatus, MemberStatus, TripMember
-from .serializers import TripSerializer, TripMemberSerializer
+from .models import Trip, TripStatus, MemberStatus, TripMember, Tag
+from .serializers import TripSerializer, TripMemberSerializer, TagSerializer
 from .permissions import IsTripAccessible
 from expenses.models import ExpenseSplit
 from itineraries.models import ItineraryItem
@@ -194,3 +194,12 @@ class TripStatisticsView(generics.RetrieveAPIView):
             "public_average_budget": public_average_budget,
             "private_average_budget": private_average_budget,
         })
+
+
+class TagListView(generics.ListAPIView):
+    """
+    View to list all unique tags used in trips
+    """
+    serializer_class = TagSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = Tag.objects.all()

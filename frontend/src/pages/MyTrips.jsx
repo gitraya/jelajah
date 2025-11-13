@@ -17,6 +17,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { UserAvatar } from "@/components/UserAvatar";
+import { TagsProvider } from "@/contexts/TagsContext";
 import { getTripStatusColor } from "@/lib/colors";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
@@ -108,221 +109,228 @@ export default function MyTrips() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="border-b">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <h1 className="mb-2 text-2xl font-semibold">My Trips</h1>
-                <p className="text-muted-foreground">
-                  Manage your travel adventures
-                </p>
-                <Link
-                  to="/"
-                  className="mt-3 cursor-pointer text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  ← Browse Public Trips
-                </Link>
+    <TagsProvider>
+      <div className="min-h-screen bg-background">
+        {/* Header */}
+        <div className="border-b">
+          <div className="container mx-auto px-4 py-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <h1 className="mb-2 text-2xl font-semibold">My Trips</h1>
+                  <p className="text-muted-foreground">
+                    Manage your travel adventures
+                  </p>
+                  <Link
+                    to="/"
+                    className="mt-3 cursor-pointer text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    ← Browse Public Trips
+                  </Link>
+                </div>
+                <UserAvatar className="sm:hidden" />
               </div>
-              <UserAvatar className="sm:hidden" />
-            </div>
-            <div className="flex items-center gap-3">
-              <TripDialog />
-              <UserAvatar className="hidden sm:block" />
+              <div className="flex items-center gap-3">
+                <TripDialog />
+                <UserAvatar className="hidden sm:block" />
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Trip Stats */}
-      <div className="container mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Trips</CardTitle>
-              <MapPin className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold break-words">
-                {trips.length}
-              </div>
-            </CardContent>
-          </Card>
+        {/* Trip Stats */}
+        <div className="container mx-auto px-4 py-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Total Trips
+                </CardTitle>
+                <MapPin className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold break-words">
+                  {trips.length}
+                </div>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Ongoing Trips
-              </CardTitle>
-              <Calendar className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600 break-words">
-                {trips.filter((t) => t.status === "ongoing").length}
-              </div>
-            </CardContent>
-          </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Ongoing Trips
+                </CardTitle>
+                <Calendar className="h-4 w-4 text-green-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-600 break-words">
+                  {trips.filter((t) => t.status === "ongoing").length}
+                </div>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Upcoming Trips
-              </CardTitle>
-              <Calendar className="h-4 w-4 text-blue-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-600 break-words">
-                {trips.filter((t) => t.status === "planning").length}
-              </div>
-            </CardContent>
-          </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Upcoming Trips
+                </CardTitle>
+                <Calendar className="h-4 w-4 text-blue-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-blue-600 break-words">
+                  {trips.filter((t) => t.status === "planning").length}
+                </div>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Total Budget
-              </CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold break-words">
-                {formatCurrency(
-                  trips.reduce((sum, trip) => sum + trip.totalBudget, 0)
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Total Budget
+                </CardTitle>
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold break-words">
+                  {formatCurrency(
+                    trips.reduce((sum, trip) => sum + trip.totalBudget, 0)
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-        {/* Trips Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-          {trips.map((trip) => {
-            const budgetPercentage =
-              trip.totalBudget > 0
-                ? (trip.spentBudget / trip.totalBudget) * 100
-                : 0;
+          {/* Trips Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+            {trips.map((trip) => {
+              const budgetPercentage =
+                trip.totalBudget > 0
+                  ? (trip.spentBudget / trip.totalBudget) * 100
+                  : 0;
 
-            return (
-              <Card
-                key={trip.id}
-                className="group hover:shadow-lg transition-shadow gap-3"
-              >
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <CardTitle className="mb-2">{trip.title}</CardTitle>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                        <MapPin className="w-4 h-4" />
-                        <span>{trip.destination}</span>
+              return (
+                <Card
+                  key={trip.id}
+                  className="group hover:shadow-lg transition-shadow gap-3"
+                >
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <CardTitle className="mb-2">{trip.title}</CardTitle>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                          <MapPin className="w-4 h-4" />
+                          <span>{trip.destination}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                          <Calendar className="w-4 h-4" />
+                          <span>
+                            {formatDate(trip.startDate)} -{" "}
+                            {formatDate(trip.endDate)}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Users className="w-4 h-4" />
+                          <span>
+                            {trip.members} members • {trip.duration} days
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                        <Calendar className="w-4 h-4" />
+                      <Badge className={getTripStatusColor(trip.status)}>
+                        {trip.status}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      {trip.description}
+                    </p>
+
+                    {/* Budget Progress */}
+                    <div className="space-y-2 mb-4">
+                      <div className="flex justify-between text-sm">
+                        <span>Budget</span>
                         <span>
-                          {formatDate(trip.startDate)} -{" "}
-                          {formatDate(trip.endDate)}
+                          {formatCurrency(trip.spentBudget)} /{" "}
+                          {formatCurrency(trip.totalBudget)}
                         </span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Users className="w-4 h-4" />
-                        <span>
-                          {trip.members} members • {trip.duration} days
-                        </span>
-                      </div>
+                      <Progress
+                        value={budgetPercentage}
+                        className="w-full h-2"
+                      />
                     </div>
-                    <Badge className={getTripStatusColor(trip.status)}>
-                      {trip.status}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    {trip.description}
-                  </p>
 
-                  {/* Budget Progress */}
-                  <div className="space-y-2 mb-4">
-                    <div className="flex justify-between text-sm">
-                      <span>Budget</span>
-                      <span>
-                        {formatCurrency(trip.spentBudget)} /{" "}
-                        {formatCurrency(trip.totalBudget)}
-                      </span>
-                    </div>
-                    <Progress value={budgetPercentage} className="w-full h-2" />
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex flex-col gap-2 xl:flex-row xl:items-center xl:justify-between">
-                    <div className="flex items-center gap-2">
-                      <Link
-                        to={`/trips/${trip.id}/manage`}
-                        className={buttonVariants({
-                          variant: "outline",
-                          size: "sm",
-                        })}
-                      >
-                        <Edit className="w-4 h-4 mr-1" />
-                        Manage
-                      </Link>
-                      {trip.isPublic && (
+                    {/* Actions */}
+                    <div className="flex flex-col gap-2 xl:flex-row xl:items-center xl:justify-between">
+                      <div className="flex items-center gap-2">
                         <Link
-                          to={`/trips/${trip.id}`}
+                          to={`/trips/${trip.id}/manage`}
                           className={buttonVariants({
                             variant: "outline",
                             size: "sm",
                           })}
                         >
-                          <Eye className="w-4 h-4 mr-1" />
-                          View
+                          <Edit className="w-4 h-4 mr-1" />
+                          Manage
                         </Link>
-                      )}
+                        {trip.isPublic && (
+                          <Link
+                            to={`/trips/${trip.id}`}
+                            className={buttonVariants({
+                              variant: "outline",
+                              size: "sm",
+                            })}
+                          >
+                            <Eye className="w-4 h-4 mr-1" />
+                            View
+                          </Link>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => copyPublicLink(trip.id)}
+                          disabled={!trip.isPublic}
+                        >
+                          <Share className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => togglePublic(trip.id)}
+                          className={
+                            trip.isPublic
+                              ? "text-green-600"
+                              : "text-muted-foreground"
+                          }
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => deleteTrip(trip.id)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => copyPublicLink(trip.id)}
-                        disabled={!trip.isPublic}
-                      >
-                        <Share className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => togglePublic(trip.id)}
-                        className={
-                          trip.isPublic
-                            ? "text-green-600"
-                            : "text-muted-foreground"
-                        }
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deleteTrip(trip.id)}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
 
-                  {trip.isPublic && (
-                    <div className="mt-2 text-xs text-green-600 flex items-center gap-1">
-                      <Eye className="w-3 h-3" />
-                      Public - anyone with link can view
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            );
-          })}
+                    {trip.isPublic && (
+                      <div className="mt-2 text-xs text-green-600 flex items-center gap-1">
+                        <Eye className="w-3 h-3" />
+                        Public - anyone with link can view
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
         </div>
       </div>
-    </div>
+    </TagsProvider>
   );
 }

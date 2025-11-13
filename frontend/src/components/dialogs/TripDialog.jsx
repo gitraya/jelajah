@@ -1,6 +1,6 @@
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -19,27 +19,39 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useApi } from "@/hooks/useApi";
+import { useTags } from "@/hooks/useTags";
 import { calculateDuration, validator } from "@/lib/utils";
+
+import { CreatableSelectInput } from "../ui/select-input";
 
 export default function TripDialog() {
   const navigate = useNavigate();
   const { postRequest } = useApi();
+  const { tags: defaultTags } = useTags();
   const {
     reset,
     register,
     handleSubmit,
     formState: { errors },
+    control,
   } = useForm();
   const [error, setError] = useState("");
   const [open, setOpen] = useState(false);
 
   const onSubmit = async (data) => {
     try {
+      console.log("Submitting data:", data);
       data.budget = parseInt(data.budget) || 0;
       data.duration = calculateDuration(data.start_date, data.end_date);
       data.member_spots = parseInt(data.member_spots) || 1;
-      const response = await postRequest("/trips/", data);
+      data.new_tag_names = data.tag_ids
+        .filter((tag) => !defaultTags.some((t) => t.id === tag.value))
+        .map((tag) => tag.label);
+      data.tag_ids = data.tag_ids
+        .filter((tag) => defaultTags.some((t) => t.id === tag.value))
+        .map((tag) => tag.value);
 
+      const response = await postRequest("/trips/", data);
       navigate(`/trips/${response.data.id}/manage`);
     } catch (error) {
       setError(
@@ -199,9 +211,45 @@ export default function TripDialog() {
               </p>
             )}
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="tag_ids">Tags (comma-separated)</Label>
+            <Controller
+              control={control}
+              name="tag_ids"
+              rules={{ required: validator.required }}
+              render={({ field }) => (
+                <CreatableSelectInput
+                  id="tag_ids"
+                  isMulti
+                  options={defaultTags.map((tag) => ({
+                    value: tag.id,
+                    label: tag.name,
+                  }))}
+                  placeholder="Select tags or type to create"
+                  aria-invalid={errors.tag_ids ? "true" : "false"}
+                  value={field.value}
+                  onChange={(selectedOptions) =>
+                    field.onChange(selectedOptions)
+                  }
+                />
+              )}
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Add tags to help others discover your trip
+            </p>
+            {errors.tag_ids && (
+              <p className="text-xs text-destructive">
+                {errors.tag_ids.message}
+              </p>
+            )}
+          </div>
           <div className="flex items-center space-x-2">
             <Switch id="is_public" {...register("is_public")} />
             <Label htmlFor="is_public">Public</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Switch id="is_joinable" {...register("is_joinable")} />
+            <Label htmlFor="is_joinable">Joinable</Label>
           </div>
           <div className="flex justify-end space-x-2">
             <DialogClose asChild>

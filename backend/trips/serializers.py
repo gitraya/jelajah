@@ -124,6 +124,11 @@ class TripSerializer(serializers.ModelSerializer):
         write_only=True,
         required=False
     )
+    new_tag_names = serializers.ListField(
+        child=serializers.CharField(),
+        write_only=True,
+        required=False
+    )
 
     class Meta:
         model = Trip
@@ -142,11 +147,29 @@ class TripSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Start date cannot be in the past.")
         return start_date
     
+    def validate_end_date(self, end_date):
+        """Validate that end_date is after start_date"""        
+        start_date = parse_date(self.initial_data['start_date'])
+        if start_date is None:
+            raise serializers.ValidationError("Invalid start date format")
+            
+        if end_date <= start_date:
+            raise serializers.ValidationError("End date must be after start date")
+        return end_date
+    
     def create(self, validated_data):
         request = self.context['request']
         owner = request.user
         
+        # Handle new tags creation
+        new_tag_names = validated_data.pop('new_tag_names', [])
+        tags = validated_data.pop('tags', [])
+        for tag_name in new_tag_names:
+            tag, _ = Tag.objects.get_or_create(name=tag_name)
+            tags.append(tag)
+        
         trip = Trip.objects.create(owner=owner, **validated_data)
+        trip.tags.set(tags)
         TripMember.objects.create(user=owner, trip=trip, status=MemberStatus.ACCEPTED, role=MemberRole.ORGANIZER)
 
         return trip
@@ -154,7 +177,17 @@ class TripSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         """Remove owner because we don't want to update it"""
         validated_data.pop('owner', None)
-        return super().update(instance, validated_data)
+
+        # Handle new tags creation
+        new_tag_names = validated_data.pop('new_tag_names', [])
+        tags = validated_data.pop('tags', [])
+        for tag_name in new_tag_names:
+            tag, _ = Tag.objects.get_or_create(name=tag_name)
+            tags.append(tag)
+        
+        instance = super().update(instance, validated_data)
+        instance.tags.set(tags)
+        return instance
     
     def get_is_editable(self, obj):
         request = self.context.get('request')
