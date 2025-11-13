@@ -1,3 +1,4 @@
+import _ from "lodash";
 import {
   Calendar,
   DollarSign,
@@ -7,7 +8,7 @@ import {
   Search,
   Users,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 
 import HowItWorksDialog from "@/components/dialogs/HowItWorksDialog";
@@ -50,41 +51,49 @@ const HomeContent = () => {
   } = useTrips();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
+  const [inputValue, setInputValue] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDestination, setSelectedDestination] = useState("All");
   const [selectedStatus, setSelectedStatus] = useState("All");
   const [selectedDifficulty, setSelectedDifficulty] = useState("All");
 
-  // Filter trips based on search and filters
-  const filteredTrips = publicTrips.filter((trip) => {
-    const matchesSearch =
-      searchQuery === "" ||
-      trip.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      trip.destination.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      trip.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      trip.tags.some((tag) =>
-        tag.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+  const handleClearFilters = () => {
+    setInputValue("");
+    setSearchQuery("");
+    setSelectedDestination("All");
+    setSelectedStatus("All");
+    setSelectedDifficulty("All");
+  };
 
-    const matchesDestination =
-      selectedDestination === "All" ||
-      trip.destination.includes(selectedDestination);
+  const getSearchQueryString = useCallback(() => {
+    const params = new URLSearchParams();
+    if (searchQuery) params.append("title", searchQuery);
+    if (selectedDestination !== "All")
+      params.append("destination", selectedDestination);
+    if (selectedStatus !== "All") params.append("status", selectedStatus);
+    if (selectedDifficulty !== "All")
+      params.append("difficulty", selectedDifficulty);
+    return params.toString();
+  }, [searchQuery, selectedDestination, selectedStatus, selectedDifficulty]);
 
-    const matchesStatus =
-      selectedStatus === "All" || trip.status.toLowerCase() === selectedStatus;
+  const debouncedSetSearchQuery = useCallback(
+    _.debounce((value) => setSearchQuery(value), 500),
+    []
+  );
 
-    const matchesDifficulty =
-      selectedDifficulty === "All" ||
-      trip.difficulty.toLowerCase() === selectedDifficulty;
+  const handleSearchInputChange = (e) => {
+    setInputValue(e.target.value);
+    debouncedSetSearchQuery(e.target.value);
+  };
 
-    return (
-      matchesSearch && matchesDestination && matchesStatus && matchesDifficulty
-    );
-  });
-
-  const statuses = ["All", "planning", "ongoing", "completed"];
-  const difficulties = ["All", "easy", "moderate", "challenging"];
-  const destinations = ["All", ...tripsStatistics.public_destinations];
+  useEffect(() => {
+    const fetchFilteredTrips = async () => {
+      setIsLoading(true);
+      await fetchPublicTrips(getSearchQueryString());
+      setIsLoading(false);
+    };
+    fetchFilteredTrips();
+  }, [getSearchQueryString, fetchPublicTrips]);
 
   useEffect(() => {
     setIsLoading(true);
@@ -100,6 +109,10 @@ const HomeContent = () => {
       </div>
     );
   }
+
+  const statuses = ["All", "planning", "ongoing", "completed"];
+  const difficulties = ["All", "easy", "moderate", "challenging"];
+  const destinations = ["All", ...tripsStatistics.public_destinations];
 
   return (
     <>
@@ -227,8 +240,8 @@ const HomeContent = () => {
               <div className="md:col-span-2">
                 <Input
                   placeholder="Search trips, destinations, or tags..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  value={inputValue}
+                  onChange={handleSearchInputChange}
                   className="w-full"
                 />
               </div>
@@ -286,8 +299,8 @@ const HomeContent = () => {
         {/* Results */}
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-xl font-semibold">
-            {filteredTrips.length}{" "}
-            {filteredTrips.length === 1 ? "Trip" : "Trips"} Found
+            {publicTrips.length} {publicTrips.length === 1 ? "Trip" : "Trips"}{" "}
+            Found
           </h2>
           <div className="text-sm text-muted-foreground">
             Sorted by relevance
@@ -296,7 +309,7 @@ const HomeContent = () => {
 
         {/* Trips Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredTrips.map((trip) => {
+          {publicTrips.map((trip) => {
             const spotsLeft = trip.member_spots - trip.members.length;
 
             return (
@@ -401,6 +414,11 @@ const HomeContent = () => {
                       <div className="text-sm text-muted-foreground mb-1">
                         Highlights:
                       </div>
+                      {trip.highlights.length === 0 && (
+                        <div className="text-xs text-muted-foreground italic">
+                          No highlights provided.
+                        </div>
+                      )}
                       <div className="flex flex-wrap gap-1">
                         {trip.highlights.slice(0, 3).map((highlight, index) => (
                           <Badge
@@ -446,20 +464,12 @@ const HomeContent = () => {
           })}
         </div>
 
-        {filteredTrips.length === 0 && (
+        {publicTrips.length === 0 && (
           <div className="text-center py-12">
             <div className="text-muted-foreground mb-4">
               No trips found matching your criteria.
             </div>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setSearchQuery("");
-                setSelectedDestination("All");
-                setSelectedStatus("All");
-                setSelectedDifficulty("All");
-              }}
-            >
+            <Button variant="outline" onClick={handleClearFilters}>
               Clear Filters
             </Button>
           </div>

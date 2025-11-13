@@ -3,9 +3,9 @@ from django.db import models
 from django.utils import timezone
 from django.utils.dateparse import parse_date
 from django.contrib.auth import get_user_model
-from .models import Trip, TripMember, MemberStatus
+from .models import Trip, TripMember, MemberStatus, MemberRole, TripStatus, Tag
 from expenses.models import ExpenseSplit
-from itineraries.models import ItineraryItem
+from itineraries.models import ItineraryItem, ItineraryStatus
 
 User = get_user_model()
 
@@ -14,6 +14,12 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'email', 'first_name', 'last_name', 'phone']
         read_only_fields = ['id']
+        
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = '__all__'
+        read_only_fields = ['id', 'created_at', 'updated_at']
 
 class TripMemberSerializer(serializers.ModelSerializer):
     """Serializer for TripMember model with user details"""
@@ -110,7 +116,15 @@ class TripSerializer(serializers.ModelSerializer):
     is_editable = serializers.SerializerMethodField()
     is_deletable = serializers.SerializerMethodField()
     highlights = serializers.ListField(child=serializers.CharField(), read_only=True)
-    
+    tags = TagSerializer(many=True, read_only=True)
+    tag_ids = serializers.PrimaryKeyRelatedField(
+        queryset=Tag.objects.all(),
+        source='tags',
+        many=True,
+        write_only=True,
+        required=False
+    )
+
     class Meta:
         model = Trip
         fields = "__all__"
@@ -133,7 +147,7 @@ class TripSerializer(serializers.ModelSerializer):
         owner = request.user
         
         trip = Trip.objects.create(owner=owner, **validated_data)
-        TripMember.objects.create(user=owner, trip=trip, status=MemberStatus.ACCEPTED, role='ORGANIZER')
+        TripMember.objects.create(user=owner, trip=trip, status=MemberStatus.ACCEPTED, role=MemberRole.ORGANIZER)
 
         return trip
     
@@ -148,9 +162,9 @@ class TripSerializer(serializers.ModelSerializer):
             return False
         
         user = request.user
-        if user == obj.owner and obj.status != 'DELETED':
+        if user == obj.owner and obj.status != TripStatus.DELETED:
             return True
-        elif obj.trip_members.filter(user=user, status=MemberStatus.ACCEPTED).exists() and obj.status != 'DELETED':
+        elif obj.trip_members.filter(user=user, status=MemberStatus.ACCEPTED).exists() and obj.status != TripStatus.DELETED:
             return True
         return False
 
@@ -160,7 +174,7 @@ class TripSerializer(serializers.ModelSerializer):
             return False
         
         user = request.user
-        if user == obj.owner and obj.status != 'DELETED':
+        if user == obj.owner and obj.status != TripStatus.DELETED:
             return True
         return False
     
@@ -168,7 +182,9 @@ class TripSerializer(serializers.ModelSerializer):
         """Add highlights field to the representation"""
         representation = super().to_representation(instance)
         highlights = ItineraryItem.objects.filter(
-            trip=instance,
+            trip=instance
+        ).exclude(
+            status=ItineraryStatus.SKIPPED
         ).values_list('name', flat=True)
         representation['highlights'] = list(highlights)
         return representation

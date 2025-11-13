@@ -25,9 +25,11 @@ export const TripsProvider = ({ children }) => {
     }
   }, []);
 
-  const fetchPublicTrips = useCallback(async () => {
+  const fetchPublicTrips = useCallback(async (queryString) => {
     try {
-      const response = await getRequest(`/trips/?is_public=true`);
+      const response = await getRequest(
+        `/trips/?is_public=true&${queryString}`
+      );
       const tripsWithLabels = response.data.map((trip) => {
         trip.durationLabel = `${trip.duration} ${
           trip.duration > 1 ? "days" : "day"

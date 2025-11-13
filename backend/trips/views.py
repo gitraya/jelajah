@@ -1,5 +1,4 @@
 from rest_framework import status, generics
-from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
@@ -10,7 +9,6 @@ from django.db import models
 from .models import Trip, TripStatus, MemberStatus, TripMember
 from .serializers import TripSerializer, TripMemberSerializer
 from .permissions import IsTripAccessible
-from backend.services import send_templated_email
 from expenses.models import ExpenseSplit
 from itineraries.models import ItineraryItem
 from checklist.models import ChecklistItem
@@ -37,12 +35,30 @@ class TripViewSet(ModelViewSet):
         if self.action == "list":
             is_public = self.request.query_params.get("is_public")
             if not self.request.user.is_authenticated or is_public:
-                return qs.filter(is_public=True).exclude(status=TripStatus.DELETED).exclude(status=TripStatus.CANCELLED)
-            user = self.request.user
-            return qs.filter(
-                (Q(is_public=True) | Q(owner=user) | 
-                 Q(trip_members__user=user, trip_members__status=MemberStatus.ACCEPTED)) & ~Q(status=TripStatus.DELETED)
-            ).distinct()
+                qs = qs.filter(is_public=True).exclude(status=TripStatus.DELETED).exclude(status=TripStatus.CANCELLED)
+            else:
+                user = self.request.user
+                qs = qs.filter(
+                    (Q(is_public=True) | Q(owner=user) | 
+                    Q(trip_members__user=user, trip_members__status=MemberStatus.ACCEPTED)) & ~Q(status=TripStatus.DELETED)
+                ).distinct()
+            
+            # Apply additional filters from query params
+            destination = self.request.query_params.get("destination")
+            if destination:
+                qs = qs.filter(destination__icontains=destination)
+            
+            difficulty = self.request.query_params.get("difficulty")
+            if difficulty:
+                qs = qs.filter(difficulty=difficulty.upper())
+            
+            status = self.request.query_params.get("status")
+            if status:
+                qs = qs.filter(status=status.upper())
+            
+            title = self.request.query_params.get("title")
+            if title:
+                qs = qs.filter(title__icontains=title)
 
         return qs
     
@@ -158,14 +174,15 @@ class TripStatisticsView(generics.RetrieveAPIView):
     permission_classes = []
     
     def get(self, request):
-        total = Trip.objects.exclude(status=TripStatus.DELETED).exclude(status=TripStatus.CANCELLED).count()
-        public = Trip.objects.filter(is_public=True).exclude(status=TripStatus.DELETED).exclude(status=TripStatus.CANCELLED).count()
-        private = Trip.objects.filter(is_public=False).exclude(status=TripStatus.DELETED).exclude(status=TripStatus.CANCELLED).count()
-        joinable = Trip.objects.filter(is_joinable=True).exclude(status=TripStatus.DELETED).exclude(status=TripStatus.CANCELLED).count()
-        public_destinations = Trip.objects.filter(is_public=True).values_list('destination', flat=True).distinct()
-        private_destinations = Trip.objects.filter(is_public=False).values_list('destination', flat=True).distinct()
-        public_average_budget = Trip.objects.filter(is_public=True).exclude(status=TripStatus.DELETED).exclude(status=TripStatus.CANCELLED).aggregate(models.Avg('budget'))['budget__avg'] or 0
-        private_average_budget = Trip.objects.filter(is_public=False).exclude(status=TripStatus.DELETED).exclude(status=TripStatus.CANCELLED).aggregate(models.Avg('budget'))['budget__avg'] or 0
+        tripObjects = Trip.objects.exclude(status=TripStatus.DELETED).exclude(status=TripStatus.CANCELLED)
+        total = tripObjects.count()
+        public = tripObjects.filter(is_public=True).count()
+        private = tripObjects.filter(is_public=False).count()
+        joinable = tripObjects.filter(is_joinable=True).count()
+        public_destinations = tripObjects.filter(is_public=True).values_list('destination', flat=True).distinct()
+        private_destinations = tripObjects.filter(is_public=False).values_list('destination', flat=True).distinct()
+        public_average_budget = tripObjects.filter(is_public=True).aggregate(models.Avg('budget'))['budget__avg'] or 0
+        private_average_budget = tripObjects.filter(is_public=False).aggregate(models.Avg('budget'))['budget__avg'] or 0
 
         return Response({
             "total": total,
