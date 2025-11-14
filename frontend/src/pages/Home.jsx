@@ -102,17 +102,9 @@ const HomeContent = () => {
     });
   }, []);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-lg">Loading trips...</div>
-      </div>
-    );
-  }
-
   const statuses = ["All", "planning", "ongoing", "completed"];
   const difficulties = ["All", "easy", "moderate", "challenging"];
-  const destinations = ["All", ...tripsStatistics.public_destinations];
+  const destinations = ["All", ...(tripsStatistics.destinations || [])];
 
   return (
     <>
@@ -209,7 +201,7 @@ const HomeContent = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold break-words">
-                {tripsStatistics.public_destinations.length}
+                {tripsStatistics.destinations?.length || 0}
               </div>
             </CardContent>
           </Card>
@@ -221,7 +213,7 @@ const HomeContent = () => {
             </CardHeader>
             <CardContent>
               <div className="text-lg font-bold break-words">
-                {formatCurrency(tripsStatistics.public_average_budget)}
+                {formatCurrency(tripsStatistics.average_budget || 0)}
               </div>
             </CardContent>
           </Card>
@@ -306,6 +298,12 @@ const HomeContent = () => {
             Sorted by relevance
           </div>
         </div>
+
+        {isLoading && (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-lg">Loading trips...</div>
+          </div>
+        )}
 
         {/* Trips Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

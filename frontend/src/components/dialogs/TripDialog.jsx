@@ -40,7 +40,6 @@ export default function TripDialog() {
 
   const onSubmit = async (data) => {
     try {
-      console.log("Submitting data:", data);
       data.budget = parseInt(data.budget) || 0;
       data.duration = calculateDuration(data.start_date, data.end_date);
       data.member_spots = parseInt(data.member_spots) || 1;
@@ -165,6 +164,7 @@ export default function TripDialog() {
               aria-invalid={errors.budget ? "true" : "false"}
               {...register("budget", {
                 min: { value: 0, message: "Budget cannot be negative" },
+                required: validator.required,
               })}
             />
             {errors.budget && (
@@ -244,11 +244,19 @@ export default function TripDialog() {
             )}
           </div>
           <div className="flex items-center space-x-2">
-            <Switch id="is_public" {...register("is_public")} />
+            <Switch
+              id="is_public"
+              defaultChecked={true}
+              {...register("is_public")}
+            />
             <Label htmlFor="is_public">Public</Label>
           </div>
           <div className="flex items-center space-x-2">
-            <Switch id="is_joinable" {...register("is_joinable")} />
+            <Switch
+              id="is_joinable"
+              defaultChecked={true}
+              {...register("is_joinable")}
+            />
             <Label htmlFor="is_joinable">Joinable</Label>
           </div>
           <div className="flex justify-end space-x-2">

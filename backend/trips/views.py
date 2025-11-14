@@ -175,26 +175,34 @@ class TripStatisticsView(generics.RetrieveAPIView):
     
     def get(self, request):
         tripObjects = Trip.objects.exclude(status=TripStatus.DELETED).exclude(status=TripStatus.CANCELLED)
-        total = tripObjects.count()
-        public = tripObjects.filter(is_public=True).count()
-        private = tripObjects.filter(is_public=False).count()
+        total = tripObjects.filter(is_public=True).count()
         joinable = tripObjects.filter(is_joinable=True).count()
-        public_destinations = tripObjects.filter(is_public=True).values_list('destination', flat=True).distinct()
-        private_destinations = tripObjects.filter(is_public=False).values_list('destination', flat=True).distinct()
-        public_average_budget = tripObjects.filter(is_public=True).aggregate(models.Avg('budget'))['budget__avg'] or 0
-        private_average_budget = tripObjects.filter(is_public=False).aggregate(models.Avg('budget'))['budget__avg'] or 0
+        destinations = tripObjects.filter(is_public=True).values_list('destination', flat=True).distinct()
+        average_budget = tripObjects.filter(is_public=True).aggregate(models.Avg('budget'))['budget__avg'] or 0
+        
+        user = request.user
+        if user.is_authenticated:
+            myTripObjects = tripObjects.filter(
+                Q(owner=user) | 
+                Q(trip_members__user=user, trip_members__status=MemberStatus.ACCEPTED)
+            ).exclude(status=TripStatus.DELETED)
+            my_total = myTripObjects.distinct().count()
+            my_ongoing = myTripObjects.filter(status=TripStatus.ONGOING).count()
+            my_upcoming = myTripObjects.filter(status=TripStatus.PLANNING).count()
+            my_total_budget = myTripObjects.aggregate(models.Sum('budget'))['budget__sum'] or 0
 
         return Response({
             "total": total,
-            "public": public,
-            "private": private,
             "joinable": joinable,
-            "public_destinations": list(public_destinations),
-            "private_destinations": list(private_destinations),
-            "public_average_budget": public_average_budget,
-            "private_average_budget": private_average_budget,
+            "destinations": list(destinations),
+            "average_budget": average_budget,
+            "my_trips": {
+                "total": my_total,
+                "ongoing": my_ongoing,
+                "upcoming": my_upcoming,
+                "total_budget": my_total_budget,
+            },
         })
-
 
 class TagListView(generics.ListAPIView):
     """

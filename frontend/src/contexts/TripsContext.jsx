@@ -73,6 +73,7 @@ export const TripsProvider = ({ children }) => {
         publicTrips,
         fetchPublicTrips,
         myTrips,
+        setMyTrips,
         fetchMyTrips,
         tripsStatistics,
         fetchTripsStatistics,

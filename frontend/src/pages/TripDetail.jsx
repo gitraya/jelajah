@@ -25,9 +25,11 @@ import { ITINERARY_TYPES_ICONS } from "@/configs/itinerary";
 import { ExpensesProvider } from "@/contexts/ExpensesContext";
 import { ItinerariesProvider } from "@/contexts/ItinerariesContext";
 import { MembersProvider } from "@/contexts/MembersContext";
+import { PackingItemsProvider } from "@/contexts/PackingItemsContext";
 import { TripProvider } from "@/contexts/TripContext";
 import { useExpenses } from "@/hooks/useExpenses";
 import { useItineraries } from "@/hooks/useItineraries";
+import { usePackingItems } from "@/hooks/usePackingItems";
 import { useTrip } from "@/hooks/useTrip";
 import { formatCurrency, getInitials } from "@/lib/utils";
 
@@ -37,9 +39,11 @@ export default function TripDetail() {
       <MembersProvider>
         <ExpensesProvider>
           <ItinerariesProvider>
-            <div className="min-h-screen bg-background">
-              <TripDetailContent />
-            </div>
+            <PackingItemsProvider>
+              <div className="min-h-screen bg-background">
+                <TripDetailContent />
+              </div>
+            </PackingItemsProvider>
           </ItinerariesProvider>
         </ExpensesProvider>
       </MembersProvider>
@@ -52,10 +56,15 @@ const TripDetailContent = () => {
   const { trip, isLoading, itinerarySummary } = useTrip();
   const { statistics: expenseStatistics } = useExpenses();
   const { itineraries } = useItineraries();
+  const { packingItems } = usePackingItems();
   const { trip_budget } = expenseStatistics;
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        Loading trip details...
+      </div>
+    );
   }
 
   const name = `${trip.owner.first_name} ${trip.owner.last_name}`;
@@ -287,38 +296,32 @@ const TripDetailContent = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h4 className="mb-3">What to Bring</h4>
-                <ul className="space-y-2 text-sm">
-                  <li className="flex items-center gap-2">
-                    <Package className="w-4 h-4 text-muted-foreground" />
-                    Comfortable walking shoes
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Package className="w-4 h-4 text-muted-foreground" />
-                    Sunscreen (SPF 50+)
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Package className="w-4 h-4 text-muted-foreground" />
-                    Light rain jacket
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Package className="w-4 h-4 text-muted-foreground" />
-                    Swimwear and beach towel
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Package className="w-4 h-4 text-muted-foreground" />
-                    Power bank and camera
-                  </li>
-                </ul>
+                {packingItems?.length === 0 ? (
+                  <small>
+                    <i>No packing items listed.</i>
+                  </small>
+                ) : (
+                  <ul className="space-y-2 text-sm">
+                    {packingItems.slice(0, 5).map((item) => {
+                      return (
+                        <li key={item.id} className="flex items-center gap-2">
+                          <Package className="w-4 h-4 text-muted-foreground" />
+                          {item.name}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
               </div>
               <div>
                 <h4 className="mb-3">Important Notes</h4>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li>• Best time to visit temples is early morning</li>
-                  <li>• Dress modestly when visiting religious sites</li>
-                  <li>• Keep valuables secure at beaches</li>
-                  <li>• Stay hydrated and use mosquito repellent</li>
-                  <li>• Have cash ready for local markets</li>
-                </ul>
+                {trip.notes ? (
+                  trip.notes
+                ) : (
+                  <small>
+                    <i>No additional notes provided.</i>
+                  </small>
+                )}
               </div>
             </div>
           </CardContent>

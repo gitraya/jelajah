@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.utils.dateparse import parse_date
 from django.contrib.auth import get_user_model
 from .models import Trip, TripMember, MemberStatus, MemberRole, TripStatus, Tag
-from expenses.models import ExpenseSplit
+from expenses.models import ExpenseSplit, Expense
 from itineraries.models import ItineraryItem, ItineraryStatus
 
 User = get_user_model()
@@ -129,6 +129,7 @@ class TripSerializer(serializers.ModelSerializer):
         write_only=True,
         required=False
     )
+    spent_budget = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
 
     class Meta:
         model = Trip
@@ -219,5 +220,9 @@ class TripSerializer(serializers.ModelSerializer):
         ).exclude(
             status=ItineraryStatus.SKIPPED
         ).values_list('name', flat=True)
+        spent_budget = Expense.objects.filter(
+            trip=instance
+        ).aggregate(total=models.Sum('amount'))['total'] or 0
+        representation['spent_budget'] = spent_budget
         representation['highlights'] = list(highlights)
         return representation
