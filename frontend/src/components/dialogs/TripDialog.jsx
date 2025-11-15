@@ -24,9 +24,10 @@ import { calculateDuration, validator } from "@/lib/utils";
 
 import { CreatableSelectInput } from "../ui/select-input";
 
-export default function TripDialog() {
+export default function TripDialog({ trip, onSuccess, trigger }) {
+  const isEditMode = Boolean(trip);
   const navigate = useNavigate();
-  const { postRequest } = useApi();
+  const { postRequest, patchRequest } = useApi();
   const { tags: defaultTags } = useTags();
   const {
     reset,
@@ -50,8 +51,17 @@ export default function TripDialog() {
         .filter((tag) => defaultTags.some((t) => t.id === tag.value))
         .map((tag) => tag.value);
 
-      const response = await postRequest("/trips/", data);
-      navigate(`/trips/${response.data.id}/manage`);
+      let response = isEditMode
+        ? await patchRequest(`/trips/${trip.id}/`, data)
+        : await postRequest("/trips/", data);
+
+      if (onSuccess) {
+        onSuccess(response.data);
+      } else {
+        navigate(`/trips/${response.data.id}/manage`);
+      }
+
+      setOpen(false);
     } catch (error) {
       setError(
         error.status !== 500
@@ -73,14 +83,18 @@ export default function TripDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="w-full sm:w-auto mt-4 sm:mt-0">
-          <Plus className="w-4 h-4 mr-2" />
-          Create New Trip
-        </Button>
+        {trigger || (
+          <Button className="w-full sm:w-auto mt-4 sm:mt-0">
+            <Plus className="w-4 h-4 mr-2" />
+            Create New Trip
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create New Trip</DialogTitle>
+          <DialogTitle>
+            {isEditMode ? "Edit Trip" : "Create New Trip"}
+          </DialogTitle>
           <DialogDescription>
             Start planning your next adventure
           </DialogDescription>
@@ -97,6 +111,7 @@ export default function TripDialog() {
               id="title"
               placeholder="Enter trip title"
               aria-invalid={errors.title ? "true" : "false"}
+              defaultValue={trip?.title || ""}
               {...register("title", {
                 required: validator.required,
                 minLength: validator.minLength(2),
@@ -113,6 +128,7 @@ export default function TripDialog() {
               id="destination"
               placeholder="Where are you going?"
               aria-invalid={errors.destination ? "true" : "false"}
+              defaultValue={trip?.destination || ""}
               {...register("destination", {
                 required: validator.required,
                 minLength: validator.minLength(2),
@@ -132,6 +148,7 @@ export default function TripDialog() {
                 id="start_date"
                 type="date"
                 aria-invalid={errors.start_date ? "true" : "false"}
+                defaultValue={trip?.start_date || ""}
                 {...register("start_date", { required: validator.required })}
               />
               {errors.start_date && (
@@ -146,6 +163,7 @@ export default function TripDialog() {
                 id="end_date"
                 type="date"
                 aria-invalid={errors.end_date ? "true" : "false"}
+                defaultValue={trip?.end_date || ""}
                 {...register("end_date", { required: validator.required })}
               />
               {errors.end_date && (
@@ -162,6 +180,7 @@ export default function TripDialog() {
               type="number"
               placeholder="Enter budget amount"
               aria-invalid={errors.budget ? "true" : "false"}
+              defaultValue={trip?.budget || ""}
               {...register("budget", {
                 min: { value: 0, message: "Budget cannot be negative" },
                 required: validator.required,
@@ -180,6 +199,7 @@ export default function TripDialog() {
               type="number"
               placeholder="Enter number of member spots"
               aria-invalid={errors.member_spots ? "true" : "false"}
+              defaultValue={trip?.member_spots || ""}
               {...register("member_spots", {
                 min: {
                   value: 1,
@@ -200,6 +220,7 @@ export default function TripDialog() {
               placeholder="Describe your trip"
               rows={3}
               aria-invalid={errors.description ? "true" : "false"}
+              defaultValue={trip?.description || ""}
               {...register("description", {
                 required: validator.required,
                 minLength: validator.minLength(2),
@@ -217,6 +238,10 @@ export default function TripDialog() {
               control={control}
               name="tag_ids"
               rules={{ required: validator.required }}
+              defaultValue={trip?.tags?.map((i) => ({
+                value: i.id,
+                label: i.name,
+              }))}
               render={({ field }) => (
                 <CreatableSelectInput
                   id="tag_ids"
@@ -246,7 +271,7 @@ export default function TripDialog() {
           <div className="flex items-center space-x-2">
             <Switch
               id="is_public"
-              defaultChecked={true}
+              defaultChecked={isEditMode ? trip.is_public : true}
               {...register("is_public")}
             />
             <Label htmlFor="is_public">Public</Label>
@@ -254,7 +279,7 @@ export default function TripDialog() {
           <div className="flex items-center space-x-2">
             <Switch
               id="is_joinable"
-              defaultChecked={true}
+              defaultChecked={isEditMode ? trip.is_joinable : true}
               {...register("is_joinable")}
             />
             <Label htmlFor="is_joinable">Joinable</Label>
@@ -265,7 +290,9 @@ export default function TripDialog() {
                 Cancel
               </Button>
             </DialogClose>
-            <Button type="submit">Create Trip</Button>
+            <Button type="submit">
+              {isEditMode ? "Update Trip" : "Create Trip"}
+            </Button>
           </div>
         </form>
       </DialogContent>

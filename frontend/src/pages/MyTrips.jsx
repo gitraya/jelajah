@@ -4,6 +4,7 @@ import {
   Edit,
   Eye,
   MapPin,
+  Settings,
   Share,
   Trash2,
   Users,
@@ -49,6 +50,21 @@ const MyTripsContent = () => {
   } = useTrips();
   const { my_trips: statistics } = tripsStatistics || {};
   const [isLoading, setIsLoading] = useState(true);
+  const [editTrip, setEditTrip] = useState(null);
+
+  const startEditTrip = (trip) => {
+    setEditTrip(trip);
+  };
+
+  const onSuccessEditTrip = (updatedTrip) => {
+    setMyTrips((prevTrips) =>
+      prevTrips.map((trip) =>
+        trip.id === updatedTrip.id ? { ...trip, ...updatedTrip } : trip
+      )
+    );
+    setEditTrip(null);
+    toast(`Trip "${updatedTrip.title}" updated successfully.`);
+  };
 
   const deleteTrip = (id) => {
     const deletedTrip = myTrips.find((trip) => trip.id === id);
@@ -220,6 +236,21 @@ const MyTripsContent = () => {
                     {trip.description}
                   </p>
 
+                  {/* Tags */}
+                  {trip.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mb-4">
+                      {trip.tags.map((tag, index) => (
+                        <Badge
+                          key={index}
+                          variant="secondary"
+                          className="text-xs"
+                        >
+                          {tag.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+
                   {/* Budget Progress */}
                   <div className="space-y-2 mb-4">
                     <div className="flex justify-between text-sm">
@@ -258,7 +289,20 @@ const MyTripsContent = () => {
                         </Link>
                       )}
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 ml-auto">
+                      <TripDialog
+                        trip={editTrip}
+                        onSuccess={onSuccessEditTrip}
+                        trigger={
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => startEditTrip(trip)}
+                          >
+                            <Settings className="w-4 h-4" />
+                          </Button>
+                        }
+                      />
                       <Button
                         variant="ghost"
                         size="sm"
