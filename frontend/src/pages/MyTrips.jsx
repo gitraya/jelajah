@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
+import { toast } from "sonner";
 
 import { ConfirmationDialog } from "@/components/dialogs/ConfirmationDialog";
 import TripDialog from "@/components/dialogs/TripDialog";
@@ -50,11 +51,17 @@ const MyTripsContent = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const deleteTrip = (id) => {
+    const deletedTrip = myTrips.find((trip) => trip.id === id);
+    toast(`Trip "${deletedTrip.title}" deleted.`);
     setMyTrips((prevTrips) => prevTrips.filter((trip) => trip.id !== id));
     deleteRequest(`/trips/${id}/`);
   };
 
   const togglePublic = (id, is_public) => {
+    const updatedTrip = myTrips.find((trip) => trip.id === id);
+    toast(
+      `Trip "${updatedTrip.title}" is now ${is_public ? "public" : "private"}.`
+    );
     setMyTrips((prevTrips) =>
       prevTrips.map((trip) => (trip.id === id ? { ...trip, is_public } : trip))
     );
@@ -64,8 +71,7 @@ const MyTripsContent = () => {
   const copyPublicLink = (tripId) => {
     const url = `${window.location.origin}/trips/${tripId}`;
     navigator.clipboard.writeText(url);
-    // In a real app, you'd show a toast notification here
-    alert("Public link copied to clipboard!");
+    toast.success("Public trip link copied to clipboard!");
   };
 
   useEffect(() => {

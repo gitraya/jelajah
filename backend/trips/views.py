@@ -174,19 +174,24 @@ class TripStatisticsView(generics.RetrieveAPIView):
     permission_classes = []
     
     def get(self, request):
-        tripObjects = Trip.objects.exclude(status=TripStatus.DELETED).exclude(status=TripStatus.CANCELLED)
-        total = tripObjects.filter(is_public=True).count()
+        tripObjects = Trip.objects.filter(is_public=True).exclude(status=TripStatus.DELETED).exclude(status=TripStatus.CANCELLED)
+        total = tripObjects.count()
         joinable = tripObjects.filter(is_joinable=True).count()
-        destinations = tripObjects.filter(is_public=True).values_list('destination', flat=True).distinct()
-        average_budget = tripObjects.filter(is_public=True).aggregate(models.Avg('budget'))['budget__avg'] or 0
-        
+        average_budget = tripObjects.aggregate(models.Avg('budget'))['budget__avg'] or 0
+        destinations = set()
+        for destination in tripObjects.values_list('destination', flat=True).distinct():
+            if ',' in destination:
+                destinations.update([d.strip() for d in destination.split(',')])
+            else:
+                destinations.add(destination)
+
         user = request.user
         if user.is_authenticated:
-            myTripObjects = tripObjects.filter(
+            myTripObjects = Trip.objects.filter(
                 Q(owner=user) | 
                 Q(trip_members__user=user, trip_members__status=MemberStatus.ACCEPTED)
-            ).exclude(status=TripStatus.DELETED)
-            my_total = myTripObjects.distinct().count()
+            ).exclude(status=TripStatus.DELETED).distinct()
+            my_total = myTripObjects.count()
             my_ongoing = myTripObjects.filter(status=TripStatus.ONGOING).count()
             my_upcoming = myTripObjects.filter(status=TripStatus.PLANNING).count()
             my_total_budget = myTripObjects.aggregate(models.Sum('budget'))['budget__sum'] or 0

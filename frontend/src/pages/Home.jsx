@@ -376,7 +376,7 @@ const HomeContent = () => {
                       <div>
                         <span className="text-muted-foreground">Duration:</span>
                         <span className="ml-1 font-medium">
-                          {trip.duration} days
+                          {trip.duration} day{trip.duration > 1 ? "s" : ""}
                         </span>
                       </div>
                       <div>

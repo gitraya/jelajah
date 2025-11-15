@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router";
 
 import ProtectedLayout from "@/components/layouts/ProtectedLayout";
+import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Login from "@/pages/auth/Login";
 import Register from "@/pages/auth/Register";
@@ -25,6 +26,7 @@ export default function App() {
         <Route path="/trips/:id" element={<TripDetail />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <Toaster />
     </AuthProvider>
   );
 }
