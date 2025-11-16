@@ -33,7 +33,7 @@ export const TripProvider = ({ children }) => {
     setIsLoading(true);
     try {
       const response = await getRequest(`/trips/${tripId}/`);
-      response.data.durationLabel = `${response.data.duration} ${
+      response.data.duration_label = `${response.data.duration} ${
         response.data.duration > 1 ? "days" : "day"
       }`;
       const startDate = moment(response.data.start_date).format("MMM D");

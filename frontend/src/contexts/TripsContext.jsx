@@ -31,7 +31,7 @@ export const TripsProvider = ({ children }) => {
         `/trips/?is_public=true&${queryString}`
       );
       const tripsWithLabels = response.data.map((trip) => {
-        trip.durationLabel = `${trip.duration} ${
+        trip.duration_label = `${trip.duration} ${
           trip.duration > 1 ? "days" : "day"
         }`;
         const startDate = moment(trip.start_date).format("MMM D");
@@ -51,7 +51,7 @@ export const TripsProvider = ({ children }) => {
     try {
       const response = await getRequest(`/trips/`);
       const tripsWithLabels = response.data.map((trip) => {
-        trip.durationLabel = `${trip.duration} ${
+        trip.duration_label = `${trip.duration} ${
           trip.duration > 1 ? "days" : "day"
         }`;
         const startDate = moment(trip.start_date).format("MMM D");

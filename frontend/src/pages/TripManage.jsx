@@ -26,8 +26,9 @@ import { MembersProvider } from "@/contexts/MembersContext";
 import { PackingItemsProvider } from "@/contexts/PackingItemsContext";
 import { TripProvider } from "@/contexts/TripContext";
 import { useAuth } from "@/hooks/useAuth";
-import { useMembers } from "@/hooks/useMembers";
 import { useTrip } from "@/hooks/useTrip";
+
+import NotFound from "./NotFound";
 
 export default function TripManage() {
   const [searchParams] = useSearchParams();
@@ -38,106 +39,124 @@ export default function TripManage() {
   // Manage view (original trip management interface)
   return (
     <TripProvider>
-      <MembersProvider>
-        <ItinerariesProvider>
-          <ChecklistProvider>
-            <ExpensesProvider>
-              <PackingItemsProvider>
-                <div className="min-h-screen bg-background">
-                  {/* Header */}
-                  <Header />
-                  {/* Main Content */}
-                  <div className="container mx-auto px-4 py-6">
-                    <Tabs
-                      value={activeTab}
-                      onValueChange={setActiveTab}
-                      className="w-full"
-                    >
-                      <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 h-auto gap-2">
-                        <TabsTrigger
-                          value="overview"
-                          className="flex items-center gap-2"
-                        >
-                          <Calendar className="w-4 h-4" />
-                          Overview
-                        </TabsTrigger>
-                        <TabsTrigger
-                          value="expenses"
-                          className="flex items-center gap-2"
-                        >
-                          <DollarSign className="w-4 h-4" />
-                          Expenses
-                        </TabsTrigger>
-                        <TabsTrigger
-                          value="packing"
-                          className="flex items-center gap-2"
-                        >
-                          <Package className="w-4 h-4" />
-                          Packing
-                        </TabsTrigger>
-                        <TabsTrigger
-                          value="checklist"
-                          className="flex items-center gap-2"
-                        >
-                          <CheckSquare className="w-4 h-4" />
-                          Checklist
-                        </TabsTrigger>
-                        <TabsTrigger
-                          value="maps"
-                          className="flex items-center gap-2"
-                        >
-                          <Map className="w-4 h-4" />
-                          Maps
-                        </TabsTrigger>
-                        <TabsTrigger
-                          value="members"
-                          className="flex items-center gap-2"
-                        >
-                          <Users className="w-4 h-4" />
-                          Members
-                        </TabsTrigger>
-                      </TabsList>
+      <Container>
+        <MembersProvider>
+          <ItinerariesProvider>
+            <ChecklistProvider>
+              <ExpensesProvider>
+                <PackingItemsProvider>
+                  <div className="min-h-screen bg-background">
+                    {/* Header */}
+                    <Header />
+                    {/* Main Content */}
+                    <div className="container mx-auto px-4 py-6">
+                      <Tabs
+                        value={activeTab}
+                        onValueChange={setActiveTab}
+                        className="w-full"
+                      >
+                        <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 h-auto gap-2">
+                          <TabsTrigger
+                            value="overview"
+                            className="flex items-center gap-2"
+                          >
+                            <Calendar className="w-4 h-4" />
+                            Overview
+                          </TabsTrigger>
+                          <TabsTrigger
+                            value="expenses"
+                            className="flex items-center gap-2"
+                          >
+                            <DollarSign className="w-4 h-4" />
+                            Expenses
+                          </TabsTrigger>
+                          <TabsTrigger
+                            value="packing"
+                            className="flex items-center gap-2"
+                          >
+                            <Package className="w-4 h-4" />
+                            Packing
+                          </TabsTrigger>
+                          <TabsTrigger
+                            value="checklist"
+                            className="flex items-center gap-2"
+                          >
+                            <CheckSquare className="w-4 h-4" />
+                            Checklist
+                          </TabsTrigger>
+                          <TabsTrigger
+                            value="maps"
+                            className="flex items-center gap-2"
+                          >
+                            <Map className="w-4 h-4" />
+                            Maps
+                          </TabsTrigger>
+                          <TabsTrigger
+                            value="members"
+                            className="flex items-center gap-2"
+                          >
+                            <Users className="w-4 h-4" />
+                            Members
+                          </TabsTrigger>
+                        </TabsList>
 
-                      <TabsContent value="overview" className="mt-6">
-                        <TripOverview />
-                      </TabsContent>
+                        <TabsContent value="overview" className="mt-6">
+                          <TripOverview />
+                        </TabsContent>
 
-                      <TabsContent value="expenses" className="mt-6">
-                        <ExpensesManager />
-                      </TabsContent>
+                        <TabsContent value="expenses" className="mt-6">
+                          <ExpensesManager />
+                        </TabsContent>
 
-                      <TabsContent value="packing" className="mt-6">
-                        <PackingList />
-                      </TabsContent>
+                        <TabsContent value="packing" className="mt-6">
+                          <PackingList />
+                        </TabsContent>
 
-                      <TabsContent value="checklist" className="mt-6">
-                        <ChecklistManager />
-                      </TabsContent>
+                        <TabsContent value="checklist" className="mt-6">
+                          <ChecklistManager />
+                        </TabsContent>
 
-                      <TabsContent value="maps" className="mt-6">
-                        <ItinerariesManager />
-                      </TabsContent>
+                        <TabsContent value="maps" className="mt-6">
+                          <ItinerariesManager />
+                        </TabsContent>
 
-                      <TabsContent value="members" className="mt-6">
-                        <MembersManager />
-                      </TabsContent>
-                    </Tabs>
+                        <TabsContent value="members" className="mt-6">
+                          <MembersManager />
+                        </TabsContent>
+                      </Tabs>
+                    </div>
                   </div>
-                </div>
-              </PackingItemsProvider>
-            </ExpensesProvider>
-          </ChecklistProvider>
-        </ItinerariesProvider>
-      </MembersProvider>
+                </PackingItemsProvider>
+              </ExpensesProvider>
+            </ChecklistProvider>
+          </ItinerariesProvider>
+        </MembersProvider>
+      </Container>
     </TripProvider>
   );
 }
 
+const Container = ({ children }) => {
+  const { trip, isLoading } = useTrip();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Loading...
+      </div>
+    );
+  }
+
+  if (!trip) {
+    return <NotFound />;
+  }
+
+  return <>{children}</>;
+};
+
 const Header = () => {
   const { user } = useAuth();
   const { trip, isLoading } = useTrip();
-  const { statistics } = useMembers();
-  const memberCount = statistics?.total || 0;
 
   if (isLoading) {
     return <div className="border-b">Loading...</div>;
@@ -169,7 +188,8 @@ const Header = () => {
                 <div className="flex items-center gap-1">
                   <Users className="w-4 h-4" />
                   <span>
-                    {memberCount} member{memberCount > 1 ? "s" : ""}
+                    {trip.members_count}/{trip.member_spots} member
+                    {trip.member_spots > 1 ? "s" : ""}
                   </span>
                 </div>
               </div>
@@ -177,7 +197,7 @@ const Header = () => {
 
             <div className="flex items-center gap-4 ml-auto">
               <Badge variant="secondary" className="px-3 py-1">
-                {trip.durationLabel}
+                {trip.duration_label}
               </Badge>
               <UserAvatar />
             </div>

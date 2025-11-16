@@ -308,7 +308,7 @@ const HomeContent = () => {
         {/* Trips Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {publicTrips.map((trip) => {
-            const spotsLeft = trip.member_spots - trip.members.length;
+            const spotsLeft = trip.member_spots - trip.members_count;
 
             return (
               <Link key={trip.id} to={`/trips/${trip.id}`}>
@@ -382,7 +382,7 @@ const HomeContent = () => {
                       <div>
                         <span className="text-muted-foreground">Group:</span>
                         <span className="ml-1 font-medium">
-                          {trip.members.length}/{trip.member_spots} people
+                          {trip.members_count}/{trip.member_spots} people
                         </span>
                       </div>
                     </div>

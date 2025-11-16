@@ -112,7 +112,7 @@ class TripMemberSerializer(serializers.ModelSerializer):
 class TripSerializer(serializers.ModelSerializer):
     """Detailed serializer for Trip model"""
     owner = UserSerializer(read_only=True)
-    members = TripMemberSerializer(source='trip_members', many=True, read_only=True)
+    members_count = serializers.IntegerField(read_only=True)
     is_editable = serializers.SerializerMethodField()
     is_deletable = serializers.SerializerMethodField()
     highlights = serializers.ListField(child=serializers.CharField(), read_only=True)
@@ -133,7 +133,7 @@ class TripSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Trip
-        fields = "__all__"
+        exclude = ['members']
         read_only_fields = ['id', 'created_at', 'updated_at']
     
     def validate_start_date(self, start_date):
@@ -243,6 +243,11 @@ class TripSerializer(serializers.ModelSerializer):
         spent_budget = Expense.objects.filter(
             trip=instance
         ).aggregate(total=models.Sum('amount'))['total'] or 0
+        members_count = TripMember.objects.filter(
+            trip=instance,
+            status=MemberStatus.ACCEPTED
+        ).count()
         representation['spent_budget'] = spent_budget
         representation['highlights'] = list(highlights)
+        representation['members_count'] = members_count
         return representation

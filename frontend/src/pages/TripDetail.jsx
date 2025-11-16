@@ -5,14 +5,13 @@ import {
   Map,
   MapPin,
   Package,
-  Star,
   Users,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -24,7 +23,6 @@ import { UserAvatar } from "@/components/UserAvatar";
 import { ITINERARY_TYPES_ICONS } from "@/configs/itinerary";
 import { ExpensesProvider } from "@/contexts/ExpensesContext";
 import { ItinerariesProvider } from "@/contexts/ItinerariesContext";
-import { MembersProvider } from "@/contexts/MembersContext";
 import { PackingItemsProvider } from "@/contexts/PackingItemsContext";
 import { TripProvider } from "@/contexts/TripContext";
 import { useExpenses } from "@/hooks/useExpenses";
@@ -33,20 +31,20 @@ import { usePackingItems } from "@/hooks/usePackingItems";
 import { useTrip } from "@/hooks/useTrip";
 import { formatCurrency, getInitials } from "@/lib/utils";
 
+import NotFound from "./NotFound";
+
 export default function TripDetail() {
   return (
     <TripProvider>
-      <MembersProvider>
-        <ExpensesProvider>
-          <ItinerariesProvider>
-            <PackingItemsProvider>
-              <div className="min-h-screen bg-background">
-                <TripDetailContent />
-              </div>
-            </PackingItemsProvider>
-          </ItinerariesProvider>
-        </ExpensesProvider>
-      </MembersProvider>
+      <ExpensesProvider>
+        <ItinerariesProvider>
+          <PackingItemsProvider>
+            <div className="min-h-screen bg-background">
+              <TripDetailContent />
+            </div>
+          </PackingItemsProvider>
+        </ItinerariesProvider>
+      </ExpensesProvider>
     </TripProvider>
   );
 }
@@ -67,7 +65,15 @@ const TripDetailContent = () => {
     );
   }
 
+  if (!trip) {
+    return <NotFound />;
+  }
+
   const name = `${trip.owner.first_name} ${trip.owner.last_name}`;
+  const isFull = trip.members_count >= trip.member_spots;
+  const spotsLeft = trip.member_spots - trip.members_count;
+
+  const handleJoinTrip = () => {};
 
   return (
     <>
@@ -100,7 +106,7 @@ const TripDetailContent = () => {
                   <div className="flex items-center gap-1">
                     <Users className="w-4 h-4" />
                     <span>
-                      {trip.member_spots} member
+                      {trip.members_count}/{trip.member_spots} member
                       {trip.member_spots > 1 ? "s" : ""}
                     </span>
                   </div>
@@ -109,7 +115,7 @@ const TripDetailContent = () => {
 
               <div className="flex items-center gap-4 ml-auto">
                 <Badge variant="secondary" className="px-3 py-1">
-                  {trip.durationLabel}
+                  {trip.duration_label}
                 </Badge>
                 <UserAvatar />
               </div>
@@ -121,9 +127,16 @@ const TripDetailContent = () => {
         {/* Trip Overview */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Map className="w-5 h-5" />
-              About This Trip
+            <CardTitle className="flex items-center gap-2 justify-between">
+              <div className="flex items-center gap-2">
+                <Map className="w-5 h-5" />
+                About This Trip
+              </div>
+              {trip.is_joinable && !isFull && (
+                <Button onClick={handleJoinTrip}>
+                  Join Trip ({spotsLeft} spots left)
+                </Button>
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -153,11 +166,13 @@ const TripDetailContent = () => {
                 <div className="space-y-1 text-sm">
                   <div className="flex items-center gap-2">
                     <Clock className="w-4 h-4 text-muted-foreground" />
-                    <span>{trip.durationLabel}</span>
+                    <span>{trip.duration_label}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Users className="w-4 h-4 text-muted-foreground" />
-                    <span>{trip.member_spots} travelers</span>
+                    <span>
+                      {trip.members_count}/{trip.member_spots} travelers
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-muted-foreground" />
