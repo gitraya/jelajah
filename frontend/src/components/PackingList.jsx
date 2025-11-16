@@ -18,8 +18,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { TRIP_MEMBER_ROLES } from "@/configs/trip";
 import { useAuth } from "@/hooks/useAuth";
 import { usePackingItems } from "@/hooks/usePackingItems";
+import { useTrip } from "@/hooks/useTrip";
 import { getPackingCategoryColor } from "@/lib/colors";
 
 import PackingDialog from "./dialogs/PackingDialog";
@@ -32,7 +34,16 @@ const getAssignedName = (assigned_to, user) => {
   return assigned_to?.user?.first_name || "Shared";
 };
 
+const getIsEditable = (packing, user, userRole) => {
+  return (
+    userRole !== TRIP_MEMBER_ROLES.MEMBER[0] ||
+    packing.assigned_to?.user?.id === user?.id
+  );
+};
+
 export function PackingList() {
+  const { user } = useAuth();
+  const { trip } = useTrip();
   const {
     categories,
     packingItems,
@@ -43,7 +54,6 @@ export function PackingList() {
     setSelectedCategory,
     selectedCategory,
   } = usePackingItems();
-  const { user } = useAuth();
   const { total_items, packed_items, category_stats } = statistics;
 
   const packedPercentage =
@@ -152,6 +162,9 @@ export function PackingList() {
                   <div className="flex items-center space-x-3">
                     <Checkbox
                       checked={item.packed}
+                      disabled={
+                        getIsEditable(item, user, trip.user_role) ? false : true
+                      }
                       onCheckedChange={() => togglePacking(item.id)}
                     />
                     <div className="flex items-center gap-2">
@@ -185,14 +198,16 @@ export function PackingList() {
                     <Badge variant="outline">
                       {getAssignedName(item.assigned_to, user)}
                     </Badge>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => deletePacking(item.id)}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    {trip.user_role !== TRIP_MEMBER_ROLES.MEMBER[0] && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deletePacking(item.id)}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    )}
                   </div>
                 </div>
               ))}

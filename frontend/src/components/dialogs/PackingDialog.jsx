@@ -27,6 +27,7 @@ import { TRIP_MEMBER_ROLES } from "@/configs/trip";
 import { useAuth } from "@/hooks/useAuth";
 import { useMembers } from "@/hooks/useMembers";
 import { usePackingItems } from "@/hooks/usePackingItems";
+import { useTrip } from "@/hooks/useTrip";
 import { validator } from "@/lib/utils";
 
 const getAssignedLabel = (assigned_to, user) => {
@@ -52,6 +53,7 @@ export default function PackingDialog() {
     reset,
   } = useForm();
   const { id: tripId } = useParams();
+  const { trip } = useTrip();
   const { user } = useAuth();
   const { members } = useMembers();
   const { categories, error, setError, createPacking } = usePackingItems();
@@ -72,7 +74,10 @@ export default function PackingDialog() {
     }
   }, [open]);
 
-  const assignedToOptions = [{ id: "shared" }, ...members];
+  const assignedToOptions =
+    trip.user_role !== TRIP_MEMBER_ROLES.MEMBER[0]
+      ? [{ id: "shared" }, ...members]
+      : members.filter((member) => member.user?.id === user?.id);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -166,6 +171,9 @@ export default function PackingDialog() {
                 setValue("assigned_to_id", value, { shouldValidate: true })
               }
               {...register("assigned_to_id", { required: validator.required })}
+              {...(trip.user_role === TRIP_MEMBER_ROLES.MEMBER[0] && {
+                defaultValue: assignedToOptions[0]?.id,
+              })}
             >
               <SelectTrigger
                 aria-invalid={errors.assigned_to_id ? "true" : "false"}

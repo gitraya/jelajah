@@ -1,9 +1,10 @@
 from rest_framework import viewsets, permissions, generics
 from .models import PackingCategory, PackingItem
 from .serializers import PackingCategorySerializer, PackingItemSerializer
-from backend.permissions import TripAccessPermission
+from backend.permissions import IsStatisticAccessible
 from rest_framework.response import Response
 from django.db.models import Count, Case, When
+from .permissions import IsPackingItemAccessible
 
 class PackingCategoryViewSet(viewsets.ReadOnlyModelViewSet):
     """Packing categories."""
@@ -14,7 +15,7 @@ class PackingCategoryViewSet(viewsets.ReadOnlyModelViewSet):
 class PackingItemViewSet(viewsets.ModelViewSet):
     """Packing items for a specific trip."""
     serializer_class = PackingItemSerializer
-    permission_classes = [permissions.IsAuthenticated, TripAccessPermission]
+    permission_classes = [permissions.IsAuthenticated, IsPackingItemAccessible]
     
     def get_queryset(self):
         category_id = self.request.query_params.get("category_id")
@@ -31,7 +32,7 @@ class PackingItemViewSet(viewsets.ModelViewSet):
 
 class PackingItemStatisticsView(generics.RetrieveAPIView):
     """Statistics for packing items in a trip."""
-    permission_classes = [permissions.IsAuthenticated, TripAccessPermission]
+    permission_classes = [permissions.IsAuthenticated, IsStatisticAccessible]
 
     def get(self, request, trip_id=None):
         total_items = PackingItem.objects.filter(trip_id=trip_id).count()

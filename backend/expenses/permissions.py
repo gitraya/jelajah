@@ -4,8 +4,9 @@ from trips.models import Trip, MemberStatus, MemberRole
 class IsExpenseAccessible(permissions.BasePermission):
     """
     - Only trip owners or members with accepted status can access expenses of a trip
-    - Only trip owners or members with accepted status can create expenses
-    - Only trip owners or members with elevated roles can create, update or delete expenses
+    - Trip owners have full access (create, update, delete) to expenses
+    - Members with roles other than 'MEMBER' can create, update, and delete expenses
+    - Members with 'MEMBER' role can only view expenses
     """
     
     def has_permission(self, request, view):
