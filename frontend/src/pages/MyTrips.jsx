@@ -292,19 +292,21 @@ const MyTripsContent = () => {
                       )}
                     </div>
                     <div className="flex items-center gap-1 ml-auto">
-                      <TripDialog
-                        trip={editTrip}
-                        onSuccess={onSuccessEditTrip}
-                        trigger={
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => startEditTrip(trip)}
-                          >
-                            <Settings className="w-4 h-4" />
-                          </Button>
-                        }
-                      />
+                      {trip.is_editable && (
+                        <TripDialog
+                          trip={editTrip}
+                          onSuccess={onSuccessEditTrip}
+                          trigger={
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => startEditTrip(trip)}
+                            >
+                              <Settings className="w-4 h-4" />
+                            </Button>
+                          }
+                        />
+                      )}
                       <Button
                         variant="ghost"
                         size="sm"
@@ -313,32 +315,36 @@ const MyTripsContent = () => {
                       >
                         <Share className="w-4 h-4" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => togglePublic(trip.id, !trip.is_public)}
-                        className={
-                          trip.is_public
-                            ? "text-green-600"
-                            : "text-muted-foreground"
-                        }
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <ConfirmationDialog
-                        title="Delete Trip"
-                        description="Are you sure you want to delete this trip? This action cannot be undone."
-                        onConfirm={() => deleteTrip(trip.id)}
-                        trigger={
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        }
-                      />
+                      {trip.is_editable && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => togglePublic(trip.id, !trip.is_public)}
+                          className={
+                            trip.is_public
+                              ? "text-green-600"
+                              : "text-muted-foreground"
+                          }
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                      )}
+                      {trip.is_deletable && (
+                        <ConfirmationDialog
+                          title="Delete Trip"
+                          description="Are you sure you want to delete this trip? This action cannot be undone."
+                          onConfirm={() => deleteTrip(trip.id)}
+                          trigger={
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          }
+                        />
+                      )}
                     </div>
                   </div>
 
