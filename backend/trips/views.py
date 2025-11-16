@@ -8,7 +8,7 @@ from django.db import models
 
 from .models import Trip, TripStatus, MemberStatus, TripMember, Tag
 from .serializers import TripSerializer, TripMemberSerializer, TagSerializer
-from .permissions import IsTripAccessible
+from .permissions import IsTripAccessible, IsMemberAccessible
 from expenses.models import ExpenseSplit
 from itineraries.models import ItineraryItem
 from checklist.models import ChecklistItem
@@ -74,7 +74,7 @@ class TripMemberViewSet(ModelViewSet):
     ViewSet for TripMember CRUD operations
     """
     serializer_class = TripMemberSerializer
-    permission_classes = [IsAuthenticated, IsTripAccessible]
+    permission_classes = [IsAuthenticated, IsMemberAccessible]
 
     def get_queryset(self):
         return TripMember.objects.filter(trip_id=self.kwargs.get('trip_id'))

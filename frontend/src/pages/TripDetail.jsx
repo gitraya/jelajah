@@ -342,7 +342,10 @@ const TripDetailContent = () => {
         {/* Footer */}
         <div className="text-center py-8">
           <p className="text-muted-foreground">
-            Want to join this adventure? Contact {name} at {trip.owner.email}
+            Want to join this adventure? Contact {name} at{" "}
+            <a href={`mailto:${trip.owner.email}`} className="hover:underline">
+              {trip.owner.email}
+            </a>
           </p>
         </div>
       </div>

@@ -27,6 +27,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TRIP_MEMBER_ROLES, TRIP_MEMBER_STATUSES } from "@/configs/trip";
 import { useMembers } from "@/hooks/useMembers";
+import { useTrip } from "@/hooks/useTrip";
 import { getMemberRoleColor, getMemberStatusColor } from "@/lib/colors";
 import { formatCurrency, getInitials } from "@/lib/utils";
 
@@ -37,6 +38,7 @@ const getFullName = (user) => {
 };
 
 export function MembersManager() {
+  const { trip } = useTrip();
   const {
     statistics,
     isLoading,
@@ -159,7 +161,9 @@ export function MembersManager() {
                     ))}
                   </SelectContent>
                 </Select>
-                <MemberDialog />
+                {trip.user_role === TRIP_MEMBER_ROLES.ORGANIZER[0] && (
+                  <MemberDialog />
+                )}
               </div>
             </CardHeader>
             <CardContent>
@@ -191,10 +195,13 @@ export function MembersManager() {
                           </Badge>
                         </div>
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <div className="flex items-center gap-1">
+                          <a
+                            href={`mailto:${member.user?.email}`}
+                            className="flex items-center gap-1 hover:underline"
+                          >
                             <Mail className="w-4 h-4" />
-                            <span>{member.user?.email}</span>
-                          </div>
+                            <span>{member.user?.email}</span>{" "}
+                          </a>
                           <div className="flex items-center gap-1">
                             <Phone className="w-4 h-4" />
                             <span>{member.user?.phone}</span>
@@ -216,33 +223,37 @@ export function MembersManager() {
                           spent
                         </div>
                       </div>
-                      <Select
-                        value={member.status}
-                        onValueChange={(value) =>
-                          updateMemberStatus(member.id, value)
-                        }
-                      >
-                        <SelectTrigger className="w-24">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.entries(TRIP_MEMBER_STATUSES).map(
-                            ([key, label]) => (
-                              <SelectItem key={key} value={key}>
-                                {label}
-                              </SelectItem>
-                            )
-                          )}
-                        </SelectContent>
-                      </Select>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deleteMember(member.id)}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      {trip.user_role === TRIP_MEMBER_ROLES.ORGANIZER[0] && (
+                        <>
+                          <Select
+                            value={member.status}
+                            onValueChange={(value) =>
+                              updateMemberStatus(member.id, value)
+                            }
+                          >
+                            <SelectTrigger className="w-24">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Object.entries(TRIP_MEMBER_STATUSES).map(
+                                ([key, label]) => (
+                                  <SelectItem key={key} value={key}>
+                                    {label}
+                                  </SelectItem>
+                                )
+                              )}
+                            </SelectContent>
+                          </Select>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => deleteMember(member.id)}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </div>
                 ))}
