@@ -53,10 +53,10 @@ export function TripOverview() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold break-all">
               {formatCurrency(trip_budget)}
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground break-all">
               {formatCurrency(amount_spent)} spent
             </p>
           </CardContent>
@@ -251,7 +251,7 @@ export function TripOverview() {
                       </div>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-2">
+                      <div className="flex items-center gap-2 mb-2 flex-wrap">
                         <h4 className="font-medium">{day.date}</h4>
                         {isFullyComplete && (
                           <Badge variant="default" className="bg-green-600">
@@ -266,7 +266,7 @@ export function TripOverview() {
 
                       {day.itineraries.length > 0 && (
                         <div className="mb-2">
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground mb-1">
+                          <div className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground mb-1">
                             <MapPin className="w-3 h-3" />
                             <span>
                               Locations ({day.locations_visited}/

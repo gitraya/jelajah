@@ -28,7 +28,7 @@ import {
 } from "../ui/select";
 import { Textarea } from "../ui/textarea";
 
-export default function MemberDialog() {
+export default function MemberDialog({ triggerClassName }) {
   const {
     register,
     handleSubmit,
@@ -55,7 +55,7 @@ export default function MemberDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
+        <Button className={triggerClassName}>
           <Plus className="w-4 h-4 mr-2" />
           Add Member
         </Button>

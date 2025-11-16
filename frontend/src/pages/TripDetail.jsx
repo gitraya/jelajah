@@ -85,7 +85,7 @@ const TripDetailContent = () => {
               ← Back to Browse
             </Link>
 
-            <div className="flex-1 flex items-center gap-4">
+            <div className="flex-1 flex items-center gap-4 flex-wrap">
               <div>
                 <h1 className="mb-2 font-semibold">{trip.title}</h1>
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-muted-foreground">
@@ -121,8 +121,8 @@ const TripDetailContent = () => {
         {/* Trip Overview */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 justify-between">
-              <div className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-4 sm:gap-2 justify-between flex-wrap">
+              <div className="flex items-center gap-2 shrink-0">
                 <Map className="w-5 h-5" />
                 About This Trip
               </div>
@@ -241,7 +241,7 @@ const TripDetailContent = () => {
                           </Badge>
                         )}
                       </div>
-                      <div className="text-sm text-muted-foreground mb-2">
+                      <div className="text-sm text-muted-foreground mb-2 break-all">
                         {day.locations.join(", ")}
                       </div>
                       <div className="flex flex-wrap gap-1">

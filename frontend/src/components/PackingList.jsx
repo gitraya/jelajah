@@ -135,14 +135,14 @@ export function PackingList() {
 
       {/* Packing List */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-row items-center justify-between flex-wrap">
           <div>
             <CardTitle>Packing List</CardTitle>
             <CardDescription>
               Keep track of what to pack for your trip
             </CardDescription>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Select
               value={selectedCategory}
               onValueChange={setSelectedCategory}
@@ -167,11 +167,11 @@ export function PackingList() {
               {packingItems.map((item) => (
                 <div
                   key={item.id}
-                  className={`flex items-center justify-between p-3 border rounded-lg transition-colors ${
+                  className={`flex flex-wrap gap-3 sm:gap-0 items-center justify-between p-3 border rounded-lg transition-colors ${
                     item.packed ? "bg-muted/50" : ""
                   }`}
                 >
-                  <div className="flex items-center space-x-3">
+                  <div className="flex flex-wrap items-center space-x-3">
                     <Checkbox
                       checked={item.packed}
                       disabled={
@@ -201,7 +201,7 @@ export function PackingList() {
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="ml-auto sm:ml-0 flex flex-wrap items-center gap-2">
                     <Badge
                       className={getPackingCategoryColor(item.category.name)}
                     >

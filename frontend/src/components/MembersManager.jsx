@@ -96,11 +96,11 @@ export function MembersManager() {
   return (
     <div className="space-y-6">
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Members</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <Users className="h-4 w-4 text-muted-foreground shrink-0" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{total}</div>
@@ -110,7 +110,7 @@ export function MembersManager() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Accepted</CardTitle>
-            <Users className="h-4 w-4 text-green-600" />
+            <Users className="h-4 w-4 text-green-600 shrink-0" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">{accepted}</div>
@@ -120,7 +120,7 @@ export function MembersManager() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Pending</CardTitle>
-            <AlertCircle className="h-4 w-4 text-yellow-600" />
+            <AlertCircle className="h-4 w-4 text-yellow-600 shrink-0" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-600">{pending}</div>
@@ -132,10 +132,10 @@ export function MembersManager() {
             <CardTitle className="text-sm font-medium">
               Average Expense
             </CardTitle>
-            <CreditCard className="h-4 w-4 text-muted-foreground" />
+            <CreditCard className="h-4 w-4 text-muted-foreground shrink-0" />
           </CardHeader>
           <CardContent>
-            <div className="text-lg font-bold">
+            <div className="text-lg font-bold break-all">
               {formatCurrency(average_expense)}
             </div>
           </CardContent>
@@ -152,19 +152,19 @@ export function MembersManager() {
         <TabsContent value="members" className="space-y-4">
           {/* Members List */}
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-wrap flex-row items-center justify-between">
               <div>
                 <CardTitle>Trip Members</CardTitle>
                 <CardDescription>
                   Manage your travel group members
                 </CardDescription>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Select
                   value={selectedStatus}
                   onValueChange={setSelectedStatus}
                 >
-                  <SelectTrigger className="w-32">
+                  <SelectTrigger className="sm:w-32">
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -176,7 +176,7 @@ export function MembersManager() {
                   </SelectContent>
                 </Select>
                 {trip.user_role === TRIP_MEMBER_ROLES.ORGANIZER[0] && (
-                  <MemberDialog />
+                  <MemberDialog triggerClassName="w-full sm:w-auto" />
                 )}
               </div>
             </CardHeader>
@@ -189,17 +189,17 @@ export function MembersManager() {
                   return (
                     <div
                       key={member.id}
-                      className="flex items-center justify-between p-4 border rounded-lg"
+                      className="flex flex-wrap items-center justify-between p-4 border rounded-lg gap-2"
                     >
-                      <div className="flex items-center space-x-4">
-                        <Avatar>
+                      <div className="flex flex-col sm:flex-row flex-wrap items-center space-x-4 gap-2">
+                        <Avatar className="mr-auto">
                           <AvatarImage src={member.user?.avatar} />
                           <AvatarFallback>
                             {getInitials(getFullName(member.user))}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
+                          <div className="flex flex-wrap items-center gap-2 mb-1">
                             <h4 className="font-medium">
                               {getFullName(member.user)}
                             </h4>
@@ -212,7 +212,7 @@ export function MembersManager() {
                               {TRIP_MEMBER_STATUSES[member.status]}
                             </Badge>
                           </div>
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                             <a
                               href={`mailto:${member.user?.email}`}
                               className="flex items-center gap-1 hover:underline"
@@ -232,7 +232,7 @@ export function MembersManager() {
                           )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2 ml-auto">
                         <div className="text-right">
                           <div className="font-medium">
                             {formatCurrency(member.expenses)}
@@ -294,7 +294,7 @@ export function MembersManager() {
                 {expenseStats.map((member) => (
                   <div
                     key={member.id}
-                    className="flex items-center justify-between p-3 border rounded-lg"
+                    className="flex flex-wrap gap-3 items-center justify-between p-3 border rounded-lg"
                   >
                     <div className="flex items-center space-x-3">
                       <Avatar className="w-8 h-8">
@@ -307,7 +307,7 @@ export function MembersManager() {
                         {getFullName(member.user)}
                       </span>
                     </div>
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 ml-auto">
                       <div className="text-right">
                         <div className="font-medium">
                           {formatCurrency(member.expenses)}
@@ -354,7 +354,7 @@ export function MembersManager() {
                   {membersWithContacts.map((member) => (
                     <div
                       key={member.id}
-                      className="flex items-center justify-between p-3 border rounded-lg"
+                      className="flex flex-wrap gap-3 items-center justify-between p-3 border rounded-lg"
                     >
                       <div className="flex items-center space-x-3">
                         <Avatar className="w-8 h-8">

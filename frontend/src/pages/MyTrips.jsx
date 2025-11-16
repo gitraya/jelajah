@@ -135,7 +135,7 @@ const MyTripsContent = () => {
               <MapPin className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold break-words">
+              <div className="text-2xl font-bold break-all">
                 {statistics?.total || 0}
               </div>
             </CardContent>
@@ -149,7 +149,7 @@ const MyTripsContent = () => {
               <Calendar className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600 break-words">
+              <div className="text-2xl font-bold text-green-600 break-all">
                 {statistics?.ongoing || 0}
               </div>
             </CardContent>
@@ -163,7 +163,7 @@ const MyTripsContent = () => {
               <Calendar className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600 break-words">
+              <div className="text-2xl font-bold text-blue-600 break-all">
                 {statistics?.upcoming || 0}
               </div>
             </CardContent>
@@ -177,7 +177,7 @@ const MyTripsContent = () => {
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold break-words">
+              <div className="text-2xl font-bold break-all">
                 {formatCurrency(statistics?.total_budget || 0)}
               </div>
             </CardContent>

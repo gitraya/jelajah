@@ -173,7 +173,7 @@ const HomeContent = () => {
               <MapPin className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold break-words">
+              <div className="text-2xl font-bold break-all">
                 {tripsStatistics.total}
               </div>
             </CardContent>
@@ -187,7 +187,7 @@ const HomeContent = () => {
               <Users className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600 break-words">
+              <div className="text-2xl font-bold text-green-600 break-all">
                 {tripsStatistics.joinable}
               </div>
             </CardContent>
@@ -201,7 +201,7 @@ const HomeContent = () => {
               <Globe className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold break-words">
+              <div className="text-2xl font-bold break-all">
                 {tripsStatistics.destinations?.length || 0}
               </div>
             </CardContent>
@@ -213,7 +213,7 @@ const HomeContent = () => {
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-lg font-bold break-words">
+              <div className="text-lg font-bold break-all">
                 {formatCurrency(tripsStatistics.average_budget || 0)}
               </div>
             </CardContent>

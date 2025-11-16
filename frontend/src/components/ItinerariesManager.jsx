@@ -89,7 +89,7 @@ export function ItinerariesManager() {
             <CardTitle className="text-sm font-medium">
               Total Locations
             </CardTitle>
-            <MapPin className="h-4 w-4 text-muted-foreground" />
+            <MapPin className="h-4 w-4 text-muted-foreground shrink-0" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{total}</div>
@@ -99,7 +99,7 @@ export function ItinerariesManager() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Planned</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
+            <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{planned}</div>
@@ -109,7 +109,7 @@ export function ItinerariesManager() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Visited</CardTitle>
-            <Star className="h-4 w-4 text-muted-foreground" />
+            <Star className="h-4 w-4 text-muted-foreground shrink-0" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{visited}</div>
@@ -119,7 +119,7 @@ export function ItinerariesManager() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Skipped</CardTitle>
-            <Navigation className="h-4 w-4 text-muted-foreground" />
+            <Navigation className="h-4 w-4 text-muted-foreground shrink-0" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{skipped}</div>
@@ -136,16 +136,16 @@ export function ItinerariesManager() {
         <TabsContent value="locations" className="space-y-4">
           {/* Locations List */}
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-wrap flex-row items-center justify-between">
               <div>
                 <CardTitle>Locations & Places</CardTitle>
                 <CardDescription>
                   Manage your trip destinations and points of interest
                 </CardDescription>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Select value={selectedType} onValueChange={setSelectedType}>
-                  <SelectTrigger className="w-32">
+                  <SelectTrigger className="sm:w-32">
                     <SelectValue placeholder="Type" />
                   </SelectTrigger>
                   <SelectContent>
@@ -160,7 +160,7 @@ export function ItinerariesManager() {
                   value={selectedStatus}
                   onValueChange={setSelectedStatus}
                 >
-                  <SelectTrigger className="w-32">
+                  <SelectTrigger className="sm:w-32">
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -172,7 +172,7 @@ export function ItinerariesManager() {
                   </SelectContent>
                 </Select>
                 {trip.user_role !== TRIP_MEMBER_ROLES.MEMBER[0] && (
-                  <ItineraryDialog />
+                  <ItineraryDialog triggerClassName="w-full sm:w-auto" />
                 )}
               </div>
             </CardHeader>
@@ -186,7 +186,7 @@ export function ItinerariesManager() {
                 ) : (
                   locations.map((location) => (
                     <div key={location.id} className="p-4 border rounded-lg">
-                      <div className="flex items-start justify-between mb-3">
+                      <div className="flex flex-wrap items-start justify-between mb-3 gap-3 sm:gap-0">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
                             <h4 className="font-medium">{location.name}</h4>
@@ -232,7 +232,7 @@ export function ItinerariesManager() {
                             </p>
                           )}
                         </div>
-                        <div className="flex items-center gap-2 ml-4">
+                        <div className="flex items-center gap-2 ml-auto sm:ml-4">
                           {trip.user_role !== TRIP_MEMBER_ROLES.MEMBER[0] && (
                             <Select
                               value={location.status}
@@ -311,8 +311,10 @@ export function ItinerariesManager() {
                         </div>
                       </div>
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-medium">{location.name}</h4>
+                        <div className="flex flex-wrap items-center gap-2 mb-1">
+                          <h4 className="font-medium break-all">
+                            {location.name}
+                          </h4>
                           <Badge
                             className={getMapTypeColor(location.type?.name)}
                           >
@@ -322,7 +324,7 @@ export function ItinerariesManager() {
                             {ITINERARY_STATUSES[location.status]}
                           </Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-muted-foreground break-all">
                           {location.address}
                         </p>
                         {location.estimated_time && (

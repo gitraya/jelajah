@@ -121,10 +121,10 @@ export function ExpensesManager() {
         </CardHeader>
         <CardContent>
           {category_stats?.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {category_stats.map((stat) => (
                 <div key={stat.category?.name} className="space-y-2">
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center gap-2">
                     <span className="text-sm">{stat.category?.name}</span>
                     <Badge
                       variant="outline"
@@ -146,7 +146,7 @@ export function ExpensesManager() {
 
       {/* Expenses List */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-row items-center justify-between flex-wrap">
           <div>
             <CardTitle>Expenses</CardTitle>
             <CardDescription>Track all trip expenses</CardDescription>
@@ -177,7 +177,7 @@ export function ExpensesManager() {
                       • Split between {expense.splits?.length} people
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 ml-auto md:ml-0">
+                  <div className="flex flex-wrap items-center gap-2 ml-auto md:ml-0">
                     <span className="font-medium">
                       {formatCurrency(expense.amount)}
                     </span>

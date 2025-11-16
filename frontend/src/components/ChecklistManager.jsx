@@ -138,9 +138,9 @@ export function ChecklistManager() {
               upcomingChecklistItems.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between p-3 border rounded-lg"
+                  className="flex flex-wrap gap-3 items-center justify-between p-3 border rounded-lg"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-3">
                     <div
                       className={`p-1 rounded ${getItineraryPriorityColor(
                         item.priority
@@ -158,7 +158,7 @@ export function ChecklistManager() {
                       </div>
                     </div>
                   </div>
-                  <Badge variant="outline">
+                  <Badge variant="outline" className="ml-auto sm:ml-0">
                     {CHECKLIST_CATEGORIES[item.category]}
                   </Badge>
                 </div>
@@ -201,14 +201,14 @@ export function ChecklistManager() {
 
       {/* Checklist Items */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-wrap flex-row items-center justify-between">
           <div>
             <CardTitle>All Tasks</CardTitle>
             <CardDescription>
               Manage your trip preparation tasks
             </CardDescription>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Select
               value={selectedCategory}
               onValueChange={setSelectedCategory}
@@ -241,8 +241,8 @@ export function ChecklistManager() {
                       : ""
                   }`}
                 >
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start space-x-3 flex-1">
+                  <div className="flex flex-wrap items-start justify-between">
+                    <div className="flex flex-wrap items-start space-x-3 flex-1">
                       <Checkbox
                         checked={item.is_completed}
                         disabled={
@@ -265,7 +265,7 @@ export function ChecklistManager() {
                         </h4>
                         {item.description && (
                           <p
-                            className={`text-sm mt-1 ${
+                            className={`text-sm mt-1 break-all ${
                               item.is_completed
                                 ? "line-through text-muted-foreground"
                                 : "text-muted-foreground"
@@ -274,7 +274,7 @@ export function ChecklistManager() {
                             {item.description}
                           </p>
                         )}
-                        <div className="flex items-center gap-2 mt-2">
+                        <div className="flex flex-wrap items-center gap-2 mt-2">
                           <Badge
                             className={getItineraryPriorityColor(item.priority)}
                           >
