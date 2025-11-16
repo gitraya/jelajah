@@ -17,7 +17,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { TRIP_MEMBER_ROLES } from "@/configs/trip";
 import { useExpenses } from "@/hooks/useExpenses";
+import { useTrip } from "@/hooks/useTrip";
 import { getExpenseCategoryColor } from "@/lib/colors";
 import { formatCurrency } from "@/lib/utils";
 
@@ -36,6 +38,7 @@ const getPaidByName = (paid_by) => {
 };
 
 export function ExpensesManager() {
+  const { trip } = useTrip();
   const { statistics, isLoading, expenses, deleteExpense } = useExpenses();
   const [viewingSplitExpense, setViewingSplitExpense] = useState(null);
   const { trip_budget, amount_spent, budget_remaining, category_stats } =
@@ -179,20 +182,22 @@ export function ExpensesManager() {
                       <Users className="w-4 h-4 mr-1" />
                       View Split
                     </Button>
-                    <ConfirmationDialog
-                      title="Delete Expense"
-                      description="Are you sure you want to delete this expense? This action cannot be undone."
-                      onConfirm={() => deleteExpense(expense.id)}
-                      trigger={
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-destructive hover:text-destructive"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      }
-                    />
+                    {trip.user_role !== TRIP_MEMBER_ROLES.MEMBER[0] && (
+                      <ConfirmationDialog
+                        title="Delete Expense"
+                        description="Are you sure you want to delete this expense? This action cannot be undone."
+                        onConfirm={() => deleteExpense(expense.id)}
+                        trigger={
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        }
+                      />
+                    )}
                   </div>
                 </div>
               ))}

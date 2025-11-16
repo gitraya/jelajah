@@ -35,11 +35,11 @@ const getAssignedLabel = (assigned_to, user) => {
   }
 
   if (assigned_to?.user?.id === user?.id) {
-    return `Personal (${TRIP_MEMBER_ROLES[assigned_to.role]})`;
+    return `Personal (${TRIP_MEMBER_ROLES[assigned_to.role][1]})`;
   }
 
   return `${assigned_to.user.first_name} ${assigned_to.user.last_name} (${
-    TRIP_MEMBER_ROLES[assigned_to.role]
+    TRIP_MEMBER_ROLES[assigned_to.role][1]
   })`;
 };
 

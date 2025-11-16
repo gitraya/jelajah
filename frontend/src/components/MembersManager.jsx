@@ -182,7 +182,7 @@ export function MembersManager() {
                             {getFullName(member.user)}
                           </h4>
                           <Badge className={getMemberRoleColor(member.role)}>
-                            {TRIP_MEMBER_ROLES[member.role]}
+                            {TRIP_MEMBER_ROLES[member.role][1]}
                           </Badge>
                           <Badge
                             className={getMemberStatusColor(member.status)}

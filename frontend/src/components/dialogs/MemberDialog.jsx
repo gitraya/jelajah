@@ -148,7 +148,7 @@ export default function MemberDialog() {
                 <SelectValue placeholder="Select role" />
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(TRIP_MEMBER_ROLES).map(([role, label]) => (
+                {Object.entries(TRIP_MEMBER_ROLES).map(([role, [, label]]) => (
                   <SelectItem key={role} value={role}>
                     {label}
                   </SelectItem>

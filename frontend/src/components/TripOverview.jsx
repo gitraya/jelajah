@@ -7,32 +7,28 @@ import {
   Users,
 } from "lucide-react";
 
-import { useChecklist } from "@/hooks/useChecklist";
-import { useExpenses } from "@/hooks/useExpenses";
-import { useItineraries } from "@/hooks/useItineraries";
-import { useMembers } from "@/hooks/useMembers";
-import { useTrip } from "@/hooks/useTrip";
-import { formatCurrency } from "@/lib/utils";
-
-import { Badge } from "./ui/badge";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "./ui/card";
-import { Progress } from "./ui/progress";
+} from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { useChecklist } from "@/hooks/useChecklist";
+import { useExpenses } from "@/hooks/useExpenses";
+import { useItineraries } from "@/hooks/useItineraries";
+import { useTrip } from "@/hooks/useTrip";
+import { formatCurrency } from "@/lib/utils";
 
 export function TripOverview() {
   const { itinerarySummary, trip } = useTrip();
-  const { statistics: memberStatistics } = useMembers();
   const { statistics: checklistStatistics } = useChecklist();
   const { statistics: expenseStatistics } = useExpenses();
   const { statistics: itineraryStatistics } = useItineraries();
 
   const { trip_budget, amount_spent } = expenseStatistics;
-  const { total: total_members } = memberStatistics;
   const { total_items: total_tasks, completed_items: completed_tasks } =
     checklistStatistics;
   const { total: total_locations, visited: visited_locations } =
@@ -65,7 +61,9 @@ export function TripOverview() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{total_members || 0}</div>
+            <div className="text-2xl font-bold">
+              {trip.members_count}/{trip.member_spots}
+            </div>
             <p className="text-xs text-muted-foreground">travelers</p>
           </CardContent>
         </Card>
@@ -76,7 +74,7 @@ export function TripOverview() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{trip?.durationLabel}</div>
+            <div className="text-2xl font-bold">{trip?.duration_label}</div>
             <p className="text-xs text-muted-foreground">{trip?.dates}</p>
           </CardContent>
         </Card>
@@ -88,7 +86,7 @@ export function TripOverview() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {Math.round((completed_tasks / total_tasks) * 100)}%
+              {Math.round((completed_tasks / total_tasks) * 100) || 0}%
             </div>
             <p className="text-xs text-muted-foreground">tasks completed</p>
           </CardContent>
