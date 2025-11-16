@@ -219,7 +219,9 @@ const MyTripsContent = () => {
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Users className="w-4 h-4" />
                         <span>
-                          {trip.member_spots} members • {trip.duration} days
+                          {trip.member_spots} member
+                          {trip.member_spots > 1 ? "s" : ""} • {trip.duration}{" "}
+                          day{trip.duration > 1 ? "s" : ""}
                         </span>
                       </div>
                     </div>

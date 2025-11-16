@@ -168,7 +168,9 @@ const Header = () => {
                 </div>
                 <div className="flex items-center gap-1">
                   <Users className="w-4 h-4" />
-                  <span>{memberCount} members</span>
+                  <span>
+                    {memberCount} member{memberCount > 1 ? "s" : ""}
+                  </span>
                 </div>
               </div>
             </div>

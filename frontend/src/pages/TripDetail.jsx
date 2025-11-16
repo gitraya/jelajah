@@ -99,7 +99,10 @@ const TripDetailContent = () => {
                   </div>
                   <div className="flex items-center gap-1">
                     <Users className="w-4 h-4" />
-                    <span>{trip.member_spots} members</span>
+                    <span>
+                      {trip.member_spots} member
+                      {trip.member_spots > 1 ? "s" : ""}
+                    </span>
                   </div>
                 </div>
               </div>
