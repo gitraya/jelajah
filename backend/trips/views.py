@@ -186,27 +186,23 @@ class TripStatisticsView(generics.RetrieveAPIView):
                 destinations.add(destination)
 
         user = request.user
+        my_trips = {}
         if user.is_authenticated:
             myTripObjects = Trip.objects.filter(
                 Q(owner=user) | 
                 Q(trip_members__user=user, trip_members__status=MemberStatus.ACCEPTED)
             ).exclude(status=TripStatus.DELETED).distinct()
-            my_total = myTripObjects.count()
-            my_ongoing = myTripObjects.filter(status=TripStatus.ONGOING).count()
-            my_upcoming = myTripObjects.filter(status=TripStatus.PLANNING).count()
-            my_total_budget = myTripObjects.aggregate(models.Sum('budget'))['budget__sum'] or 0
+            my_trips['total'] = myTripObjects.count()
+            my_trips['ongoing'] = myTripObjects.filter(status=TripStatus.ONGOING).count()
+            my_trips['upcoming'] = myTripObjects.filter(status=TripStatus.PLANNING).count()
+            my_trips['total_budget'] = myTripObjects.aggregate(models.Sum('budget'))['budget__sum'] or 0
 
         return Response({
             "total": total,
             "joinable": joinable,
             "destinations": list(destinations),
             "average_budget": average_budget,
-            "my_trips": {
-                "total": my_total,
-                "ongoing": my_ongoing,
-                "upcoming": my_upcoming,
-                "total_budget": my_total_budget,
-            },
+            "my_trips": my_trips,
         })
 
 class TagListView(generics.ListAPIView):

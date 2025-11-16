@@ -218,7 +218,7 @@ class TripSerializer(serializers.ModelSerializer):
         user = request.user
         if user == obj.owner and obj.status != TripStatus.DELETED:
             return True
-        elif obj.trip_members.filter(user=user, status=MemberStatus.ACCEPTED).exists() and obj.status != TripStatus.DELETED:
+        elif obj.trip_members.filter(user=user, status=MemberStatus.ACCEPTED).exclude(role=MemberRole.MEMBER).exists() and obj.status != TripStatus.DELETED:
             return True
         return False
 
