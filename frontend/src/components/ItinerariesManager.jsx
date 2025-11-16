@@ -25,7 +25,9 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ITINERARY_STATUSES } from "@/configs/itinerary";
+import { TRIP_MEMBER_ROLES } from "@/configs/trip";
 import { useItineraries } from "@/hooks/useItineraries";
+import { useTrip } from "@/hooks/useTrip";
 import { getMapStatusColor, getMapTypeColor } from "@/lib/colors";
 import { formatDate } from "@/lib/utils";
 
@@ -38,6 +40,7 @@ const generateGoogleMapsUrl = (location) => {
 };
 
 export function ItinerariesManager() {
+  const { trip } = useTrip();
   const {
     types,
     deleteLocation,
@@ -156,7 +159,9 @@ export function ItinerariesManager() {
                     ))}
                   </SelectContent>
                 </Select>
-                <ItineraryDialog />
+                {trip.user_role !== TRIP_MEMBER_ROLES.MEMBER[0] && (
+                  <ItineraryDialog />
+                )}
               </div>
             </CardHeader>
             <CardContent>
@@ -216,23 +221,25 @@ export function ItinerariesManager() {
                           )}
                         </div>
                         <div className="flex items-center gap-2 ml-4">
-                          <Select
-                            value={location.status}
-                            onValueChange={(value) =>
-                              updateStatus(location.id, value)
-                            }
-                          >
-                            <SelectTrigger className="w-24">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {statuses.slice(1).map((status) => (
-                                <SelectItem key={status.id} value={status.id}>
-                                  {status.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          {trip.user_role !== TRIP_MEMBER_ROLES.MEMBER[0] && (
+                            <Select
+                              value={location.status}
+                              onValueChange={(value) =>
+                                updateStatus(location.id, value)
+                              }
+                            >
+                              <SelectTrigger className="w-24">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {statuses.slice(1).map((status) => (
+                                  <SelectItem key={status.id} value={status.id}>
+                                    {status.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
                           <Button
                             variant="outline"
                             size="sm"
@@ -245,14 +252,16 @@ export function ItinerariesManager() {
                           >
                             <ExternalLink className="w-4 h-4" />
                           </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => deleteLocation(location.id)}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                          {trip.user_role !== TRIP_MEMBER_ROLES.MEMBER[0] && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => deleteLocation(location.id)}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </div>

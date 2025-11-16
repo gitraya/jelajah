@@ -1,8 +1,9 @@
 from rest_framework import viewsets, permissions, generics
 from rest_framework.response import Response
-from backend.permissions import TripAccessPermission
+from backend.permissions import IsStatisticAccessible
 from .models import ItineraryType, ItineraryItem
 from .serializers import ItineraryTypeSerializer, ItineraryItemSerializer
+from .permissions import IsItineraryItemAccessible
 
 class ItineraryTypeViewSet(viewsets.ReadOnlyModelViewSet):
     """Itinerary types."""
@@ -13,7 +14,7 @@ class ItineraryTypeViewSet(viewsets.ReadOnlyModelViewSet):
 class ItineraryItemViewSet(viewsets.ModelViewSet):
     """Itinerary items for a specific trip."""
     serializer_class = ItineraryItemSerializer
-    permission_classes = [permissions.IsAuthenticated, TripAccessPermission]
+    permission_classes = [permissions.IsAuthenticated, IsItineraryItemAccessible]
     
     def get_queryset(self):
         type_id = self.request.query_params.get("type_id")
@@ -33,7 +34,7 @@ class ItineraryItemViewSet(viewsets.ModelViewSet):
     
 class ItineraryOrganizedListViewSet(viewsets.ViewSet):
     """Itinerary items desc sorted by visit_time & only not skipped items."""
-    permission_classes = [permissions.IsAuthenticated, TripAccessPermission]
+    permission_classes = [permissions.IsAuthenticated, IsItineraryItemAccessible]
 
     def list(self, request, trip_id=None):
         items = ItineraryItem.objects.filter(trip_id=trip_id).exclude(status='SKIPPED').order_by('-visit_time')
@@ -42,7 +43,7 @@ class ItineraryOrganizedListViewSet(viewsets.ViewSet):
 
 class ItineraryItemStatisticsView(generics.RetrieveAPIView):
     """Statistics for itinerary items in a trip."""
-    permission_classes = [permissions.IsAuthenticated, TripAccessPermission]
+    permission_classes = [permissions.IsAuthenticated, IsStatisticAccessible]
 
     def get(self, request, trip_id=None):
         total = ItineraryItem.objects.filter(trip_id=trip_id).count()
