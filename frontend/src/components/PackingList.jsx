@@ -1,4 +1,5 @@
 import { CheckCircle, Circle, Package, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -54,14 +55,25 @@ export function PackingList() {
     setSelectedCategory,
     selectedCategory,
   } = usePackingItems();
+
+  if (isLoading) {
+    return <div className="space-y-6">Loading...</div>;
+  }
+
   const { total_items, packed_items, category_stats } = statistics;
 
   const packedPercentage =
     total_items > 0 ? (packed_items / total_items) * 100 : 0;
 
-  if (isLoading) {
-    return <div className="space-y-6">Loading...</div>;
-  }
+  const handleDeletePacking = (packingId) => {
+    deletePacking(packingId);
+    toast("Packing item deleted successfully");
+  };
+
+  const handleTogglePacking = (packingId) => {
+    togglePacking(packingId);
+    toast("Packing item updated successfully");
+  };
 
   return (
     <div className="space-y-6">
@@ -165,7 +177,7 @@ export function PackingList() {
                       disabled={
                         getIsEditable(item, user, trip.user_role) ? false : true
                       }
-                      onCheckedChange={() => togglePacking(item.id)}
+                      onCheckedChange={() => handleTogglePacking(item.id)}
                     />
                     <div className="flex items-center gap-2">
                       {item.packed ? (
@@ -202,7 +214,7 @@ export function PackingList() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => deletePacking(item.id)}
+                        onClick={() => handleDeletePacking(item.id)}
                         className="text-destructive hover:text-destructive"
                       >
                         <Trash2 className="w-4 h-4" />

@@ -1,6 +1,7 @@
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -90,7 +91,10 @@ export default function ExpenseDialog() {
 
     data.splits = getSplits(data);
 
-    createExpense(data).then(() => setOpen(false));
+    createExpense(data).then(() => {
+      toast("Expense added successfully");
+      setOpen(false);
+    });
   };
 
   const setAmountsForSplitBetween = () => {

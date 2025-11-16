@@ -1,6 +1,7 @@
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 import { TRIP_MEMBER_ROLES } from "@/configs/trip";
 import { useMembers } from "@/hooks/useMembers";
@@ -38,7 +39,11 @@ export default function MemberDialog() {
   const { createMember, error, setError } = useMembers();
   const [open, setOpen] = useState(false);
 
-  const onSubmit = (data) => createMember(data).then(() => setOpen(false));
+  const onSubmit = (data) =>
+    createMember(data).then(() => {
+      toast("Member added successfully");
+      setOpen(false);
+    });
 
   useEffect(() => {
     if (open) {

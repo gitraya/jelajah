@@ -1,6 +1,7 @@
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 import { useItineraries } from "@/hooks/useItineraries";
 import { validator } from "@/lib/utils";
@@ -37,7 +38,10 @@ export default function ItineraryDialog() {
   const [open, setOpen] = useState(false);
 
   const onSubmit = (data) => {
-    createItinerary(data).then(() => setOpen(false));
+    createItinerary(data).then(() => {
+      toast("Location added successfully");
+      setOpen(false);
+    });
   };
 
   useEffect(() => {

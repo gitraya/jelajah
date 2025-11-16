@@ -5,6 +5,7 @@ import {
   Clock,
   Trash2,
 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -69,6 +70,11 @@ export function ChecklistManager() {
     toggleCompleted,
     deleteItem,
   } = useChecklist();
+
+  if (isLoading) {
+    return <div className="space-y-6">Loading...</div>;
+  }
+
   const { total_items, completed_items, category_stats } = statistics;
 
   const categories = [
@@ -82,9 +88,15 @@ export function ChecklistManager() {
   const completionPercentage =
     total_items > 0 ? (completed_items / total_items) * 100 : 0;
 
-  if (isLoading) {
-    return <div className="space-y-6">Loading...</div>;
-  }
+  const handleDeleteItem = (itemId) => {
+    deleteItem(itemId);
+    toast("Task deleted successfully");
+  };
+
+  const handleToggleCompleted = (itemId) => {
+    toggleCompleted(itemId);
+    toast("Task status updated successfully");
+  };
 
   return (
     <div className="space-y-6">
@@ -238,7 +250,7 @@ export function ChecklistManager() {
                             ? false
                             : true
                         }
-                        onCheckedChange={() => toggleCompleted(item.id)}
+                        onCheckedChange={() => handleToggleCompleted(item.id)}
                         className="mt-1"
                       />
                       <div className="flex-1">
@@ -288,7 +300,7 @@ export function ChecklistManager() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => deleteItem(item.id)}
+                        onClick={() => handleDeleteItem(item.id)}
                         className="text-destructive hover:text-destructive"
                       >
                         <Trash2 className="w-4 h-4" />

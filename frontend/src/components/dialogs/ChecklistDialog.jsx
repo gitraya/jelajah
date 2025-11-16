@@ -1,6 +1,7 @@
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 import { CHECKLIST_CATEGORIES, CHECKLIST_PRIORITY } from "@/configs/checklist";
 import { TRIP_MEMBER_ROLES } from "@/configs/trip";
@@ -50,7 +51,10 @@ export default function ChecklistDialog() {
   const [open, setOpen] = useState(false);
 
   const onSubmit = (data) => {
-    createChecklist(data).then(() => setOpen(false));
+    createChecklist(data).then(() => {
+      toast("Task added successfully");
+      setOpen(false);
+    });
   };
 
   useEffect(() => {

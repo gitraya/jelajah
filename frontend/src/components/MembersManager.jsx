@@ -6,6 +6,7 @@ import {
   Trash2,
   Users,
 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -49,6 +50,11 @@ export function MembersManager() {
     updateMemberStatus,
     deleteMember,
   } = useMembers();
+
+  if (isLoading) {
+    return <div className="space-y-6">Loading...</div>;
+  }
+
   const { total, accepted, pending, average_expense, total_expenses } =
     statistics;
 
@@ -71,13 +77,19 @@ export function MembersManager() {
     }))
     .sort((a, b) => b.expenses - a.expenses);
 
-  if (isLoading) {
-    return <div className="space-y-6">Loading...</div>;
-  }
-
   const membersWithContacts = members.filter(
     (m) => m.emergency_contact_name && m.emergency_contact_phone
   );
+
+  const handleDeleteMember = (memberId) => {
+    deleteMember(memberId);
+    toast("Member deleted successfully");
+  };
+
+  const handleUpdateMemberStatus = (memberId, status) => {
+    updateMemberStatus(memberId, status);
+    toast("Member status updated successfully");
+  };
 
   return (
     <div className="space-y-6">
@@ -228,7 +240,7 @@ export function MembersManager() {
                           <Select
                             value={member.status}
                             onValueChange={(value) =>
-                              updateMemberStatus(member.id, value)
+                              handleUpdateMemberStatus(member.id, value)
                             }
                           >
                             <SelectTrigger className="w-24">
@@ -247,7 +259,7 @@ export function MembersManager() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => deleteMember(member.id)}
+                            onClick={() => handleDeleteMember(member.id)}
                             className="text-destructive hover:text-destructive"
                           >
                             <Trash2 className="w-4 h-4" />

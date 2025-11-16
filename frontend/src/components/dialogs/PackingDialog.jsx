@@ -2,6 +2,7 @@ import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useParams } from "react-router";
+import { toast } from "sonner";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -64,7 +65,10 @@ export default function PackingDialog() {
       data.assigned_to_id = null;
     }
 
-    createPacking(data, tripId).then(() => setOpen(false));
+    createPacking(data, tripId).then(() => {
+      toast("Packing item added successfully");
+      setOpen(false);
+    });
   };
 
   useEffect(() => {

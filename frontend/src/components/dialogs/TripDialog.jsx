@@ -2,6 +2,7 @@ import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
+import { toast } from "sonner";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -59,6 +60,12 @@ export default function TripDialog({ trip, onSuccess, trigger }) {
         onSuccess(response.data);
       } else {
         navigate(`/trips/${response.data.id}/manage`);
+      }
+
+      if (isEditMode) {
+        toast(`Trip "${response.data.title}" updated successfully.`);
+      } else {
+        toast(`Trip "${response.data.title}" created successfully.`);
       }
 
       setOpen(false);

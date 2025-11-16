@@ -64,7 +64,6 @@ const MyTripsContent = () => {
       )
     );
     setEditTrip(null);
-    toast(`Trip "${updatedTrip.title}" updated successfully.`);
   };
 
   const deleteTrip = (id) => {

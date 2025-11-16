@@ -6,6 +6,7 @@ import {
   Star,
   Trash2,
 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -54,6 +55,11 @@ export function ItinerariesManager() {
     locations,
     itineraries,
   } = useItineraries();
+
+  if (isLoading) {
+    return <div className="space-y-6">Loading...</div>;
+  }
+
   const { total, planned, visited, skipped } = statistics;
 
   const statuses = [
@@ -64,9 +70,15 @@ export function ItinerariesManager() {
     })),
   ];
 
-  if (isLoading) {
-    return <div className="space-y-6">Loading...</div>;
-  }
+  const handleDeleteLocation = (locationId) => {
+    deleteLocation(locationId);
+    toast("Location deleted successfully");
+  };
+
+  const handleToggleLocationStatus = (locationId) => {
+    updateStatus(locationId);
+    toast("Location status updated successfully");
+  };
 
   return (
     <div className="space-y-6">
@@ -225,7 +237,7 @@ export function ItinerariesManager() {
                             <Select
                               value={location.status}
                               onValueChange={(value) =>
-                                updateStatus(location.id, value)
+                                handleToggleLocationStatus(location.id, value)
                               }
                             >
                               <SelectTrigger className="w-24">
@@ -256,7 +268,7 @@ export function ItinerariesManager() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => deleteLocation(location.id)}
+                              onClick={() => handleDeleteLocation(location.id)}
                               className="text-destructive hover:text-destructive"
                             >
                               <Trash2 className="w-4 h-4" />

@@ -6,6 +6,7 @@ import {
   Users,
 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -41,14 +42,20 @@ export function ExpensesManager() {
   const { trip } = useTrip();
   const { statistics, isLoading, expenses, deleteExpense } = useExpenses();
   const [viewingSplitExpense, setViewingSplitExpense] = useState(null);
+
+  if (isLoading) {
+    return <div className="space-y-6">Loading...</div>;
+  }
+
   const { trip_budget, amount_spent, budget_remaining, category_stats } =
     statistics;
 
   const budgetPercentage = (amount_spent / trip_budget) * 100;
 
-  if (isLoading) {
-    return <div className="space-y-6">Loading...</div>;
-  }
+  const handleDeleteExpense = (expenseId) => {
+    deleteExpense(expenseId);
+    toast("Expense deleted successfully");
+  };
 
   return (
     <div className="space-y-6">
@@ -186,7 +193,7 @@ export function ExpensesManager() {
                       <ConfirmationDialog
                         title="Delete Expense"
                         description="Are you sure you want to delete this expense? This action cannot be undone."
-                        onConfirm={() => deleteExpense(expense.id)}
+                        onConfirm={() => handleDeleteExpense(expense.id)}
                         trigger={
                           <Button
                             variant="ghost"
