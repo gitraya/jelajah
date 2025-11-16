@@ -25,6 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { UserAvatar } from "@/components/UserAvatar";
+import { DIFFICULTY_LEVELS, TRIP_STATUSES } from "@/configs/trip";
 import { TripsProvider } from "@/contexts/TripsContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useTrips } from "@/hooks/useTrips";
@@ -102,8 +103,8 @@ const HomeContent = () => {
     });
   }, []);
 
-  const statuses = ["All", "planning", "ongoing", "completed"];
-  const difficulties = ["All", "easy", "moderate", "challenging"];
+  const statuses = ["All", "PLANNING", "ONGOING", "COMPLETED"];
+  const difficulties = ["All", "EASY", "MODERATE", "CHALLENGING"];
   const destinations = ["All", ...(tripsStatistics.destinations || [])];
 
   return (
@@ -259,9 +260,7 @@ const HomeContent = () => {
                 <SelectContent>
                   {statuses.map((status) => (
                     <SelectItem key={status} value={status}>
-                      {status === "All"
-                        ? "All"
-                        : status.charAt(0).toUpperCase() + status.slice(1)}
+                      {status === "All" ? "All" : TRIP_STATUSES[status]}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -278,8 +277,7 @@ const HomeContent = () => {
                     <SelectItem key={difficulty} value={difficulty}>
                       {difficulty === "All"
                         ? "All"
-                        : difficulty.charAt(0).toUpperCase() +
-                          difficulty.slice(1)}
+                        : DIFFICULTY_LEVELS[difficulty]}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -332,13 +330,8 @@ const HomeContent = () => {
                         </div>
                       </div>
                       <div className="flex flex-col gap-1">
-                        <Badge
-                          className={getTripStatusColor(
-                            trip.status.toLowerCase()
-                          )}
-                        >
-                          {trip.status.charAt(0) +
-                            trip.status.slice(1).toLowerCase()}
+                        <Badge className={getTripStatusColor(trip.status)}>
+                          {TRIP_STATUSES[trip.status]}
                         </Badge>
                         {trip.is_joinable && spotsLeft > 0 && (
                           <Badge
@@ -397,13 +390,10 @@ const HomeContent = () => {
                     <div className="flex items-center gap-1 mb-3">
                       <span className="text-muted-foreground">Level:</span>
                       <Badge
-                        className={getTripDifficultyColor(
-                          trip.difficulty.toLowerCase()
-                        )}
+                        className={getTripDifficultyColor(trip.difficulty)}
                         size="sm"
                       >
-                        {trip.difficulty.charAt(0) +
-                          trip.difficulty.slice(1).toLowerCase()}
+                        {DIFFICULTY_LEVELS[trip.difficulty]}
                       </Badge>
                     </div>
 

@@ -20,6 +20,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { UserAvatar } from "@/components/UserAvatar";
+import { TRIP_STATUSES } from "@/configs/trip";
 import { TagsProvider } from "@/contexts/TagsContext";
 import { TripsProvider } from "@/contexts/TripsContext";
 import { useApi } from "@/hooks/useApi";
@@ -225,11 +226,8 @@ const MyTripsContent = () => {
                         </span>
                       </div>
                     </div>
-                    <Badge
-                      className={getTripStatusColor(trip.status.toLowerCase())}
-                    >
-                      {trip.status.charAt(0) +
-                        trip.status.slice(1).toLowerCase()}
+                    <Badge className={getTripStatusColor(trip.status)}>
+                      {TRIP_STATUSES[trip.status]}
                     </Badge>
                   </div>
                 </CardHeader>

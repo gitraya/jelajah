@@ -1,17 +1,17 @@
 export const getTripStatusColor = (status) => {
   const colors = {
-    planning: "bg-blue-100 text-blue-800",
-    ongoing: "bg-green-100 text-green-800",
-    completed: "bg-gray-100 text-gray-800",
+    PLANNING: "bg-blue-100 text-blue-800",
+    ONGOING: "bg-green-100 text-green-800",
+    COMPLETED: "bg-gray-100 text-gray-800",
   };
   return colors[status];
 };
 
 export const getTripDifficultyColor = (difficulty) => {
   const colors = {
-    easy: "bg-green-100 text-green-800",
-    moderate: "bg-yellow-100 text-yellow-800",
-    challenging: "bg-red-100 text-red-800",
+    EASY: "bg-green-100 text-green-800",
+    MODERATE: "bg-yellow-100 text-yellow-800",
+    CHALLENGING: "bg-red-100 text-red-800",
   };
   return colors[difficulty];
 };
@@ -52,9 +52,9 @@ export const getMapTypeColor = (type) => {
 
 export const getMapStatusColor = (status) => {
   const colors = {
-    planned: "bg-blue-100 text-blue-800",
-    visited: "bg-green-100 text-green-800",
-    skipped: "bg-gray-100 text-gray-800",
+    PLANNED: "bg-blue-100 text-blue-800",
+    VISITED: "bg-green-100 text-green-800",
+    SKIPPED: "bg-gray-100 text-gray-800",
   };
   return colors[status];
 };

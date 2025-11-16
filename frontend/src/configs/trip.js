@@ -9,3 +9,16 @@ export const TRIP_MEMBER_STATUSES = {
   PENDING: "Pending",
   DECLINED: "Declined",
 };
+
+export const TRIP_STATUSES = {
+  PLANNING: "Planning",
+  ONGOING: "Ongoing",
+  COMPLETED: "Completed",
+  CANCELLED: "Cancelled",
+};
+
+export const DIFFICULTY_LEVELS = {
+  EASY: "Easy",
+  MODERATE: "Moderate",
+  CHALLENGING: "Challenging",
+};

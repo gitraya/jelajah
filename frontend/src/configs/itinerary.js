@@ -11,12 +11,11 @@ export const ITINERARY_STATUSES_ENUM = {
 };
 
 export const ITINERARY_TYPES_ICONS = {
-  "Travel Insurance": "🛡️",
-  "Health & Wellness": "💊",
-  Transportation: "🚗",
-  "Activities & Entertainment": "🎭",
+  Cultural: "🏛️",
+  Nature: "🌳",
+  Beach: "🏖️",
+  Restaurant: "🍽️",
   Shopping: "🛍️",
+  Activity: "🎯",
   Other: "📍",
-  Accommodation: "🏨",
-  "Food & Dining": "🍽️",
 };

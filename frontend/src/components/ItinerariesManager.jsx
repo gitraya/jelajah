@@ -181,7 +181,7 @@ export function ItinerariesManager() {
                             <Badge
                               className={getMapStatusColor(location.status)}
                             >
-                              {location.status}
+                              {ITINERARY_STATUSES[location.status]}
                             </Badge>
                           </div>
                           <p className="text-sm text-muted-foreground mb-2">
@@ -298,7 +298,7 @@ export function ItinerariesManager() {
                             {location.type?.name}
                           </Badge>
                           <Badge className={getMapStatusColor(location.status)}>
-                            {location.status}
+                            {ITINERARY_STATUSES[location.status]}
                           </Badge>
                         </div>
                         <p className="text-sm text-muted-foreground">

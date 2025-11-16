@@ -21,11 +21,9 @@ import {
 } from "@/components/ui/card";
 import { UserAvatar } from "@/components/UserAvatar";
 import { ITINERARY_TYPES_ICONS } from "@/configs/itinerary";
-import { ExpensesProvider } from "@/contexts/ExpensesContext";
 import { ItinerariesProvider } from "@/contexts/ItinerariesContext";
 import { PackingItemsProvider } from "@/contexts/PackingItemsContext";
 import { TripProvider } from "@/contexts/TripContext";
-import { useExpenses } from "@/hooks/useExpenses";
 import { useItineraries } from "@/hooks/useItineraries";
 import { usePackingItems } from "@/hooks/usePackingItems";
 import { useTrip } from "@/hooks/useTrip";
@@ -36,15 +34,13 @@ import NotFound from "./NotFound";
 export default function TripDetail() {
   return (
     <TripProvider>
-      <ExpensesProvider>
-        <ItinerariesProvider>
-          <PackingItemsProvider>
-            <div className="min-h-screen bg-background">
-              <TripDetailContent />
-            </div>
-          </PackingItemsProvider>
-        </ItinerariesProvider>
-      </ExpensesProvider>
+      <ItinerariesProvider>
+        <PackingItemsProvider>
+          <div className="min-h-screen bg-background">
+            <TripDetailContent />
+          </div>
+        </PackingItemsProvider>
+      </ItinerariesProvider>
     </TripProvider>
   );
 }
@@ -52,10 +48,8 @@ export default function TripDetail() {
 const TripDetailContent = () => {
   const navigate = useNavigate();
   const { trip, isLoading, itinerarySummary } = useTrip();
-  const { statistics: expenseStatistics } = useExpenses();
   const { itineraries } = useItineraries();
   const { packingItems } = usePackingItems();
-  const { trip_budget } = expenseStatistics;
 
   if (isLoading) {
     return (
@@ -187,12 +181,12 @@ const TripDetailContent = () => {
                 <div className="space-y-1 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Total budget:</span>
-                    <span>{formatCurrency(trip_budget)}</span>
+                    <span>{formatCurrency(trip.budget)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Per person:</span>
                     <span className="font-medium">
-                      {formatCurrency(trip_budget / trip.member_spots)}
+                      {formatCurrency(trip.budget / trip.member_spots)}
                     </span>
                   </div>
                 </div>
