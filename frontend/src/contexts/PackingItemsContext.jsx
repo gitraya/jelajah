@@ -5,6 +5,40 @@ import { useApi } from "@/hooks/useApi";
 import { PackingItemsContext } from "@/hooks/usePackingItems";
 import { getAPIData, getErrorMessage } from "@/lib/utils";
 
+const updateCategoryStats = (prevStats, item, operation) => {
+  const categoryStats = prevStats.category_stats || [];
+  const existingCatIndex = categoryStats.findIndex(
+    (cat) => cat.category?.id === item.category.id
+  );
+
+  if (operation === "add") {
+    if (existingCatIndex >= 0) {
+      categoryStats[existingCatIndex] = {
+        ...categoryStats[existingCatIndex],
+        total: categoryStats[existingCatIndex].total + 1,
+      };
+    } else {
+      categoryStats.push({
+        category: item.category,
+        total: 1,
+        packed: 0,
+      });
+    }
+  } else if (operation === "remove") {
+    if (existingCatIndex >= 0) {
+      categoryStats[existingCatIndex] = {
+        ...categoryStats[existingCatIndex],
+        total: categoryStats[existingCatIndex].total - 1,
+        packed: item.packed
+          ? categoryStats[existingCatIndex].packed - 1
+          : categoryStats[existingCatIndex].packed,
+      };
+    }
+  }
+
+  return categoryStats.filter((cat) => cat.total > 0);
+};
+
 export const PackingItemsProvider = ({ children }) => {
   const { id: defaultTripId } = useParams();
   const { getRequest, postRequest, deleteRequest, patchRequest } = useApi();
@@ -60,40 +94,6 @@ export const PackingItemsProvider = ({ children }) => {
     },
     [selectedCategory]
   );
-
-  const updateCategoryStats = useCallback((prevStats, item, operation) => {
-    const categoryStats = prevStats.category_stats || [];
-    const existingCatIndex = categoryStats.findIndex(
-      (cat) => cat.category?.id === item.category.id
-    );
-
-    if (operation === "add") {
-      if (existingCatIndex >= 0) {
-        categoryStats[existingCatIndex] = {
-          ...categoryStats[existingCatIndex],
-          total: categoryStats[existingCatIndex].total + 1,
-        };
-      } else {
-        categoryStats.push({
-          category: item.category,
-          total: 1,
-          packed: 0,
-        });
-      }
-    } else if (operation === "remove") {
-      if (existingCatIndex >= 0) {
-        categoryStats[existingCatIndex] = {
-          ...categoryStats[existingCatIndex],
-          total: categoryStats[existingCatIndex].total - 1,
-          packed: item.packed
-            ? categoryStats[existingCatIndex].packed - 1
-            : categoryStats[existingCatIndex].packed,
-        };
-      }
-    }
-
-    return categoryStats.filter((cat) => cat.total > 0);
-  }, []);
 
   const createPacking = useCallback(async (data, tripId = defaultTripId) => {
     try {

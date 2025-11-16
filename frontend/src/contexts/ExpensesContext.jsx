@@ -5,6 +5,31 @@ import { useApi } from "@/hooks/useApi";
 import { ExpensesContext } from "@/hooks/useExpenses";
 import { getAPIData, getErrorMessage } from "@/lib/utils";
 
+const updateCategoryStats = (prevStats, expense, isAdding = true) => {
+  const multiplier = isAdding ? 1 : -1;
+  const existingCategoryIndex = prevStats.category_stats.findIndex(
+    (cat) => cat.category.id === expense.category.id
+  );
+
+  if (existingCategoryIndex !== -1) {
+    const updatedStats = [...prevStats.category_stats];
+    updatedStats[existingCategoryIndex] = {
+      ...updatedStats[existingCategoryIndex],
+      amount:
+        updatedStats[existingCategoryIndex].amount +
+        expense.amount * multiplier,
+      count: updatedStats[existingCategoryIndex].count + 1 * multiplier,
+    };
+    return updatedStats.filter((cat) => cat.count > 0);
+  } else if (isAdding) {
+    return [
+      ...prevStats.category_stats,
+      { category: expense.category, amount: expense.amount, count: 1 },
+    ];
+  }
+  return prevStats.category_stats;
+};
+
 export const ExpensesProvider = ({ children }) => {
   const { id: defaultTripId } = useParams();
   const { getRequest, deleteRequest, postRequest } = useApi();
@@ -55,34 +80,6 @@ export const ExpensesProvider = ({ children }) => {
       return [];
     }
   }, []);
-
-  const updateCategoryStats = useCallback(
-    (prevStats, expense, isAdding = true) => {
-      const multiplier = isAdding ? 1 : -1;
-      const existingCategoryIndex = prevStats.category_stats.findIndex(
-        (cat) => cat.category.id === expense.category.id
-      );
-
-      if (existingCategoryIndex !== -1) {
-        const updatedStats = [...prevStats.category_stats];
-        updatedStats[existingCategoryIndex] = {
-          ...updatedStats[existingCategoryIndex],
-          amount:
-            updatedStats[existingCategoryIndex].amount +
-            expense.amount * multiplier,
-          count: updatedStats[existingCategoryIndex].count + 1 * multiplier,
-        };
-        return updatedStats.filter((cat) => cat.count > 0);
-      } else if (isAdding) {
-        return [
-          ...prevStats.category_stats,
-          { category: expense.category, amount: expense.amount, count: 1 },
-        ];
-      }
-      return prevStats.category_stats;
-    },
-    []
-  );
 
   const createExpense = useCallback(async (data, tripId = defaultTripId) => {
     try {

@@ -75,8 +75,8 @@ export function ItinerariesManager() {
     toast("Location deleted successfully");
   };
 
-  const handleToggleLocationStatus = (locationId) => {
-    updateStatus(locationId);
+  const handleToggleLocationStatus = (locationId, status) => {
+    updateStatus(locationId, status);
     toast("Location status updated successfully");
   };
 

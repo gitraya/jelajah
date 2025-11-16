@@ -104,7 +104,8 @@ export const ItinerariesProvider = ({ children }) => {
       setStatistics((prev) => ({
         ...prev,
         total: prev.total + 1,
-        [response.data.status]: (prev[response.data.status] || 0) + 1,
+        [response.data.status.toLowerCase()]:
+          (prev[response.data.status.toLowerCase()] || 0) + 1,
       }));
 
       return response.data;
@@ -129,7 +130,8 @@ export const ItinerariesProvider = ({ children }) => {
       setStatistics((prev) => ({
         ...prev,
         total: prev.total - 1,
-        [deletedLocation.status]: (prev[deletedLocation.status] || 1) - 1,
+        [deletedLocation.status.toLowerCase()]:
+          (prev[deletedLocation.status.toLowerCase()] || 1) - 1,
       }));
 
       deleteRequest(`/trips/${tripId}/itineraries/items/${id}/`);
@@ -154,8 +156,8 @@ export const ItinerariesProvider = ({ children }) => {
       );
       setStatistics((prev) => ({
         ...prev,
-        [oldStatus]: (prev[oldStatus] || 1) - 1,
-        [status]: (prev[status] || 0) + 1,
+        [oldStatus.toLowerCase()]: (prev[oldStatus.toLowerCase()] || 1) - 1,
+        [status.toLowerCase()]: (prev[status.toLowerCase()] || 0) + 1,
       }));
 
       patchRequest(`/trips/${tripId}/itineraries/items/${id}/`, {

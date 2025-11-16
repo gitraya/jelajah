@@ -5,6 +5,36 @@ import { useApi } from "@/hooks/useApi";
 import { ChecklistContext } from "@/hooks/useChecklist";
 import { getErrorMessage } from "@/lib/utils";
 
+const updateCategoryStats = (prevStats, item, operation) => {
+  const categoryStats = [...prevStats.category_stats];
+  const categoryIndex = categoryStats.findIndex(
+    (cat) => cat.category === item.category
+  );
+
+  if (operation === "add") {
+    if (categoryIndex >= 0) {
+      categoryStats[categoryIndex] = {
+        ...categoryStats[categoryIndex],
+        total: categoryStats[categoryIndex].total + 1,
+      };
+    } else {
+      categoryStats.push({ category: item.category, total: 1, completed: 0 });
+    }
+  } else if (operation === "remove") {
+    if (categoryIndex >= 0) {
+      categoryStats[categoryIndex] = {
+        ...categoryStats[categoryIndex],
+        total: categoryStats[categoryIndex].total - 1,
+        completed: item.is_completed
+          ? categoryStats[categoryIndex].completed - 1
+          : categoryStats[categoryIndex].completed,
+      };
+    }
+  }
+
+  return categoryStats.filter((cat) => cat.total > 0);
+};
+
 export const ChecklistProvider = ({ children }) => {
   const { id: defaultTripId } = useParams();
   const { getRequest, patchRequest, deleteRequest, postRequest } = useApi();
@@ -68,36 +98,6 @@ export const ChecklistProvider = ({ children }) => {
     }
   }, []);
 
-  const updateCategoryStats = useCallback((prevStats, item, operation) => {
-    const categoryStats = [...prevStats.category_stats];
-    const categoryIndex = categoryStats.findIndex(
-      (cat) => cat.category?.id === item.category.id
-    );
-
-    if (operation === "add") {
-      if (categoryIndex >= 0) {
-        categoryStats[categoryIndex] = {
-          ...categoryStats[categoryIndex],
-          total: categoryStats[categoryIndex].total + 1,
-        };
-      } else {
-        categoryStats.push({ category: item.category, total: 1, completed: 0 });
-      }
-    } else if (operation === "remove") {
-      if (categoryIndex >= 0) {
-        categoryStats[categoryIndex] = {
-          ...categoryStats[categoryIndex],
-          total: categoryStats[categoryIndex].total - 1,
-          completed: item.is_completed
-            ? categoryStats[categoryIndex].completed - 1
-            : categoryStats[categoryIndex].completed,
-        };
-      }
-    }
-
-    return categoryStats.filter((cat) => cat.total > 0);
-  }, []);
-
   const createChecklist = useCallback(async (data, tripId = defaultTripId) => {
     try {
       setError(null);
@@ -155,7 +155,7 @@ export const ChecklistProvider = ({ children }) => {
           ? prev.completed_items + 1
           : prev.completed_items - 1,
         category_stats: prev.category_stats.map((cat) =>
-          cat.category?.id === toggledItem.category.id
+          cat.category === toggledItem.category
             ? {
                 ...cat,
                 completed: is_completed ? cat.completed + 1 : cat.completed - 1,

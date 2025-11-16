@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TRIP_MEMBER_ROLES, TRIP_MEMBER_STATUSES } from "@/configs/trip";
+import { useAuth } from "@/hooks/useAuth";
 import { useMembers } from "@/hooks/useMembers";
 import { useTrip } from "@/hooks/useTrip";
 import { getMemberRoleColor, getMemberStatusColor } from "@/lib/colors";
@@ -39,6 +40,7 @@ const getFullName = (user) => {
 };
 
 export function MembersManager() {
+  const { user } = useAuth();
   const { trip } = useTrip();
   const {
     statistics,
@@ -180,95 +182,100 @@ export function MembersManager() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {filteredMembers.map((member) => (
-                  <div
-                    key={member.id}
-                    className="flex items-center justify-between p-4 border rounded-lg"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <Avatar>
-                        <AvatarImage src={member.user?.avatar} />
-                        <AvatarFallback>
-                          {getInitials(getFullName(member.user))}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-medium">
-                            {getFullName(member.user)}
-                          </h4>
-                          <Badge className={getMemberRoleColor(member.role)}>
-                            {TRIP_MEMBER_ROLES[member.role][1]}
-                          </Badge>
-                          <Badge
-                            className={getMemberStatusColor(member.status)}
-                          >
-                            {TRIP_MEMBER_STATUSES[member.status]}
-                          </Badge>
+                {filteredMembers.map((member) => {
+                  const isMemberEditable =
+                    trip.user_role === TRIP_MEMBER_ROLES.ORGANIZER[0] &&
+                    user.id !== trip.owner.id;
+                  return (
+                    <div
+                      key={member.id}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <Avatar>
+                          <AvatarImage src={member.user?.avatar} />
+                          <AvatarFallback>
+                            {getInitials(getFullName(member.user))}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="font-medium">
+                              {getFullName(member.user)}
+                            </h4>
+                            <Badge className={getMemberRoleColor(member.role)}>
+                              {TRIP_MEMBER_ROLES[member.role][1]}
+                            </Badge>
+                            <Badge
+                              className={getMemberStatusColor(member.status)}
+                            >
+                              {TRIP_MEMBER_STATUSES[member.status]}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                            <a
+                              href={`mailto:${member.user?.email}`}
+                              className="flex items-center gap-1 hover:underline"
+                            >
+                              <Mail className="w-4 h-4" />
+                              <span>{member.user?.email}</span>{" "}
+                            </a>
+                            <div className="flex items-center gap-1">
+                              <Phone className="w-4 h-4" />
+                              <span>{member.user?.phone}</span>
+                            </div>
+                          </div>
+                          {member.dietary_restrictions && (
+                            <p className="text-sm text-muted-foreground mt-1">
+                              Dietary: {member.dietary_restrictions}
+                            </p>
+                          )}
                         </div>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <a
-                            href={`mailto:${member.user?.email}`}
-                            className="flex items-center gap-1 hover:underline"
-                          >
-                            <Mail className="w-4 h-4" />
-                            <span>{member.user?.email}</span>{" "}
-                          </a>
-                          <div className="flex items-center gap-1">
-                            <Phone className="w-4 h-4" />
-                            <span>{member.user?.phone}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="text-right">
+                          <div className="font-medium">
+                            {formatCurrency(member.expenses)}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            spent
                           </div>
                         </div>
-                        {member.dietary_restrictions && (
-                          <p className="text-sm text-muted-foreground mt-1">
-                            Dietary: {member.dietary_restrictions}
-                          </p>
+                        {isMemberEditable && (
+                          <>
+                            <Select
+                              value={member.status}
+                              onValueChange={(value) =>
+                                handleUpdateMemberStatus(member.id, value)
+                              }
+                            >
+                              <SelectTrigger className="w-24">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {Object.entries(TRIP_MEMBER_STATUSES).map(
+                                  ([key, label]) => (
+                                    <SelectItem key={key} value={key}>
+                                      {label}
+                                    </SelectItem>
+                                  )
+                                )}
+                              </SelectContent>
+                            </Select>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteMember(member.id)}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </>
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <div className="text-right">
-                        <div className="font-medium">
-                          {formatCurrency(member.expenses)}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          spent
-                        </div>
-                      </div>
-                      {trip.user_role === TRIP_MEMBER_ROLES.ORGANIZER[0] && (
-                        <>
-                          <Select
-                            value={member.status}
-                            onValueChange={(value) =>
-                              handleUpdateMemberStatus(member.id, value)
-                            }
-                          >
-                            <SelectTrigger className="w-24">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {Object.entries(TRIP_MEMBER_STATUSES).map(
-                                ([key, label]) => (
-                                  <SelectItem key={key} value={key}>
-                                    {label}
-                                  </SelectItem>
-                                )
-                              )}
-                            </SelectContent>
-                          </Select>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteMember(member.id)}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </CardContent>
           </Card>

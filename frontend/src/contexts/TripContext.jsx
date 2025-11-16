@@ -57,7 +57,13 @@ export const TripProvider = ({ children }) => {
 
   return (
     <TripContext.Provider
-      value={{ itinerarySummary, trip, isLoading, fetchTripDetails }}
+      value={{
+        itinerarySummary,
+        trip,
+        isLoading,
+        fetchTripDetails,
+        fetchItinerarySummary,
+      }}
     >
       {children}
     </TripContext.Provider>

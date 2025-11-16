@@ -6,6 +6,7 @@ import {
   MapPin,
   Users,
 } from "lucide-react";
+import { useEffect } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -23,10 +24,16 @@ import { useTrip } from "@/hooks/useTrip";
 import { formatCurrency } from "@/lib/utils";
 
 export function TripOverview() {
-  const { itinerarySummary, trip } = useTrip();
+  const { itinerarySummary, trip, fetchItinerarySummary } = useTrip();
   const { statistics: checklistStatistics } = useChecklist();
   const { statistics: expenseStatistics } = useExpenses();
   const { statistics: itineraryStatistics } = useItineraries();
+
+  useEffect(() => {
+    if (trip?.id) {
+      fetchItinerarySummary(trip.id);
+    }
+  }, [trip?.id]);
 
   const { trip_budget, amount_spent } = expenseStatistics;
   const { total_items: total_tasks, completed_items: completed_tasks } =
