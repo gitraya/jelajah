@@ -144,7 +144,7 @@ export function ExpensesManager() {
             <CardTitle>Expenses</CardTitle>
             <CardDescription>Track all trip expenses</CardDescription>
           </div>
-          <ExpenseDialog />
+          {trip.user_role !== TRIP_MEMBER_ROLES.MEMBER[0] && <ExpenseDialog />}
         </CardHeader>
         <CardContent>
           {expenses?.length > 0 ? (

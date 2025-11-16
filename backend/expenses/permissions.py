@@ -23,10 +23,10 @@ class IsExpenseAccessible(permissions.BasePermission):
             status=MemberStatus.ACCEPTED
         ).exists()
 
-        if view.action in ['list', 'retrieve', 'create']:
+        if view.action in ['list', 'retrieve']:
             return trip.owner == user or is_member
-        
-        if view.action in ['update', 'partial_update', 'destroy']:
+
+        if view.action in ['create', 'update', 'partial_update', 'destroy']:
             if trip.owner == user:
                 return True
             member = trip.trip_members.filter(
