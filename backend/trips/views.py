@@ -77,7 +77,7 @@ class TripMemberViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated, IsTripAccessible]
 
     def get_queryset(self):
-        return TripMember.objects.select_related('trip', 'user').all()
+        return TripMember.objects.filter(trip_id=self.kwargs.get('trip_id'))
     
     def get_serializer_context(self):
         context = super().get_serializer_context()

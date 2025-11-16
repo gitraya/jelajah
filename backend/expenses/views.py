@@ -1,10 +1,11 @@
 from rest_framework import viewsets, permissions, generics
-from .models import Expense, ExpenseSplit, ExpenseCategory
-from .serializers import ExpenseSerializer, ExpenseSplitSerializer, ExpenseCategorySerializer
-from backend.permissions import TripAccessPermission
+from .models import Expense, ExpenseCategory
+from .serializers import ExpenseSerializer, ExpenseCategorySerializer
+from backend.permissions import IsStatisticAccessible
 from rest_framework.response import Response
 from django.db import models
 from trips.models import Trip
+from .permissions import IsExpenseAccessible
 
 class ExpenseCategoryViewSet(viewsets.ReadOnlyModelViewSet):
     """Expense categories."""
@@ -15,7 +16,7 @@ class ExpenseCategoryViewSet(viewsets.ReadOnlyModelViewSet):
 class ExpenseViewSet(viewsets.ModelViewSet):
     """Expenses for a specific trip."""
     serializer_class = ExpenseSerializer
-    permission_classes = [permissions.IsAuthenticated, TripAccessPermission]
+    permission_classes = [permissions.IsAuthenticated, IsExpenseAccessible]
     
     def get_queryset(self):
         trip_id = self.kwargs.get('trip_id')
@@ -26,23 +27,9 @@ class ExpenseViewSet(viewsets.ModelViewSet):
         context['trip_id'] = self.kwargs.get('trip_id')
         return context
 
-class ExpenseSplitViewSet(viewsets.ModelViewSet):
-    """Expense splits for a specific expense."""
-    serializer_class = ExpenseSplitSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    
-    def get_queryset(self):
-        expense_id = self.kwargs.get('expense_id')
-        return ExpenseSplit.objects.filter(expense_id=expense_id)
-    
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context['expense_id'] = self.kwargs.get('expense_id')
-        return context
-
 class ExpenseStatisticsView(generics.RetrieveAPIView):
     """Statistics for expenses in a trip."""
-    permission_classes = [permissions.IsAuthenticated, TripAccessPermission]
+    permission_classes = [permissions.IsAuthenticated, IsStatisticAccessible]
 
     def get(self, request, trip_id=None):
         trip = Trip.objects.filter(id=trip_id).first()

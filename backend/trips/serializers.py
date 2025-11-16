@@ -130,6 +130,7 @@ class TripSerializer(serializers.ModelSerializer):
         required=False
     )
     spent_budget = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    user_role = serializers.CharField(read_only=True)
 
     class Meta:
         model = Trip
@@ -247,7 +248,13 @@ class TripSerializer(serializers.ModelSerializer):
             trip=instance,
             status=MemberStatus.ACCEPTED
         ).count()
+        user_role = TripMember.objects.filter(
+            trip=instance,
+            user=self.context['request'].user,
+            status=MemberStatus.ACCEPTED
+        ).values_list('role', flat=True).first()
         representation['spent_budget'] = spent_budget
         representation['highlights'] = list(highlights)
         representation['members_count'] = members_count
+        representation['user_role'] = user_role
         return representation
