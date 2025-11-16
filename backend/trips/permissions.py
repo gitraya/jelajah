@@ -33,17 +33,22 @@ class IsMemberAccessible(BasePermission):
     """
     - Only trip owners or members with role 'ORGANIZER' can manage trip members
     - Members can view their own membership details
+    - Member with owner attached cannot be modified or deleted
     """
 
     def has_object_permission(self, request, view, obj):
         trip = obj.trip
         if view.action in ["retrieve", "list"]:
+            if not request.user.is_authenticated:
+                return False
             if obj.user == request.user:
                 return True
             return trip.owner == request.user or trip.trip_members.filter(
                 user=request.user, status=MemberStatus.ACCEPTED
             ).exists()
         # For create/update/delete → only owner or members with elevated roles
+        if obj.user == trip.owner:
+            return False
         return trip.owner == request.user or trip.trip_members.filter(
             user=request.user, status=MemberStatus.ACCEPTED, role=MemberRole.ORGANIZER
         ).exists()
