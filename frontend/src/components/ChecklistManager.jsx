@@ -25,7 +25,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CHECKLIST_CATEGORIES, CHECKLIST_PRIORITY } from "@/configs/checklist";
+import { TRIP_MEMBER_ROLES } from "@/configs/trip";
+import { useAuth } from "@/hooks/useAuth";
 import { useChecklist } from "@/hooks/useChecklist";
+import { useTrip } from "@/hooks/useTrip";
 import { getItineraryPriorityColor } from "@/lib/colors";
 import { formatDate, isOverdue } from "@/lib/utils";
 
@@ -46,7 +49,16 @@ const getAssignedName = (assignedTo) => {
   return `${assignedTo.user.first_name} ${assignedTo.user.last_name}`;
 };
 
+const getIsEditable = (checklist, user, userRole) => {
+  return (
+    userRole !== TRIP_MEMBER_ROLES.MEMBER[0] ||
+    checklist.assigned_to?.user?.id === user?.id
+  );
+};
+
 export function ChecklistManager() {
+  const { user } = useAuth();
+  const { trip } = useTrip();
   const {
     statistics,
     isLoading,
@@ -221,6 +233,11 @@ export function ChecklistManager() {
                     <div className="flex items-start space-x-3 flex-1">
                       <Checkbox
                         checked={item.is_completed}
+                        disabled={
+                          getIsEditable(item, user, trip.user_role)
+                            ? false
+                            : true
+                        }
                         onCheckedChange={() => toggleCompleted(item.id)}
                         className="mt-1"
                       />
@@ -267,14 +284,16 @@ export function ChecklistManager() {
                         </div>
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => deleteItem(item.id)}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    {trip.user_role !== TRIP_MEMBER_ROLES.MEMBER[0] && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deleteItem(item.id)}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    )}
                   </div>
                 </div>
               ))}

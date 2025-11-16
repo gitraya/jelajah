@@ -1,15 +1,16 @@
 from rest_framework import viewsets, permissions, generics
 from .models import ChecklistItem
 from .serializers import ChecklistItemSerializer
-from backend.permissions import TripAccessPermission
+from backend.permissions import IsStatisticAccessible
 from rest_framework.response import Response
 from django.db.models import Count, Case, When
 from django.utils import timezone
+from .permissions import IsChecklistItemAccessible
 
 class ChecklistItemViewSet(viewsets.ModelViewSet):
     """Checklist items for a specific trip."""
     serializer_class = ChecklistItemSerializer
-    permission_classes = [permissions.IsAuthenticated, TripAccessPermission]
+    permission_classes = [permissions.IsAuthenticated, IsChecklistItemAccessible]
     
     def get_queryset(self):
         category = self.request.query_params.get("category")
@@ -30,7 +31,7 @@ class ChecklistItemViewSet(viewsets.ModelViewSet):
 
 class ChecklistStatisticsView(generics.RetrieveAPIView):
     """Statistics for checklist items in a trip."""
-    permission_classes = [permissions.IsAuthenticated, TripAccessPermission]
+    permission_classes = [permissions.IsAuthenticated, IsStatisticAccessible]
 
     def get(self, request, trip_id=None):
         total_items = ChecklistItem.objects.filter(trip_id=trip_id).count()

@@ -3,8 +3,11 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { CHECKLIST_CATEGORIES, CHECKLIST_PRIORITY } from "@/configs/checklist";
+import { TRIP_MEMBER_ROLES } from "@/configs/trip";
+import { useAuth } from "@/hooks/useAuth";
 import { useChecklist } from "@/hooks/useChecklist";
 import { useMembers } from "@/hooks/useMembers";
+import { useTrip } from "@/hooks/useTrip";
 import { validator } from "@/lib/utils";
 
 import { Alert, AlertDescription } from "../ui/alert";
@@ -40,6 +43,8 @@ export default function ChecklistDialog() {
     formState: { errors },
     reset,
   } = useForm();
+  const { user } = useAuth();
+  const { trip } = useTrip();
   const { members } = useMembers();
   const { createChecklist, error, setError } = useChecklist();
   const [open, setOpen] = useState(false);
@@ -54,6 +59,11 @@ export default function ChecklistDialog() {
       setError("");
     }
   }, [open]);
+
+  const assignedToOptions =
+    trip.user_role !== TRIP_MEMBER_ROLES.MEMBER[0]
+      ? members
+      : members.filter((member) => member.user?.id === user?.id);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -196,6 +206,9 @@ export default function ChecklistDialog() {
                 {...register("assigned_to_id", {
                   required: validator.required,
                 })}
+                {...(trip.user_role === TRIP_MEMBER_ROLES.MEMBER[0] && {
+                  defaultValue: assignedToOptions[0]?.id,
+                })}
               >
                 <SelectTrigger
                   aria-invalid={errors.assigned_to_id ? "true" : "false"}
@@ -203,7 +216,7 @@ export default function ChecklistDialog() {
                   <SelectValue placeholder="Select member" />
                 </SelectTrigger>
                 <SelectContent>
-                  {members.map((option) => (
+                  {assignedToOptions.map((option) => (
                     <SelectItem key={option.id} value={option.id}>
                       {getAssignedToLabel(option)}
                     </SelectItem>
