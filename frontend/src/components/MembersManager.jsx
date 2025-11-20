@@ -27,7 +27,6 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TRIP_MEMBER_ROLES, TRIP_MEMBER_STATUSES } from "@/configs/trip";
-import { useAuth } from "@/hooks/useAuth";
 import { useMembers } from "@/hooks/useMembers";
 import { useTrip } from "@/hooks/useTrip";
 import { getMemberRoleColor, getMemberStatusColor } from "@/lib/colors";
@@ -40,7 +39,6 @@ const getFullName = (user) => {
 };
 
 export function MembersManager() {
-  const { user } = useAuth();
   const { trip } = useTrip();
   const {
     statistics,
@@ -219,10 +217,12 @@ export function MembersManager() {
                               <Mail className="w-4 h-4" />
                               <span>{member.user?.email}</span>{" "}
                             </a>
-                            <div className="flex items-center gap-1">
-                              <Phone className="w-4 h-4" />
-                              <span>{member.user?.phone}</span>
-                            </div>
+                            {member.user?.phone && (
+                              <div className="flex items-center gap-1">
+                                <Phone className="w-4 h-4" />
+                                <span>{member.user?.phone}</span>
+                              </div>
+                            )}
                           </div>
                           {member.dietary_restrictions && (
                             <p className="text-sm text-muted-foreground mt-1">
