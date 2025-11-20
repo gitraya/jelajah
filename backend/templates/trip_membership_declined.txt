@@ -1,0 +1,41 @@
+Trip Membership Declined — Jelajah!
+
+Hello {{ user.first_name }} {{ user.last_name }},
+
+We're sorry — your request to join "{{ trip.title }}" was declined.
+
+We regret to inform you that your request to join the trip "{{ trip.title }}" has been declined. You will not have member access to trip details or collaboration features for this trip.
+
+{% if reason %}
+Reason provided:
+----------------
+{{ reason }}
+
+{% endif %}
+Trip details:
+-------------
+Trip: {{ trip.title }}
+{% if trip.start_date and trip.end_date %}
+Dates: {{ trip.start_date }} — {{ trip.end_date }}
+{% endif %}
+Organized by: {{ trip.owner.first_name }} {{ trip.owner.last_name }}
+{% if trip.owner.email %}
+Organizer email: {{ trip.owner.email }}
+{% endif %}
+
+Next steps you may consider:
+- Contact the organizer for clarification or to request reconsideration.
+- Browse other available trips or create your own.
+- Check your notifications for updates or future invitations.
+
+<a href="{{ login_url }}">View the trip</a>
+{% if trip.owner.email %}
+Contact the organizer: <a href="mailto:{{ trip.owner.email }}">{{ trip.owner.email }}</a>
+{% endif %}
+{% if trips_url %}
+<a href="{{ trips_url }}">Explore other trips</a>
+{% endif %}
+
+Regards,
+Jelajah
+© 2025 Jelajah. All rights reserved.

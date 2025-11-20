@@ -1,0 +1,21 @@
+Trip Membership Accepted — Jelajah!
+
+You're now a member of "{{ trip.title }}"
+
+Hello {{ user.first_name }} {{ user.last_name }},
+
+Great news — your request to join the trip "{{ trip.title }}" has been accepted.
+You can now access trip details, itineraries, and collaborate with other members.
+
+Trip: {{ trip.title }}
+{% if trip.start_date and trip.end_date %}Dates: {{ trip.start_date }} — {{ trip.end_date }}
+{% endif %}Organized by: {{ trip.owner.first_name }} {{ trip.owner.last_name }}
+
+Next steps you might want to take:
+- Open the trip page to view itinerary and shared notes.
+- Message other members or the organizer to coordinate details.
+- Add items to your personal packing checklist.
+
+<a href="{{ login_url }}">View the trip</a>
+
+© 2025 Jelajah. All rights reserved.

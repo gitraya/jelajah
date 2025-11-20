@@ -86,6 +86,50 @@ class TripMemberViewSet(ModelViewSet):
         context['trip_id'] = self.kwargs.get('trip_id')
         return context
     
+    def perform_update(self, serializer):
+        old_instance = self.get_object()
+        new_instance = serializer.save()
+        # Notify member via email if status changed
+        if old_instance.status != new_instance.status:
+            if new_instance.status == MemberStatus.ACCEPTED:
+                send_templated_email(
+                    recipient_email=new_instance.user.email,
+                    subject=f"You've Been Accepted to Join Trip: {new_instance.trip.title}",
+                    template_name='trip_membership_accepted',
+                    context={
+                        'user': new_instance.user,
+                        'trip': new_instance.trip,
+                        'login_url': settings.FRONTEND_URL + '/login?redirect=/trips/' + str(new_instance.trip.id) + '/manage',
+                    }
+                )
+            elif new_instance.status == MemberStatus.DECLINED:
+                send_templated_email(
+                    recipient_email=new_instance.user.email,
+                    subject=f"Your Request to Join Trip: {new_instance.trip.title} has Been Declined",
+                    template_name='trip_membership_declined',
+                    context={
+                        'user': new_instance.user,
+                        'trip': new_instance.trip,
+                        'login_url': settings.FRONTEND_URL + '/login?redirect=/trips/' + str(new_instance.trip.id),
+                        'trips_url': settings.FRONTEND_URL + '/login',
+                    }
+                )
+            elif new_instance.status == MemberStatus.BLOCKED:
+                send_templated_email(
+                    recipient_email=new_instance.user.email,
+                    subject=f"You've Been Blocked from Trip: {new_instance.trip.title}",
+                    template_name='trip_membership_blocked',
+                    context={
+                        'user': new_instance.user,
+                        'trip': new_instance.trip,
+                        'login_url': settings.FRONTEND_URL + '/login?redirect=/trips/' + str(new_instance.trip.id),
+                    }
+                )
+            else:
+                # For other status changes, no email is sent
+                pass
+        super().perform_update(serializer)
+    
 class TripMemberStatisticsView(generics.RetrieveAPIView):
     """
     View to get statistics of trip members by their status

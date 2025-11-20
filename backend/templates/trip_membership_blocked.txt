@@ -1,0 +1,26 @@
+Trip Membership Blocked — Jelajah!
+
+Hello {{ user.first_name }} {{ user.last_name }},
+
+We're sorry — your request to join the trip "{{ trip.title }}" has been blocked and you are not currently a member. If you believe this is a mistake, you can contact the trip organizer or request a review.
+
+Trip: {{ trip.title }}
+{% if trip.start_date and trip.end_date %}
+Dates: {{ trip.start_date }} — {{ trip.end_date }}
+{% endif %}
+Organized by: {{ trip.owner.first_name }} {{ trip.owner.last_name }}
+{% if reason %}
+Reason: {{ reason }}
+{% endif %}
+
+Options you can take:
+- Contact the organizer to ask for clarification or to appeal.
+- Review the trip details to see if you meet any requirements.
+- Explore other trips that may match your plans.
+
+<a href="{{ login_url }}">View trip</a>
+Contact organizer: <a href="mailto:{{ trip.owner.email }}">{{ trip.owner.email }}</a>
+
+--
+Jelajah
+© 2025 Jelajah. All rights reserved.
