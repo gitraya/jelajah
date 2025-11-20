@@ -13,6 +13,8 @@ from expenses.models import ExpenseSplit
 from itineraries.models import ItineraryItem
 from checklist.models import ChecklistItem
 from datetime import timedelta
+from backend.services import send_templated_email
+from django.conf import settings
 
 User = get_user_model()
 
@@ -39,7 +41,7 @@ class TripViewSet(ModelViewSet):
             else:
                 user = self.request.user
                 qs = qs.filter(
-                    (Q(is_public=True) | Q(owner=user) | 
+                    (Q(owner=user) | 
                     Q(trip_members__user=user, trip_members__status=MemberStatus.ACCEPTED)) & ~Q(status=TripStatus.DELETED)
                 ).distinct()
             
@@ -212,3 +214,37 @@ class TagListView(generics.ListAPIView):
     serializer_class = TagSerializer
     permission_classes = [IsAuthenticated]
     queryset = Tag.objects.all()
+
+
+class JoinTripView(generics.CreateAPIView):
+    """
+    View to handle joining a trip
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, trip_id=None):
+        user = request.user
+        trip = Trip.objects.filter(id=trip_id, is_joinable=True).first()
+        if not trip:
+            return Response({"detail": "Trip not found or not joinable."}, status=status.HTTP_404_NOT_FOUND)
+        
+        existing_member = TripMember.objects.filter(trip=trip, user=user).first()
+        if existing_member:
+            return Response({"detail": "You have already requested to join this trip."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        TripMember.objects.create(trip=trip, user=user, status=MemberStatus.PENDING)
+        
+        # Notify trip owner via email
+        send_templated_email(
+            recipient_email=trip.owner.email,
+            subject=f"New Join Request for Trip: {trip.title}",
+            template_name='join_trip_request',
+            context={
+                'owner': trip.owner,
+                'trip': trip,
+                'requester': user,
+                'login_url': settings.FRONTEND_URL + '/login?redirect=/trips/' + str(trip.id) + '/manage',
+            }
+        )
+        
+        return Response({"detail": "Join request sent."}, status=status.HTTP_201_CREATED)

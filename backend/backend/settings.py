@@ -202,3 +202,5 @@ LOGGING = {
         'level': 'INFO',
     },
 }
+
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')

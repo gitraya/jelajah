@@ -1,4 +1,3 @@
-import os
 from rest_framework import generics, permissions, status
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenBlacklistView
 from django.contrib.auth import get_user_model
@@ -19,7 +18,7 @@ class RegisterView(generics.CreateAPIView):
         # Send welcome email
         context = {
             'user': user,
-            'login_url': os.getenv('FRONTEND_URL', 'http://localhost:5173') + '/login'
+            'login_url': settings.FRONTEND_URL + '/login'
         }
         send_templated_email(
             recipient_email=user.email,

@@ -1,0 +1,13 @@
+New Join Trip Request
+
+Dear {{ owner.first_name }} {{ owner.last_name }},
+
+{{ requester.first_name }} {{ requester.last_name }} ({{ requester.email }}) has requested to join your trip "{{ trip.title }}".
+
+Please review the request and take the necessary action by logging in:
+<a href="{{ login_url }}">Log In to Jelajah</a>
+
+Best regards,
+The Jelajah Team
+
+© 2025 Jelajah. All rights reserved.
