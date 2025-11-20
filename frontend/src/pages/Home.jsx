@@ -9,6 +9,7 @@ import {
   Users,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 import { Link, useNavigate } from "react-router";
 
 import HowItWorksDialog from "@/components/dialogs/HowItWorksDialog";
@@ -304,153 +305,159 @@ const HomeContent = () => {
         )}
 
         {/* Trips Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {publicTrips.map((trip) => {
-            const spotsLeft = trip.member_spots - trip.members_count;
+        <ResponsiveMasonry columnsCountBreakPoints={{ 0: 1, 767: 2, 1023: 3 }}>
+          <Masonry itemStyle={{ gap: "24px" }} style={{ gap: "24px" }}>
+            {publicTrips.map((trip) => {
+              const spotsLeft = trip.member_spots - trip.members_count;
 
-            return (
-              <Link key={trip.id} to={`/trips/${trip.id}`}>
-                <Card className="group hover:shadow-lg transition-shadow cursor-pointer">
-                  <CardHeader>
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1">
-                        <CardTitle className="mb-2 group-hover:text-primary transition-colors">
-                          {trip.title}
-                        </CardTitle>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                          <MapPin className="w-4 h-4" />
-                          <span>{trip.destination}</span>
+              return (
+                <Link key={trip.id} to={`/trips/${trip.id}`} className="w-full">
+                  <Card className="group hover:shadow-lg transition-shadow cursor-pointer">
+                    <CardHeader>
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1">
+                          <CardTitle className="mb-2 group-hover:text-primary transition-colors">
+                            {trip.title}
+                          </CardTitle>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                            <MapPin className="w-4 h-4" />
+                            <span>{trip.destination}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Calendar className="w-4 h-4" />
+                            <span>
+                              {formatDate(trip.start_date)} -{" "}
+                              {formatDate(trip.end_date)}
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Calendar className="w-4 h-4" />
-                          <span>
-                            {formatDate(trip.start_date)} -{" "}
-                            {formatDate(trip.end_date)}
+                        <div className="flex flex-col gap-1">
+                          <Badge className={getTripStatusColor(trip.status)}>
+                            {TRIP_STATUSES[trip.status]}
+                          </Badge>
+                          {trip.is_joinable && spotsLeft > 0 && (
+                            <Badge
+                              variant="outline"
+                              className="text-green-600 border-green-600"
+                            >
+                              {spotsLeft} spots left
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        {trip.description}
+                      </p>
+
+                      {/* Organizer */}
+                      <div className="flex items-center gap-2 mb-3">
+                        <Avatar className="w-6 h-6">
+                          <AvatarImage src={trip.owner.avatar} />
+                          <AvatarFallback className="text-xs">
+                            {getInitials(
+                              `${trip.owner.first_name} ${trip.owner.last_name}`
+                            )}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-sm text-muted-foreground">
+                          by {trip.owner.first_name} {trip.owner.last_name}
+                        </span>
+                      </div>
+
+                      {/* Trip Details */}
+                      <div className="grid grid-cols-2 gap-4 mb-3 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">
+                            Duration:
+                          </span>
+                          <span className="ml-1 font-medium">
+                            {trip.duration} day{trip.duration > 1 ? "s" : ""}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Group:</span>
+                          <span className="ml-1 font-medium">
+                            {trip.members_count}/{trip.member_spots} people
                           </span>
                         </div>
                       </div>
-                      <div className="flex flex-col gap-1">
-                        <Badge className={getTripStatusColor(trip.status)}>
-                          {TRIP_STATUSES[trip.status]}
+
+                      <div className="mb-3">
+                        <span className="text-muted-foreground">Budget:</span>
+                        <span className="ml-1 font-medium">
+                          {formatCurrency(trip.budget / trip.member_spots)}
+                          /person
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1 mb-3">
+                        <span className="text-muted-foreground">Level:</span>
+                        <Badge
+                          className={getTripDifficultyColor(trip.difficulty)}
+                          size="sm"
+                        >
+                          {DIFFICULTY_LEVELS[trip.difficulty]}
                         </Badge>
-                        {trip.is_joinable && spotsLeft > 0 && (
-                          <Badge
-                            variant="outline"
-                            className="text-green-600 border-green-600"
-                          >
-                            {spotsLeft} spots left
-                          </Badge>
-                        )}
                       </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      {trip.description}
-                    </p>
 
-                    {/* Organizer */}
-                    <div className="flex items-center gap-2 mb-3">
-                      <Avatar className="w-6 h-6">
-                        <AvatarImage src={trip.owner.avatar} />
-                        <AvatarFallback className="text-xs">
-                          {getInitials(
-                            `${trip.owner.first_name} ${trip.owner.last_name}`
-                          )}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="text-sm text-muted-foreground">
-                        by {trip.owner.first_name} {trip.owner.last_name}
-                      </span>
-                    </div>
-
-                    {/* Trip Details */}
-                    <div className="grid grid-cols-2 gap-4 mb-3 text-sm">
-                      <div>
-                        <span className="text-muted-foreground">Duration:</span>
-                        <span className="ml-1 font-medium">
-                          {trip.duration} day{trip.duration > 1 ? "s" : ""}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Group:</span>
-                        <span className="ml-1 font-medium">
-                          {trip.members_count}/{trip.member_spots} people
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="mb-3">
-                      <span className="text-muted-foreground">Budget:</span>
-                      <span className="ml-1 font-medium">
-                        {formatCurrency(trip.budget / trip.member_spots)}
-                        /person
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1 mb-3">
-                      <span className="text-muted-foreground">Level:</span>
-                      <Badge
-                        className={getTripDifficultyColor(trip.difficulty)}
-                        size="sm"
-                      >
-                        {DIFFICULTY_LEVELS[trip.difficulty]}
-                      </Badge>
-                    </div>
-
-                    {/* Highlights */}
-                    <div className="mb-3">
-                      <div className="text-sm text-muted-foreground mb-1">
-                        Highlights:
-                      </div>
-                      {trip.highlights.length === 0 && (
-                        <div className="text-xs text-muted-foreground italic">
-                          No highlights provided.
+                      {/* Highlights */}
+                      <div className="mb-3">
+                        <div className="text-sm text-muted-foreground mb-1">
+                          Highlights:
                         </div>
-                      )}
-                      <div className="flex flex-wrap gap-1">
-                        {trip.highlights.slice(0, 3).map((highlight, index) => (
+                        {trip.highlights.length === 0 && (
+                          <div className="text-xs text-muted-foreground italic">
+                            No highlights provided.
+                          </div>
+                        )}
+                        <div className="flex flex-wrap gap-1">
+                          {trip.highlights
+                            .slice(0, 3)
+                            .map((highlight, index) => (
+                              <Badge
+                                key={index}
+                                variant="outline"
+                                className="text-xs"
+                              >
+                                {highlight}
+                              </Badge>
+                            ))}
+                        </div>
+                      </div>
+
+                      {/* Tags */}
+                      <div className="flex flex-wrap gap-1 mb-4">
+                        {trip.tags.map((tag, index) => (
                           <Badge
                             key={index}
-                            variant="outline"
+                            variant="secondary"
                             className="text-xs"
                           >
-                            {highlight}
+                            {tag.name}
                           </Badge>
                         ))}
                       </div>
-                    </div>
 
-                    {/* Tags */}
-                    <div className="flex flex-wrap gap-1 mb-4">
-                      {trip.tags.map((tag, index) => (
-                        <Badge
-                          key={index}
-                          variant="secondary"
-                          className="text-xs"
-                        >
-                          {tag.name}
-                        </Badge>
-                      ))}
-                    </div>
-
-                    {/* Action */}
-                    <Button
-                      className="w-full"
-                      variant={trip.is_joinable ? "default" : "outline"}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/trips/${trip.id}`);
-                      }}
-                    >
-                      <Eye className="w-4 h-4 mr-2" />
-                      {trip.is_joinable ? "View & Join" : "View Trip"}
-                    </Button>
-                  </CardContent>
-                </Card>
-              </Link>
-            );
-          })}
-        </div>
+                      {/* Action */}
+                      <Button
+                        className="w-full"
+                        variant={trip.is_joinable ? "default" : "outline"}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/trips/${trip.id}`);
+                        }}
+                      >
+                        <Eye className="w-4 h-4 mr-2" />
+                        {trip.is_joinable ? "View & Join" : "View Trip"}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })}
+          </Masonry>
+        </ResponsiveMasonry>
 
         {publicTrips.length === 0 && (
           <div className="text-center py-12">
