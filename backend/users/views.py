@@ -4,6 +4,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.contrib.auth import get_user_model
 from .serializers import UserSerializer, UserDetailSerializer, RegisterSerializer
 from django.conf import settings
+from backend.services import send_templated_email
 
 User = get_user_model()
 
@@ -11,6 +12,22 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = [permissions.AllowAny]
     serializer_class = RegisterSerializer
+    
+    def perform_create(self, serializer):
+        user = serializer.save()
+        
+        # Send welcome email
+        context = {
+            'user': user,
+            'login_url': os.getenv('FRONTEND_URL', 'http://localhost:5173') + '/login'
+        }
+        send_templated_email(
+            recipient_email=user.email,
+            subject='Welcome to Jelajah! Start Your Adventure Today',
+            template_name='welcome_email',
+            context=context
+        )
+        return user
 
 class UserDetailView(generics.RetrieveUpdateAPIView):
     serializer_class = UserDetailSerializer

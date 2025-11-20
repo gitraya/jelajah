@@ -1,0 +1,16 @@
+Welcome to Jelajah, {{ user.first_name }} {{ user.last_name }}!
+
+We're thrilled to have you on board. Jelajah is your ultimate travel companion, designed to make your trip planning seamless and enjoyable.
+
+Get started by exploring our features:
+- Create and manage your trips with ease.
+- Build personalized itineraries.
+- Keep track of your packing with our checklist feature.
+
+Click the link below to log in and start planning your next adventure:
+<a href="{{ login_url }}">Log In to Jelajah</a>
+
+Happy travels!
+The Jelajah Team
+
+© 2025 Jelajah. All rights reserved.
