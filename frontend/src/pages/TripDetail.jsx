@@ -7,7 +7,9 @@ import {
   Package,
   Users,
 } from "lucide-react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router";
+import { toast } from "sonner";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +26,7 @@ import { ITINERARY_TYPES_ICONS } from "@/configs/itinerary";
 import { ItinerariesProvider } from "@/contexts/ItinerariesContext";
 import { PackingItemsProvider } from "@/contexts/PackingItemsContext";
 import { TripProvider } from "@/contexts/TripContext";
+import { useApi } from "@/hooks/useApi";
 import { useItineraries } from "@/hooks/useItineraries";
 import { usePackingItems } from "@/hooks/usePackingItems";
 import { useTrip } from "@/hooks/useTrip";
@@ -47,9 +50,11 @@ export default function TripDetail() {
 
 const TripDetailContent = () => {
   const navigate = useNavigate();
+  const { postRequest } = useApi();
   const { trip, isLoading, itinerarySummary } = useTrip();
   const { itineraries } = useItineraries();
   const { packingItems } = usePackingItems();
+  const [isJoining, setIsJoining] = useState(false);
 
   if (isLoading) {
     return (
@@ -67,7 +72,22 @@ const TripDetailContent = () => {
   const isFull = trip.members_count >= trip.member_spots;
   const spotsLeft = trip.member_spots - trip.members_count;
 
-  const handleJoinTrip = () => {};
+  const handleJoinTrip = async () => {
+    try {
+      setIsJoining(true);
+      await postRequest(`/trips/${trip.id}/join/`);
+      toast.success(
+        "Successfully sent join request! you will be notified via email."
+      );
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.detail ||
+          "Failed to send join request. Please try again later."
+      );
+    } finally {
+      setIsJoining(false);
+    }
+  };
 
   return (
     <>
@@ -127,8 +147,10 @@ const TripDetailContent = () => {
                 About This Trip
               </div>
               {trip.is_joinable && !isFull && (
-                <Button onClick={handleJoinTrip}>
-                  Join Trip ({spotsLeft} spots left)
+                <Button onClick={handleJoinTrip} disabled={isJoining}>
+                  {isJoining
+                    ? "Joining..."
+                    : `Join Trip (${spotsLeft} spots left)`}
                 </Button>
               )}
             </CardTitle>

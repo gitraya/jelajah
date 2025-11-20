@@ -184,8 +184,7 @@ export function MembersManager() {
               <div className="space-y-4">
                 {filteredMembers.map((member) => {
                   const isMemberEditable =
-                    trip.user_role === TRIP_MEMBER_ROLES.ORGANIZER[0] &&
-                    user.id !== trip.owner.id;
+                    member.role !== TRIP_MEMBER_ROLES.ORGANIZER[0];
                   return (
                     <div
                       key={member.id}

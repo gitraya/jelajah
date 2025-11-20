@@ -58,26 +58,53 @@ class TripMemberSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'joined_at']
         
     def validate(self, attrs):
-        """Ensure that user information is provided either by user_id or email"""
-        user = attrs.get('user')
-        if not user:
-            email = attrs.get('email')
+        """Ensure that user information is provided either by user_id or email.
+        Run this validation only on create (when self.instance is None).
+        """
+        # Only validate on create
+        if self.instance is not None:
+            if self.instance.user == self.context['request'].user:
+                # Prevent changing own status or role
+                if 'status' in attrs or 'role' in attrs:
+                    raise serializers.ValidationError("You cannot change your own status or role.")
+            
+            if self.instance.trip.owner == self.context['request'].user:
+                # Prevent changing owner's status or role
+                if 'status' in attrs or 'role' in attrs:
+                    raise serializers.ValidationError("You cannot change the owner's status or role.")
+
+            return attrs
+
+        user_val = attrs.get('user')
+        # If a PK was provided, DRF will already have resolved it to a User instance
+        if isinstance(user_val, User):
+            user_obj = user_val
+        # If write-only fields (source='user.xxx') were used, DRF supplies a dict under 'user'
+        elif isinstance(user_val, dict):
+            email = user_val.get('email')
             if not email:
                 raise serializers.ValidationError("Either user_id or email must be provided.")
-            
             try:
-                user = User.objects.get(email=email)
-                attrs['user'] = user
+                user_obj = User.objects.get(email=email)
             except User.DoesNotExist:
-                first_name = user.get('first_name', '')
-                last_name = user.get('last_name', '')
-                phone = user.get('phone', '')
-                user = User.objects.create(email=email, first_name=first_name, last_name=last_name, phone=phone)
-                attrs['user'] = user
-                
-        if TripMember.objects.filter(user=attrs['user'], trip_id=self.context['trip']).exists():
+                user_obj = User.objects.create(
+                    email=email,
+                    first_name=user_val.get('first_name', ''),
+                    last_name=user_val.get('last_name', ''),
+                    phone=user_val.get('phone', '')
+                )
+        else:
+            raise serializers.ValidationError("Either user_id or email must be provided.")
+
+        attrs['user'] = user_obj
+
+        trip_id = self.context.get('trip')
+        if trip_id is None:
+            raise serializers.ValidationError("Trip context is required for validation.")
+
+        if TripMember.objects.filter(user=user_obj, trip_id=trip_id).exists():
             raise serializers.ValidationError("This user is already a member of the trip.")
-        
+
         return attrs
         
     def create(self, validated_data):
