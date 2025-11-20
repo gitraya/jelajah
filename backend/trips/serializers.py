@@ -115,6 +115,7 @@ class TripSerializer(serializers.ModelSerializer):
     members_count = serializers.IntegerField(read_only=True)
     is_editable = serializers.SerializerMethodField()
     is_deletable = serializers.SerializerMethodField()
+    is_member = serializers.SerializerMethodField()
     highlights = serializers.ListField(child=serializers.CharField(), read_only=True)
     tags = TagSerializer(many=True, read_only=True)
     tag_ids = serializers.PrimaryKeyRelatedField(
@@ -232,6 +233,14 @@ class TripSerializer(serializers.ModelSerializer):
         if user == obj.owner and obj.status != TripStatus.DELETED:
             return True
         return False
+
+    def get_is_member(self, obj):
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return False
+        
+        user = request.user
+        return obj.trip_members.filter(user=user, status=MemberStatus.ACCEPTED).exists()
     
     def to_representation(self, instance):
         """Add highlights field to the representation"""

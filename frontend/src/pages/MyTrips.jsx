@@ -364,6 +364,14 @@ const MyTripsContent = () => {
             })}
           </Masonry>
         </ResponsiveMasonry>
+
+        {!isLoading && myTrips.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-12">
+            <p className="text-lg text-muted-foreground text-center">
+              You have no trips yet. Start by creating a new trip!
+            </p>
+          </div>
+        )}
       </div>
     </>
   );

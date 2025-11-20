@@ -153,7 +153,7 @@ const Container = ({ children }) => {
     );
   }
 
-  if (!trip) {
+  if (!trip || !trip.is_member) {
     return <NotFound />;
   }
 
