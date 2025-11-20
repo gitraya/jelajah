@@ -66,7 +66,7 @@ export default function PackingDialog() {
     }
 
     createPacking(data, tripId).then(() => {
-      toast("Packing item added successfully");
+      toast.success("Packing item added successfully");
       setOpen(false);
     });
   };

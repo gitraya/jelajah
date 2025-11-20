@@ -92,7 +92,7 @@ export default function ExpenseDialog() {
     data.splits = getSplits(data);
 
     createExpense(data).then(() => {
-      toast("Expense added successfully");
+      toast.success("Expense added successfully");
       setOpen(false);
     });
   };

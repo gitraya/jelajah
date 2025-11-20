@@ -67,12 +67,12 @@ export function PackingList() {
 
   const handleDeletePacking = (packingId) => {
     deletePacking(packingId);
-    toast("Packing item deleted successfully");
+    toast.success("Packing item deleted successfully");
   };
 
   const handleTogglePacking = (packingId) => {
     togglePacking(packingId);
-    toast("Packing item updated successfully");
+    toast.success("Packing item updated successfully");
   };
 
   return (

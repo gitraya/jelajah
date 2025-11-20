@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/useAuth";
-import { postAPIData, validator } from "@/lib/utils";
+import { validator } from "@/lib/utils";
 
 const DEMO_CREDENTIALS = {
   email: "demo@example.com",
@@ -39,19 +39,12 @@ export default function Register() {
 
   const redirectPath = query.get("redirect") || "/";
   const defaultEmail = query.get("email") || "";
-  const tripId = query.get("tripId") || "";
-  const response = query.get("response") || "ACCEPTED"; // Default to ACCEPTED if not provided
 
   const onSubmit = async (data) => {
     try {
       setIsLoading(true);
       const isLoggedIn = await login(data.email, data.password);
       if (isLoggedIn) {
-        if (tripId) {
-          await postAPIData(`/trips/${tripId}/respond-invitation/`, {
-            response,
-          });
-        }
         navigate(redirectPath);
       }
     } finally {

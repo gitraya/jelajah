@@ -85,12 +85,12 @@ export function MembersManager() {
 
   const handleDeleteMember = (memberId) => {
     deleteMember(memberId);
-    toast("Member deleted successfully");
+    toast.success("Member deleted successfully");
   };
 
   const handleUpdateMemberStatus = (memberId, status) => {
     updateMemberStatus(memberId, status);
-    toast("Member status updated successfully");
+    toast.success("Member status updated successfully");
   };
 
   return (

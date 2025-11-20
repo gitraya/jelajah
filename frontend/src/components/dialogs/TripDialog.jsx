@@ -63,9 +63,9 @@ export default function TripDialog({ trip, onSuccess, trigger }) {
       }
 
       if (isEditMode) {
-        toast(`Trip "${response.data.title}" updated successfully.`);
+        toast.success(`Trip "${response.data.title}" updated successfully.`);
       } else {
-        toast(`Trip "${response.data.title}" created successfully.`);
+        toast.success(`Trip "${response.data.title}" created successfully.`);
       }
 
       setOpen(false);

@@ -90,12 +90,12 @@ export function ChecklistManager() {
 
   const handleDeleteItem = (itemId) => {
     deleteItem(itemId);
-    toast("Task deleted successfully");
+    toast.success("Task deleted successfully");
   };
 
   const handleToggleCompleted = (itemId) => {
     toggleCompleted(itemId);
-    toast("Task status updated successfully");
+    toast.success("Task status updated successfully");
   };
 
   return (

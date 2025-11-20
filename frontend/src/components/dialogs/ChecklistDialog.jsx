@@ -52,7 +52,7 @@ export default function ChecklistDialog() {
 
   const onSubmit = (data) => {
     createChecklist(data).then(() => {
-      toast("Task added successfully");
+      toast.success("Task added successfully");
       setOpen(false);
     });
   };

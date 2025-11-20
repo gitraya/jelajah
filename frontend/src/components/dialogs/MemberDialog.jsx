@@ -41,7 +41,7 @@ export default function MemberDialog({ triggerClassName }) {
 
   const onSubmit = (data) =>
     createMember(data).then(() => {
-      toast("Member added successfully");
+      toast.success("Member added successfully");
       setOpen(false);
     });
 

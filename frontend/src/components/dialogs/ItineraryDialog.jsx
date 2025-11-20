@@ -39,7 +39,7 @@ export default function ItineraryDialog({ triggerClassName }) {
 
   const onSubmit = (data) => {
     createItinerary(data).then(() => {
-      toast("Location added successfully");
+      toast.success("Location added successfully");
       setOpen(false);
     });
   };

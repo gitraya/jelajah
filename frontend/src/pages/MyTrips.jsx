@@ -69,14 +69,14 @@ const MyTripsContent = () => {
 
   const deleteTrip = (id) => {
     const deletedTrip = myTrips.find((trip) => trip.id === id);
-    toast(`Trip "${deletedTrip.title}" deleted.`);
+    toast.success(`Trip "${deletedTrip.title}" deleted.`);
     setMyTrips((prevTrips) => prevTrips.filter((trip) => trip.id !== id));
     deleteRequest(`/trips/${id}/`);
   };
 
   const togglePublic = (id, is_public) => {
     const updatedTrip = myTrips.find((trip) => trip.id === id);
-    toast(
+    toast.success(
       `Trip "${updatedTrip.title}" is now ${is_public ? "public" : "private"}.`
     );
     setMyTrips((prevTrips) =>

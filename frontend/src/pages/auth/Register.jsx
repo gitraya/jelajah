@@ -2,6 +2,7 @@ import { ArrowLeft, Check, Eye, EyeOff, Globe } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useLocation, useNavigate } from "react-router";
+import { toast } from "sonner";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -40,8 +41,6 @@ export default function Register() {
 
   const redirectPath = query.get("redirect") || "/";
   const defaultEmail = query.get("email") || "";
-  const tripId = query.get("tripId") || "";
-  const response = query.get("response") || "ACCEPTED"; // Default to ACCEPTED if not provided
 
   const onSubmit = async (data) => {
     try {
@@ -49,12 +48,8 @@ export default function Register() {
       await postAPIData("/auth/register/", data);
       const isLoggedIn = await login(data.email, data.password);
       if (isLoggedIn) {
-        if (tripId) {
-          await postAPIData(`/trips/${tripId}/respond-invitation/`, {
-            response,
-          });
-        }
         navigate(redirectPath);
+        toast.success("Account created successfully!");
       }
     } catch (error) {
       setError(getErrorMessage(error));

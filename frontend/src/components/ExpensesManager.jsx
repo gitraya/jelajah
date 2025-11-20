@@ -54,7 +54,7 @@ export function ExpensesManager() {
 
   const handleDeleteExpense = (expenseId) => {
     deleteExpense(expenseId);
-    toast("Expense deleted successfully");
+    toast.success("Expense deleted successfully");
   };
 
   return (
