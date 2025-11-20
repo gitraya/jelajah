@@ -248,11 +248,13 @@ class TripSerializer(serializers.ModelSerializer):
             trip=instance,
             status=MemberStatus.ACCEPTED
         ).count()
-        user_role = TripMember.objects.filter(
-            trip=instance,
-            user=self.context['request'].user,
-            status=MemberStatus.ACCEPTED
-        ).values_list('role', flat=True).first()
+        user_role = None
+        if self.context and self.context.get('request') and self.context['request'].user.is_authenticated:
+            user_role = TripMember.objects.filter(
+                trip=instance,
+                user=self.context['request'].user,
+                status=MemberStatus.ACCEPTED
+            ).values_list('role', flat=True).first()
         representation['spent_budget'] = spent_budget
         representation['highlights'] = list(highlights)
         representation['members_count'] = members_count
