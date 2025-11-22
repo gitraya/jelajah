@@ -9,7 +9,7 @@ import {
   Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router";
+import { Link, useSearchParams } from "react-router-dom";
 
 import { ChecklistManager } from "@/components/ChecklistManager";
 import TripDialog from "@/components/dialogs/TripDialog";

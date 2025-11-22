@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 
 import { ITINERARY_STATUSES_ENUM } from "@/configs/itinerary";
 import { useApi } from "@/hooks/useApi";

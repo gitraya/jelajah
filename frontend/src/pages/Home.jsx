@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router-dom";
 
 import HowItWorksDialog from "@/components/dialogs/HowItWorksDialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";

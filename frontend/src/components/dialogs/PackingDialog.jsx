@@ -1,7 +1,7 @@
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";

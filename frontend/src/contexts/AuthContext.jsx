@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { AuthContext } from "@/hooks/useAuth";
 import { getAPIData, getErrorMessage, postAPIData } from "@/lib/utils";

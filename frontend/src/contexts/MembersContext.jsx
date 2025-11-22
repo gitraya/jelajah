@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 
 import { useApi } from "@/hooks/useApi";
 import { MembersContext } from "@/hooks/useMembers";

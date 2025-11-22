@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router";
+import { Route, Routes } from "react-router-dom";
 
 import ProtectedLayout from "@/components/layouts/ProtectedLayout";
 import { Toaster } from "@/components/ui/sonner";
