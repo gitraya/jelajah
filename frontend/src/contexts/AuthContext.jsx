@@ -65,6 +65,40 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const setPassword = async ({
+    user_id,
+    token,
+    new_password,
+    new_password2,
+  }) => {
+    try {
+      setError(null);
+
+      await postAPIData(`/auth/set-password/${user_id}/${token}/`, {
+        new_password,
+        new_password2,
+      });
+
+      return true;
+    } catch (error) {
+      setError(getErrorMessage(error));
+      return false;
+    }
+  };
+
+  const resendSetPasswordEmail = async (email) => {
+    try {
+      setError(null);
+
+      await postAPIData("/auth/resend-set-password-email/", { email });
+
+      return true;
+    } catch (error) {
+      setError(getErrorMessage(error));
+      return false;
+    }
+  };
+
   // Check authentication status on mount
   useEffect(() => {
     checkAuth({ disableError: true });
@@ -86,6 +120,8 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         checkAuth,
+        setPassword,
+        resendSetPasswordEmail,
         isAuthenticated,
       }}
     >

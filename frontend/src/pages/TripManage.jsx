@@ -8,7 +8,7 @@ import {
   Package,
   Users,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router";
 
 import { ChecklistManager } from "@/components/ChecklistManager";
@@ -41,6 +41,11 @@ export default function TripManage() {
   );
 
   // Manage view (original trip management interface)
+  useEffect(() => {
+    searchParams.set("tab", activeTab);
+    window.history.replaceState(null, "", `?${searchParams.toString()}`);
+  }, [activeTab]);
+
   return (
     <TripProvider>
       <Container>

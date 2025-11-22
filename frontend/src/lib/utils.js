@@ -123,6 +123,10 @@ export const getErrorMessage = (error, defaultMessage) => {
   let errorMessage = defaultMessage || "Something went wrong";
 
   try {
+    if (error.response?.data?.error) {
+      errorMessage = error.response.data.error;
+      return errorMessage;
+    }
     if (error.response?.data?.detail) {
       errorMessage = error.response.data.detail;
       return errorMessage;

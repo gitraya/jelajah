@@ -1,7 +1,7 @@
 import { ArrowLeft, Eye, EyeOff, Globe } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useLocation, useNavigate } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -14,48 +14,44 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/useAuth";
 import { validator } from "@/lib/utils";
 
-const DEMO_CREDENTIALS = {
-  email: "demo@example.com",
-  password: "demo12@PW",
-};
-
-export default function Login() {
+export default function SetPassword() {
   const navigate = useNavigate();
-  const { search } = useLocation();
+  const { userId, token } = useParams();
   const {
     register,
     handleSubmit,
-    setValue,
+    watch,
     formState: { errors },
   } = useForm();
-  const { login, error } = useAuth();
-  const query = new URLSearchParams(search);
+  const { setPassword, error } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  const redirectPath = query.get("redirect") || "/";
-  const defaultEmail = query.get("email") || "";
 
   const onSubmit = async (data) => {
     try {
       setIsLoading(true);
-      const isLoggedIn = await login(data.email, data.password);
-      if (isLoggedIn) {
-        navigate(redirectPath);
+
+      const success = await setPassword({
+        user_id: userId,
+        token: token,
+        ...data,
+      });
+
+      if (error === "Invalid or expired token") {
+        setTimeout(() => {
+          navigate("/resend-set-password-email");
+        }, 3000);
+      }
+      if (success) {
+        navigate("/login");
       }
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleDemoLogin = async () => {
-    setValue("email", DEMO_CREDENTIALS.email);
-    setValue("password", DEMO_CREDENTIALS.password);
-    onSubmit(DEMO_CREDENTIALS);
   };
 
   return (
@@ -74,15 +70,15 @@ export default function Login() {
             <Globe className="w-8 h-8 text-primary" />
             <h1 className="text-2xl font-bold">Jelajah</h1>
           </div>
-          <p className="text-muted-foreground">Sign in to your account</p>
+          <p className="text-muted-foreground">Set your password</p>
         </div>
 
-        {/* Login Form */}
+        {/* Set Password Form */}
         <Card>
           <CardHeader>
-            <CardTitle>Welcome back</CardTitle>
+            <CardTitle>Create Password</CardTitle>
             <CardDescription>
-              Enter your credentials to access your trips
+              Choose a strong password for your account
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -94,36 +90,15 @@ export default function Login() {
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="your.email@example.com"
-                  aria-invalid={errors.email ? "true" : "false"}
-                  defaultValue={defaultEmail}
-                  disabled={!!defaultEmail}
-                  {...register("email", {
-                    required: validator.required,
-                    pattern: validator.email,
-                  })}
-                />
-                {errors.email && (
-                  <p className="text-xs text-destructive">
-                    {errors.email.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="new_password">New Password</Label>
                 <div className="relative">
                   <Input
-                    id="password"
+                    id="new_password"
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
                     className="pr-10"
-                    aria-invalid={errors.password ? "true" : "false"}
-                    {...register("password", {
+                    aria-invalid={errors.new_password ? "true" : "false"}
+                    {...register("new_password", {
                       required: validator.required,
                       pattern: validator.password,
                     })}
@@ -140,74 +115,66 @@ export default function Login() {
                     )}
                   </button>
                 </div>
-                {errors.password && (
+                {errors.new_password && (
                   <p className="text-xs text-destructive">
-                    {errors.password.message}
+                    {errors.new_password.message}
                   </p>
                 )}
               </div>
 
-              <div className="flex items-center justify-between">
-                <div className="text-sm">
+              <div className="space-y-2">
+                <Label htmlFor="new_password2">Confirm Password</Label>
+                <div className="relative">
+                  <Input
+                    id="new_password2"
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Confirm your password"
+                    className="pr-10"
+                    aria-invalid={errors.new_password2 ? "true" : "false"}
+                    {...register("new_password2", {
+                      required: "Please confirm your password",
+                      validate: (value) =>
+                        value === watch("new_password") ||
+                        "Passwords do not match",
+                    })}
+                  />
                   <button
                     type="button"
-                    className="text-primary hover:underline"
-                    onClick={() =>
-                      alert(
-                        "Password reset functionality would be implemented here"
-                      )
-                    }
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
-                    Forgot password?
+                    {showConfirmPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
                   </button>
                 </div>
+                {errors.new_password2 && (
+                  <p className="text-xs text-destructive">
+                    {errors.new_password2.message}
+                  </p>
+                )}
               </div>
 
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Signing in..." : "Sign in"}
+                {isLoading ? "Setting password..." : "Set Password"}
               </Button>
             </form>
-
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <Separator className="w-full" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    Or
-                  </span>
-                </div>
-              </div>
-
-              <Button
-                variant="outline"
-                className="w-full mt-4"
-                onClick={handleDemoLogin}
-                disabled={isLoading}
-              >
-                Try Demo Account
-              </Button>
-            </div>
           </CardContent>
         </Card>
 
-        {/* Register Link */}
+        {/* Login Link */}
         <div className="text-center">
           <p className="text-sm text-muted-foreground">
-            Don't have an account?{" "}
+            Already have a password?{" "}
             <Link
-              to={`/register${search}`}
+              to="/login"
               className="text-primary hover:underline font-medium"
             >
-              Sign up here
+              Sign in here
             </Link>
           </p>
-        </div>
-
-        {/* Features */}
-        <div className="text-center text-xs text-muted-foreground">
-          <p>Plan trips • Manage expenses • Coordinate with friends</p>
         </div>
       </div>
     </div>
