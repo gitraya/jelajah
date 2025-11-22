@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.contrib.auth.tokens import default_token_generator
 
 from .models import Trip, TripStatus, MemberStatus, TripMember, Tag
 from .serializers import TripSerializer, TripMemberSerializer, TagSerializer
@@ -85,6 +86,40 @@ class TripMemberViewSet(ModelViewSet):
         context = super().get_serializer_context()
         context['trip_id'] = self.kwargs.get('trip_id')
         return context
+
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        adder = self.request.user
+        
+        # Notify new member with new user account via email
+        if instance.user.has_usable_password() is False:
+            token = default_token_generator.make_token(instance.user)
+            send_templated_email(
+                recipient_email=instance.user.email,
+                subject=f"You've Been Added to Trip: {instance.trip.title}",
+                template_name='trip_membership_added_new_user',
+                context={
+                    'adder': adder,
+                    'user': instance.user,
+                    'trip': instance.trip,
+                    'login_url': settings.FRONTEND_URL + '/login?redirect=/trips/' + str(instance.trip.id),
+                    'set_password_url': settings.FRONTEND_URL + '/set-password/' + instance.user.id + '/' + token,
+                }
+            )
+        else:
+            send_templated_email(
+                recipient_email=instance.user.email,
+                subject=f"You've Been Added to Trip: {instance.trip.title}",
+                template_name='trip_membership_added',
+                context={
+                    'adder': adder,
+                    'user': instance.user,
+                    'trip': instance.trip,
+                    'login_url': settings.FRONTEND_URL + '/login?redirect=/trips/' + str(instance.trip.id),
+                }
+            )
+        
+        return super().perform_create(serializer)
     
     def perform_update(self, serializer):
         old_instance = self.get_object()
@@ -287,7 +322,7 @@ class JoinTripView(generics.CreateAPIView):
                 'owner': trip.owner,
                 'trip': trip,
                 'requester': user,
-                'login_url': settings.FRONTEND_URL + '/login?redirect=/trips/' + str(trip.id) + '/manage',
+                'login_url': settings.FRONTEND_URL + '/login?redirect=/trips/' + str(trip.id) + '/manage?tab=members',
             }
         )
         

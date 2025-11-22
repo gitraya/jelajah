@@ -1,0 +1,25 @@
+Welcome to Jelajah!
+
+You've been added to "{{ trip.title }}"
+
+---
+
+Hello {{ user.first_name }} {{ user.last_name }},
+
+Great news! You've been added as a member to the trip "{{ trip.title }}".
+
+TRIP DETAILS:
+- Trip: {{ trip.title }}
+{% if trip.start_date and trip.end_date %}- Dates: {{ trip.start_date }} — {{ trip.end_date }}
+{% endif %}- Organized by: {{ trip.owner.first_name }} {{ trip.owner.last_name }}
+
+You can now:
+• View trip details and itinerary
+• Connect with other trip members
+• Stay updated on plans and changes
+
+<a href="{{ login_url }}">View Trip Details</a>
+
+---
+
+© 2025 Jelajah. All rights reserved.

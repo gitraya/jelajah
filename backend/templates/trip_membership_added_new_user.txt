@@ -1,0 +1,27 @@
+Welcome to Jelajah!
+
+You've been added to "{{ trip.title }}"
+
+Hello {{ user.first_name }} {{ user.last_name }},
+
+Great news! You've been added as a member to the trip "{{ trip.title }}". An account has been created for you on Jelajah.
+
+Trip Details:
+-------------
+Trip: {{ trip.title }}
+{% if trip.start_date and trip.end_date %}Dates: {{ trip.start_date }} — {{ trip.end_date }}
+{% endif %}Organized by: {{ trip.owner.first_name }} {{ trip.owner.last_name }}
+Your email: {{ user.email }}
+
+To get started:
+- Set your password using the link below to activate your account.
+- Once your password is set, you can log in and view trip details.
+- Connect with other trip members and stay updated on plans.
+
+<a href="{{ set_password_url }}">Set Your Password</a>
+
+Already have a password? Log in here:
+<a href="{{ login_url }}">Log In</a>
+
+---
+© 2025 Jelajah. All rights reserved.

@@ -4,6 +4,10 @@ from django.contrib.auth import get_user_model
 from .serializers import UserSerializer, UserDetailSerializer, RegisterSerializer
 from django.conf import settings
 from backend.services import send_templated_email
+from rest_framework.response import Response
+from django.contrib.auth.tokens import default_token_generator
+from .serializers import SetPasswordSerializer, ResendSetPasswordEmailSerializer
+from rest_framework.throttling import ScopedRateThrottle
 
 User = get_user_model()
 
@@ -142,3 +146,59 @@ class CookieTokenBlacklistView(TokenBlacklistView):
         request._full_data = data
 
         return super().post(request, *args, **kwargs)
+
+class SetPasswordView(generics.GenericAPIView):
+    serializer_class = SetPasswordSerializer
+    permission_classes = [permissions.AllowAny]
+    
+    def post(self, request, *args, **kwargs):
+        user_id = kwargs.get('user_id')
+        token = kwargs.get('token')
+        
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({'error': 'Invalid user ID'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not default_token_generator.check_token(user, token):
+            return Response({'error': 'Invalid or expired token'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        new_password = serializer.validated_data['new_password']
+        user.set_password(new_password)
+        user.save()
+        
+        return Response({'message': 'Password has been set successfully'}, status=status.HTTP_200_OK)
+    
+class ResendSetPasswordEmailView(generics.GenericAPIView):
+    serializer_class = ResendSetPasswordEmailSerializer
+    permission_classes = [permissions.AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "resend_set_password_email"
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data['email']
+        
+        try:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            return Response({'message': 'If an account with that email exists, a set password email has been sent'}, status=status.HTTP_200_OK)
+        
+        token = default_token_generator.make_token(user)
+        
+        # Send set password email
+        context = {
+            'user': user,
+            'set_password_url': settings.FRONTEND_URL + '/set-password/' + str(user.id) + '/' + token
+        }
+        send_templated_email(
+            recipient_email=user.email,
+            subject='Set Your Jelajah Account Password',
+            template_name='set_password_email',
+            context=context
+        )
+        
+        return Response({'message': 'Set password email has been sent'}, status=status.HTTP_200_OK)

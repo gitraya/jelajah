@@ -33,3 +33,15 @@ class RegisterSerializer(serializers.ModelSerializer):
         validated_data.pop('password2')
         user = User.objects.create_user(**validated_data)
         return user
+
+class SetPasswordSerializer(serializers.Serializer):
+    new_password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
+    new_password2 = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
+
+    def validate(self, attrs):
+        if attrs['new_password'] != attrs['new_password2']:
+            raise serializers.ValidationError({"new_password": "New password fields didn't match."})
+        return attrs
+    
+class ResendSetPasswordEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)

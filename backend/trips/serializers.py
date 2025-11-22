@@ -93,6 +93,8 @@ class TripMemberSerializer(serializers.ModelSerializer):
                     last_name=user_val.get('last_name', ''),
                     phone=user_val.get('phone', '')
                 )
+                user_obj.set_unusable_password()
+                user_obj.save()
         else:
             raise serializers.ValidationError("Either user_id or email must be provided.")
 

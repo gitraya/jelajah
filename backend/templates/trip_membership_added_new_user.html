@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Welcome to the Trip — Jelajah!</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        background-color: #ffffff;
+        margin: 50px auto;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+      }
+      .header {
+        text-align: center;
+        padding-bottom: 20px;
+      }
+      .header h1 {
+        margin: 0;
+        color: #333333;
+        font-size: 20px;
+      }
+      .subheader {
+        text-align: center;
+        color: #5cb85c; /* green accent for success */
+        font-weight: 600;
+        margin-top: 8px;
+      }
+      .content {
+        line-height: 1.6;
+        color: #555555;
+        width: 100%;
+      }
+      .content p {
+        margin: 8px 0;
+      }
+      .content ul {
+        margin: 0 0 0 18px;
+        padding: 0;
+      }
+      .button {
+        display: inline-block;
+        padding: 10px 20px;
+        margin-top: 20px;
+        background-color: #5cb85c;
+        color: #ffffff !important;
+        text-decoration: none;
+        border-radius: 5px;
+        margin: 18px auto 0;
+      }
+      .meta {
+        background: #f7f9f7;
+        border-radius: 6px;
+        padding: 10px;
+        margin-top: 14px;
+        font-size: 14px;
+        color: #444;
+      }
+      .footer {
+        text-align: center;
+        font-size: 12px;
+        color: #999999;
+        margin-top: 30px;
+      }
+      .small-link {
+        display: block;
+        margin-top: 10px;
+        font-size: 13px;
+        color: #0366d6;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Welcome to Jelajah!</h1>
+        <div class="subheader">You've been added to "{{ trip.title }}"</div>
+      </div>
+
+      <div class="content">
+        <p>Hello {{ user.first_name }} {{ user.last_name }},</p>
+
+        <p>
+          Great news! You've been added as a member to the trip
+          <strong>{{ trip.title }}</strong>. An account has been created for you
+          on Jelajah.
+        </p>
+
+        <div class="meta">
+          <div><strong>Trip:</strong> {{ trip.title }}</div>
+          {% if trip.start_date and trip.end_date %}
+          <div>
+            <strong>Dates:</strong> {{ trip.start_date }} — {{ trip.end_date }}
+          </div>
+          {% endif %}
+          <div>
+            <strong>Organized by:</strong> {{ trip.owner.first_name }} {{
+            trip.owner.last_name }}
+          </div>
+          <div style="margin-top: 8px">
+            <strong>Your email:</strong> {{ user.email }}
+          </div>
+        </div>
+
+        <p>To get started:</p>
+        <ul>
+          <li>
+            Set your password using the link below to activate your account.
+          </li>
+          <li>
+            Once your password is set, you can log in and view trip details.
+          </li>
+          <li>Connect with other trip members and stay updated on plans.</li>
+        </ul>
+
+        <a href="{{ set_password_url }}" class="button">Set Your Password</a>
+        <a href="{{ login_url }}" class="small-link"
+          >Already have a password? Log in here</a
+        >
+      </div>
+
+      <div class="footer">
+        <p>&copy; 2025 Jelajah. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+</html>

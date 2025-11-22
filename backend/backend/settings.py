@@ -159,6 +159,16 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+        "rest_framework.throttling.ScopedRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "30/hour",
+        "user": "1000/day",
+        "resend_set_password_email": "3/hour",
+    },
 }
 
 # JWT settings
@@ -204,3 +214,7 @@ LOGGING = {
 }
 
 FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')
+
+# Password reset token lifetime (detik)
+# Default Django: 259200 (3 days). Ubah sesuai kebutuhan.
+PASSWORD_RESET_TIMEOUT = 60 * 60 * 24  # 24 hours
