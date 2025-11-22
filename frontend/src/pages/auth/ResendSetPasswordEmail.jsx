@@ -1,7 +1,7 @@
 import { ArrowLeft, Globe, Mail } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { validator } from "@/lib/utils";
 
 export default function ResendSetPasswordEmail() {
+  const [searchParams] = useSearchParams();
   const {
     register,
     handleSubmit,
@@ -26,6 +27,8 @@ export default function ResendSetPasswordEmail() {
   const { resendSetPasswordEmail, error } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  const defaultEmail = searchParams.get("email") || "";
 
   const onSubmit = async (data) => {
     try {
@@ -93,6 +96,8 @@ export default function ResendSetPasswordEmail() {
                   type="email"
                   placeholder="Enter your email"
                   aria-invalid={errors.email ? "true" : "false"}
+                  defaultValue={defaultEmail}
+                  disabled={!!defaultEmail}
                   {...register("email", {
                     required: validator.required,
                     pattern: validator.email,

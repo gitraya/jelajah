@@ -114,6 +114,12 @@ class TripMemberSerializer(serializers.ModelSerializer):
         validated_data.pop('last_name', None)
         validated_data.pop('email', None)
         validated_data.pop('phone', None)
+        
+        adder = self.context['request'].user
+        trip = Trip.objects.get(id=self.context['trip'])
+        # Auto-accept if the adder is the trip owner
+        if adder == trip.owner:
+            validated_data['status'] = MemberStatus.ACCEPTED
              
         trip_id = self.context['trip']
         validated_data['trip_id'] = trip_id

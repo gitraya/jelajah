@@ -84,12 +84,11 @@ class TripMemberViewSet(ModelViewSet):
     
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context['trip_id'] = self.kwargs.get('trip_id')
+        context['trip'] = self.kwargs.get('trip_id')
         return context
 
     def perform_create(self, serializer):
         instance = serializer.save()
-        adder = self.request.user
         
         # Notify new member with new user account via email
         if instance.user.has_usable_password() is False:
@@ -99,7 +98,6 @@ class TripMemberViewSet(ModelViewSet):
                 subject=f"You've Been Added to Trip: {instance.trip.title}",
                 template_name='trip_membership_added_new_user',
                 context={
-                    'adder': adder,
                     'user': instance.user,
                     'trip': instance.trip,
                     'login_url': settings.FRONTEND_URL + '/login?redirect=/trips/' + str(instance.trip.id),
@@ -112,7 +110,6 @@ class TripMemberViewSet(ModelViewSet):
                 subject=f"You've Been Added to Trip: {instance.trip.title}",
                 template_name='trip_membership_added',
                 context={
-                    'adder': adder,
                     'user': instance.user,
                     'trip': instance.trip,
                     'login_url': settings.FRONTEND_URL + '/login?redirect=/trips/' + str(instance.trip.id),

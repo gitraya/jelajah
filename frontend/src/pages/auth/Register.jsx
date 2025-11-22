@@ -23,6 +23,9 @@ import {
   validator,
 } from "@/lib/utils";
 
+const MUST_SET_PASSWORD_MESSAGE =
+  "Email: User with this email already exists. Please set your password to activate your account.";
+
 export default function Register() {
   const navigate = useNavigate();
   const { search } = useLocation();
@@ -52,7 +55,19 @@ export default function Register() {
         toast.success("Account created successfully!");
       }
     } catch (error) {
-      setError(getErrorMessage(error));
+      const errorMessage = getErrorMessage(error);
+      setError(errorMessage);
+
+      if (errorMessage === MUST_SET_PASSWORD_MESSAGE) {
+        toast.error(
+          "Please set your password to activate your account. Redirecting..."
+        );
+        setTimeout(() => {
+          navigate(
+            "/resend-set-password-email?email=" + encodeURIComponent(data.email)
+          );
+        }, 3000);
+      }
     } finally {
       setIsLoading(false);
     }
