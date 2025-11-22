@@ -69,7 +69,8 @@ class TripViewSet(ModelViewSet):
         trip = self.get_object()
         self.check_object_permissions(request, trip)
 
-        trip.update(status=TripStatus.DELETED)
+        trip.status = TripStatus.DELETED
+        trip.save()
         return Response(status=204)
     
 class TripMemberViewSet(ModelViewSet):

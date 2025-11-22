@@ -67,8 +67,8 @@ class TripMemberSerializer(serializers.ModelSerializer):
                 # Prevent changing own status or role
                 if 'status' in attrs or 'role' in attrs:
                     raise serializers.ValidationError("You cannot change your own status or role.")
-            
-            if self.instance.trip.owner == self.context['request'].user:
+
+            if self.instance.trip.owner == self.instance.user:
                 # Prevent changing owner's status or role
                 if 'status' in attrs or 'role' in attrs:
                     raise serializers.ValidationError("You cannot change the owner's status or role.")
