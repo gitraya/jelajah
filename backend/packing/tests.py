@@ -33,7 +33,7 @@ class PackingItemModelTests(TestCase):
             role=MemberRole.ORGANIZER,
             status=MemberStatus.ACCEPTED
         )
-        self.category = PackingCategory.objects.create(name='Clothing')
+        self.category, _ = PackingCategory.objects.get_or_create(name='Clothing')
 
     def test_create_packing_item(self):
         """Test creating a packing item"""
@@ -93,7 +93,7 @@ class PackingItemViewSetTests(APITestCase):
             role=MemberRole.ORGANIZER,
             status=MemberStatus.ACCEPTED
         )
-        self.category = PackingCategory.objects.create(name='Electronics')
+        self.category, _ = PackingCategory.objects.get_or_create(name='Electronics')
 
     def test_create_packing_item(self):
         """Test creating a packing item"""
@@ -101,10 +101,10 @@ class PackingItemViewSetTests(APITestCase):
         url = reverse('packing-item-list', kwargs={'trip_id': self.trip.id})
         data = {
             'name': 'Camera',
-            'category': str(self.category.id),
+            'category_id': str(self.category.id),
             'quantity': 1,
             'packed': False,
-            'assigned_to': str(self.trip_member.id)
+            'assigned_to_id': str(self.trip_member.id)
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -197,7 +197,7 @@ class PackingItemViewSetTests(APITestCase):
         """Test filtering packing items by category"""
         self.client.force_authenticate(user=self.user)
         
-        category2 = PackingCategory.objects.create(name='Toiletries')
+        category2, _ = PackingCategory.objects.get_or_create(name='Toiletries')
         
         PackingItem.objects.create(
             trip=self.trip,
@@ -241,8 +241,8 @@ class PackingItemStatisticsViewTests(APITestCase):
             role=MemberRole.ORGANIZER,
             status=MemberStatus.ACCEPTED
         )
-        self.category1 = PackingCategory.objects.create(name='Clothes')
-        self.category2 = PackingCategory.objects.create(name='Documents')
+        self.category1, _ = PackingCategory.objects.get_or_create(name='Clothes')
+        self.category2, _ = PackingCategory.objects.get_or_create(name='Documents')
 
     def test_packing_statistics(self):
         """Test packing statistics endpoint"""

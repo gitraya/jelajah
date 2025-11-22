@@ -108,7 +108,7 @@ class ChecklistItemViewSetTests(APITestCase):
             'priority': ChecklistPriority.HIGH,
             'due_date': (date.today() - timedelta(days=7)).isoformat(),
             'is_completed': False,
-            'assigned_to': str(self.trip_member.id)
+            'assigned_to_id': str(self.trip_member.id)
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

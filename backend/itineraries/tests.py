@@ -28,7 +28,7 @@ class ItineraryItemModelTests(TestCase):
             start_date=date.today() + timedelta(days=1),
             end_date=date.today() + timedelta(days=5)
         )
-        self.itinerary_type = ItineraryType.objects.create(name='Museum')
+        self.itinerary_type, _ = ItineraryType.objects.get_or_create(name='Museum')
 
     def test_create_itinerary_item(self):
         """Test creating an itinerary item"""
@@ -98,7 +98,7 @@ class ItineraryItemViewSetTests(APITestCase):
             role=MemberRole.ORGANIZER,
             status=MemberStatus.ACCEPTED
         )
-        self.itinerary_type = ItineraryType.objects.create(name='Restaurant')
+        self.itinerary_type, _ = ItineraryType.objects.get_or_create(name='Restaurant')
 
     def test_create_itinerary_item(self):
         """Test creating an itinerary item"""
@@ -108,7 +108,7 @@ class ItineraryItemViewSetTests(APITestCase):
         data = {
             'name': 'Eiffel Tower',
             'address': 'Champ de Mars, Paris',
-            'type': str(self.itinerary_type.id),
+            'type_id': str(self.itinerary_type.id),
             'description': 'Iconic landmark',
             'visit_time': visit_time,
             'estimated_time': '2-3 hours',
@@ -213,7 +213,7 @@ class ItineraryItemViewSetTests(APITestCase):
         """Test filtering itinerary items by type"""
         self.client.force_authenticate(user=self.user)
         
-        type2 = ItineraryType.objects.create(name='Beach')
+        type2, _ = ItineraryType.objects.get_or_create(name='Beach')
         
         ItineraryItem.objects.create(
             trip=self.trip,

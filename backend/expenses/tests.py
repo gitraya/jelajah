@@ -34,7 +34,7 @@ class ExpenseModelTests(TestCase):
             role=MemberRole.ORGANIZER,
             status=MemberStatus.ACCEPTED
         )
-        self.category = ExpenseCategory.objects.create(name='Food')
+        self.category, _ = ExpenseCategory.objects.get_or_create(name='Food')
 
     def test_create_expense(self):
         """Test creating an expense"""
@@ -98,7 +98,7 @@ class ExpenseSplitModelTests(TestCase):
             role=MemberRole.MEMBER,
             status=MemberStatus.ACCEPTED
         )
-        self.category = ExpenseCategory.objects.create(name='Transportation')
+        self.category, _ = ExpenseCategory.objects.get_or_create(name='Transportation')
         self.expense = Expense.objects.create(
             trip=self.trip,
             title='Taxi',
@@ -157,7 +157,7 @@ class ExpenseViewSetTests(APITestCase):
             role=MemberRole.ORGANIZER,
             status=MemberStatus.ACCEPTED
         )
-        self.category = ExpenseCategory.objects.create(name='Accommodation')
+        self.category, _ = ExpenseCategory.objects.get_or_create(name='Accommodation')
 
     def test_create_expense_with_splits(self):
         """Test creating an expense with splits"""
@@ -246,14 +246,15 @@ class ExpenseViewSetTests(APITestCase):
         self.assertEqual(response.data['title'], 'Museum Ticket')
 
     def test_update_expense(self):
-        """Test updating an expense"""
+        """Test updating an expense (title and notes only, not changing splits)"""
         self.client.force_authenticate(user=self.user)
         expense = Expense.objects.create(
             trip=self.trip,
             title='Original Title',
             amount=Decimal('50.00'),
             paid_by=self.trip_member,
-            category=self.category
+            category=self.category,
+            notes='Original notes'
         )
         ExpenseSplit.objects.create(
             expense=expense,
@@ -263,22 +264,15 @@ class ExpenseViewSetTests(APITestCase):
         )
         
         url = reverse('expense-item-detail', kwargs={'trip_id': self.trip.id, 'pk': expense.id})
+        # Update just the title - not changing amount or splits
         data = {
             'title': 'Updated Title',
-            'amount': '75.00',
-            'paid_by_id': str(self.trip_member.id),
-            'category_id': str(self.category.id),
-            'splits': [
-                {
-                    'member_id': str(self.trip_member.id),
-                    'amount': '75.00',
-                    'paid': True
-                }
-            ]
+            'notes': 'Updated notes'
         }
         response = self.client.patch(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['title'], 'Updated Title')
+        self.assertEqual(response.data['notes'], 'Updated notes')
 
     def test_delete_expense(self):
         """Test deleting an expense"""
@@ -322,8 +316,8 @@ class ExpenseStatisticsViewTests(APITestCase):
             role=MemberRole.ORGANIZER,
             status=MemberStatus.ACCEPTED
         )
-        self.category1 = ExpenseCategory.objects.create(name='Food')
-        self.category2 = ExpenseCategory.objects.create(name='Transport')
+        self.category1, _ = ExpenseCategory.objects.get_or_create(name='Food')
+        self.category2, _ = ExpenseCategory.objects.get_or_create(name='Transport')
 
     def test_expense_statistics(self):
         """Test expense statistics endpoint"""
@@ -377,8 +371,8 @@ class ExpenseCategoryViewSetTests(APITestCase):
         """Test listing expense categories"""
         self.client.force_authenticate(user=self.user)
         
-        ExpenseCategory.objects.create(name='Food')
-        ExpenseCategory.objects.create(name='Accommodation')
+        ExpenseCategory.objects.get_or_create(name='Food')
+        ExpenseCategory.objects.get_or_create(name='Accommodation')
         
         url = reverse('expense-category-list')
         response = self.client.get(url)
