@@ -2,14 +2,13 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import { fileURLToPath } from "url";
-import { defineConfig, loadEnv } from "vite";
+import { defineConfig } from "vite";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // https://vite.dev/config/
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), "");
+export default defineConfig(() => {
   return {
     plugins: [react(), tailwindcss()],
     resolve: {
@@ -22,7 +21,9 @@ export default defineConfig(({ mode }) => {
       preview: {
         host: true,
         port: 4173,
-        allowedHosts: env.ALLOWED_HOSTS ? env.ALLOWED_HOSTS.split(",") : [],
+        allowedHosts: import.meta.env.VITE_ALLOWED_HOSTS
+          ? import.meta.env.VITE_ALLOWED_HOSTS.split(",")
+          : [],
       },
     },
   };
