@@ -21,9 +21,12 @@ export default defineConfig(() => {
       preview: {
         host: true,
         port: 4173,
-        allowedHosts: process.env.ALLOWED_HOSTS
-          ? process.env.ALLOWED_HOSTS.split(",")
-          : [],
+        allowedHosts: [
+          "localhost",
+          "127.0.0.1",
+          "jelajah-frontend.onrender.com",
+          "jelajah.raya.bio",
+        ],
       },
     },
   };
