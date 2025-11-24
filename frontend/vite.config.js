@@ -13,10 +13,6 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      "react-responsive-masonry": path.resolve(
-        __dirname,
-        "./src/shims/react-responsive-masonry.js"
-      ),
     },
   },
   server: {
