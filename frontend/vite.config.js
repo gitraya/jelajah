@@ -21,8 +21,8 @@ export default defineConfig(() => {
       preview: {
         host: true,
         port: 4173,
-        allowedHosts: import.meta.env.VITE_ALLOWED_HOSTS
-          ? import.meta.env.VITE_ALLOWED_HOSTS.split(",")
+        allowedHosts: process.env.ALLOWED_HOSTS
+          ? process.env.ALLOWED_HOSTS.split(",")
           : [],
       },
     },
