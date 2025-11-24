@@ -22,5 +22,6 @@ export default defineConfig({
   preview: {
     host: true,
     port: 4173,
+    allowedHosts: ["jelajah-frontend.onrender.com", "localhost", "127.0.0.1"],
   },
 });
