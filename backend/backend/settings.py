@@ -158,10 +158,6 @@ CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173').split(',')
 
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-
 # REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -197,6 +193,7 @@ SIMPLE_JWT = {
     'AUTH_COOKIE_SAMESITE': 'None',
     'AUTH_COOKIE_MAX_AGE': 3600 * 24,  # 1 day
     'AUTH_COOKIE_REFRESH_MAX_AGE': 3600 * 24 * 7,  # 1 week
+    'AUTH_COOKIE_DOMAIN': os.getenv('AUTH_COOKIE_DOMAIN', None),
 }
 
 # Media settings for user avatars and other uploads

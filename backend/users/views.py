@@ -69,7 +69,8 @@ class CookieTokenObtainPairView(TokenObtainPairView):
                 httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
                 secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
                 samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
-                max_age=settings.SIMPLE_JWT['AUTH_COOKIE_MAX_AGE']
+                max_age=settings.SIMPLE_JWT['AUTH_COOKIE_MAX_AGE'],
+                domain=settings.SIMPLE_JWT['AUTH_COOKIE_DOMAIN'],
             )
             response.set_cookie(
                 key=settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH'],
@@ -77,7 +78,8 @@ class CookieTokenObtainPairView(TokenObtainPairView):
                 httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
                 secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
                 samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
-                max_age=settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH_MAX_AGE']
+                max_age=settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH_MAX_AGE'],
+                domain=settings.SIMPLE_JWT['AUTH_COOKIE_DOMAIN'],
             )
             response.data = {'message': 'Login successful'}
         return response
@@ -91,7 +93,8 @@ class CookieTokenRefreshView(TokenRefreshView):
                 httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
                 secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
                 samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
-                max_age=settings.SIMPLE_JWT['AUTH_COOKIE_MAX_AGE']
+                max_age=settings.SIMPLE_JWT['AUTH_COOKIE_MAX_AGE'],
+                domain=settings.SIMPLE_JWT['AUTH_COOKIE_DOMAIN'],
             )
             response.set_cookie(
                 key=settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH'],
@@ -99,7 +102,8 @@ class CookieTokenRefreshView(TokenRefreshView):
                 httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
                 secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
                 samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
-                max_age=settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH_MAX_AGE']
+                max_age=settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH_MAX_AGE'],
+                domain=settings.SIMPLE_JWT['AUTH_COOKIE_DOMAIN'],
             )
             response.data = {'message': 'Token refreshed successfully'}
             
