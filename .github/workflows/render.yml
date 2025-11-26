@@ -1,0 +1,26 @@
+name: Track Production Deployment
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  track-deployment:
+    name: Track Render Deployment
+    runs-on: ubuntu-latest
+
+    environment:
+      name: production
+      url: https://jelajah.raya.bio
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Record deployment
+        run: |
+          echo "📦 Deployment recorded for commit ${{ github.sha }}"
+          echo "🚀 Render will auto-deploy this change"
+          echo "🔗 Production URL: https://jelajah.raya.bio"
