@@ -2,9 +2,9 @@
 
 ## Overview
 
-Jelajah is a comprehensive travel planning platform designed to help travelers organize every aspect of their trips. Built with **Django REST Framework** as the backend API and **React** as a Single Page Application (SPA) frontend, Jelajah provides an all-in-one solution for managing trips, itineraries, expenses, packing lists, checklists, and trip members. The application supports collaborative trip planning, allowing multiple users to join trips and contribute to planning activities.
+Jelajah is an integrated travel planning platform that assists travelers in organizing every aspect of their travels. Built using the Django REST Framework as a backend API and React as an SPA frontend, Jelajah provides a complete solution for managing trips, itineraries, expenses, packing lists, checklists, and trip members. The application will support the ability for multiple users to join trips and collaborate on planning activities. Inspired by personal experience in having difficulty keeping track of travel plans.
 
-**Live Demo:** [Add your deployed URL here]
+**Live Demo:** [https://jelajah.raya.bio](https://jelajah.raya.bio)
 
 **Screencast:** [Add your YouTube video link here]
 
@@ -14,98 +14,84 @@ Jelajah is a comprehensive travel planning platform designed to help travelers o
 
 ### Why This Project is Distinct
 
-Jelajah is fundamentally different from the other CS50W projects in both concept and implementation:
+As a concept and in its implementation, Jelajah is very different from the other projects in CS50W:
 
-1. **Not a Social Network (Project 4):** While Jelajah has user accounts and allows multiple users to participate in trips, the core functionality is **trip planning and management**, not social interaction. There are no posts, likes, followers, or feeds. The user relationships exist solely within the context of trip membership, where users collaborate on planning logistics rather than engaging in social networking activities.
+1. **Not a Social Network (Project 4):** Even though Jelajah implements user accounts and allows multiple users to go on trips together, the core functionality is **trip planning and management**, not social interaction. There are no posts, likes, followers, or feeds. The user relationships exist solely in the context of trip membership, where users collaborate on logistics, rather than social networking activities.
 
-2. **Not an E-commerce Site (Project 2):** Jelajah does not involve buying or selling products. There are no shopping carts, product listings, payment processing, or order management. The expense tracking feature is for **recording and splitting costs among trip members**, not for commercial transactions. Users track what they've already spent during trips, not purchasing items through the platform.
+2. **Not an E-commerce Site (Project 2):** Jelajah is not an e-commerce site; it does not sell products. There are no shopping carts, product listings, payment processing, or order management in it. The expense tracking feature allows **recording and splitting costs among trip members only**, which is far from commercial in nature. The users will track what they spent during the trips, not buying items through the system.
 
-3. **Not a Wiki or Mail Application (Projects 1 & 3):** Unlike the Wiki project, Jelajah doesn't focus on content creation and editing with markdown. Unlike the Mail project, it's not about sending and receiving messages. Jelajah is a **domain-specific planning tool** with complex relational data models.
+3. **Not a Wiki or Mail Application (Projects 1 & 3):** Unlike the Wiki project, Jelajah does not focus on content creation and editing using markdown. Unlike the Mail project, this project is also not about sending and receiving messages. Instead, Jelajah will be a **domain-specific planning tool** with complex relational data models.
 
 ### Technical Complexity
 
-The complexity of Jelajah far exceeds the course projects in several key areas:
+In several key areas, Jelajah is much more complex when compared to the course projects:
 
-#### 1. Multi-Domain Data Architecture (12+ Django Models)
+#### 1. Multi-Domain Data Architecture (11+ Django Models)
 
-Jelajah implements a sophisticated data model with multiple interconnected entities:
+The system Jelajah implements an advanced data model with several interlinked entities:
 
-- **User Management:** Custom `User` model extending `AbstractUser` with email-based authentication, profile fields (bio, avatar, phone), and custom `UserManager`
-- **Trip System:** `Trip` model with complex fields including status tracking (Planning, Ongoing, Completed, Cancelled, Deleted), difficulty levels, budget management, public/private visibility, and joinability settings
-- **Member Management:** `TripMember` model with role-based access (Organizer, Co-Organizer, Member), status workflow (Pending, Accepted, Declined, Blocked), and emergency contact information
-- **Itinerary Planning:** `ItineraryItem` with geolocation support (latitude/longitude), visit scheduling, status tracking (Planned, Visited, Skipped), and `ItineraryType` categorization
-- **Expense Tracking:** `Expense` model with `ExpenseCategory`, and `ExpenseSplit` for dividing costs among trip members with payment status tracking
+- **User Management:** Custom `User` model that inherits from `AbstractUser`, with email-based authentication, and a custom `UserManager`.
+- **Trip System:** `Trip` model with complex fields- Status Tracking: can be planned, ongoing, completed, or cancelled, and can be deleted; Difficulty Level; Budget Management; Public/Private Visibility Settings; Joinability Settings
+- **Member Management:** `TripMember` model; Role-based access: Organizer, Co-Organizer, Member; Status Workflow: Pending, Accepted, Declined, Blocked; Emergency contact information
+- **Itinerary Planning:** `ItineraryItem` - supports future geolocation (latitude/longitude), the ability to schedule visits, track the status of each visit (Planned, Visited, Skipped), and `ItineraryType` categorization
+- **Expense Tracking:** `Expense` model with `ExpenseCategory`, and `ExpenseSplit` for splitting expenses among trip members with payment status tracking
 - **Packing Management:** `PackingItem` with `PackingCategory`, quantity tracking, packed status, and member assignment
 - **Checklist System:** `ChecklistItem` with category phases (Pre-Trip, During Trip, Post-Trip), priority levels (Low, Medium, High), due dates, and completion tracking
-- **Tagging System:** `Tag` model for trip categorization with usage counting
+- **Tag System:** Trip categorization model `Tag` with Usage Counter
 
-These models have complex relationships using `ForeignKey`, `ManyToManyField`, and `through` tables, requiring careful consideration of data integrity and query optimization using `select_related()` and `prefetch_related()`.
+These models have complicated relationships through `ForeignKey`, `ManyToManyField`, and `through` tables, necessitating a high degree of diligence in maintaining data integrity and optimizing queries with `select_related()` and `prefetch_related()`.
 
-#### 2. Advanced Authentication System
+#### 2. Authentication System
 
-Unlike the simple session-based authentication in course projects, Jelajah implements:
+Unlike the simple session-based authentication in course projects, Jelajah uses:
 
-- **JWT (JSON Web Token) Authentication** using `djangorestframework-simplejwt`
-- **HTTP-Only Secure Cookies** for token storage, preventing XSS attacks
-- **Custom Token Views** (`CookieTokenObtainPairView`, `CookieTokenRefreshView`, `CookieTokenBlacklistView`) that handle cookie management automatically
+- **JWT (JSON Web Token) Authentication** with `djangorestframework-simplejwt`
+- **HTTP-Only Secure Cookies** to store tokens and protect against XSS attacks
+- **Custom Token Views** (`CookieTokenObtainPairView`, `CookieTokenRefreshView`, `CookieTokenBlacklistView`) that manage cookies automatically
 - **Token Blacklisting** for secure logout
-- **Set Password Flow** for users invited to trips who don't have accounts yet
+- **Set Password Flow** for users invited to trips who do not have accounts yet
 - **Rate Limiting** on sensitive endpoints using `ScopedRateThrottle`
 
-#### 3. Comprehensive REST API Design
+#### 3. REST API Design
 
-The backend exposes a full RESTful API with:
+The backend provides a complete RESTful API with:
 
-- **Nested Resource Routing:** Trip-specific resources are accessed via nested URLs (e.g., `/api/trips/<trip_id>/itineraries/items/`)
-- **Custom Permission Classes:** `IsTripAccessible`, `IsMemberAccessible`, `IsExpenseAccessible`, `IsItineraryItemAccessible`, `IsChecklistItemAccessible` for fine-grained access control
-- **Statistics Endpoints:** Aggregated data for expenses, itineraries, checklists, and members using Django ORM aggregation functions
-- **Advanced Filtering:** Query parameter-based filtering for status, category, destination, difficulty, and more
+- **Nested Resource Routing:** Trip-specific resources accessed via nested URLs (e.g., `/api/trips/<trip_id>/itineraries/items/`)
+- **Custom Permission Classes:** `IsTripAccessible`, `IsMemberAccessible`, `IsExpenseAccessible`, `IsItineraryItemAccessible`, `IsChecklistItemAccessible` for precise access control
+- **Statistics Endpoints:** Combined data for expenses, itineraries, checklists, and members using Django ORM aggregation functions
+- **Filtering:** Query parameter-based filtering for status, category, destination, difficulty, and more
 - **ViewSets with Custom Actions:** Full CRUD operations plus specialized endpoints
 
-#### 4. Email Notification System
+#### 4. Notification System via Email
 
-Jelajah integrates with **SendGrid** for transactional emails:
+For transactional emails, Jelajah is integrated with **SendGrid**:
 
 - Welcome emails on registration
-- Trip membership invitations (with different flows for new vs existing users)
-- Status change notifications (accepted, declined, blocked)
-- Join request notifications to trip owners
-- Password reset/set emails
+- Invitations to join a trip (with distinct processes for new and existing users)
+- Notifications of status changes (accepted, declined, blocked)
+- Notifying trip owners of join requests
+- Reset passwords and set emails
 
-Each email uses **HTML templates** stored in the backend for professional formatting.
+Every email is professionally formatted using **HTML templates** that are kept in the backend.
 
-#### 5. React Frontend Architecture
+#### 5. Frontend Architecture with React
 
-The frontend demonstrates advanced React patterns:
+Advanced React patterns are displayed on the frontend:
 
-- **Context API for State Management:** Separate contexts for Auth, Trips, Trip, Members, Itineraries, Expenses, Checklist, PackingItems, and Tags
+- **Context API for State Management:** Distinct contexts for Auth, Trips, Trip, Members, Itineraries, Expenses, Checklist, PackingItems, and Tags
 - **Custom Hooks:** Reusable logic extraction for data fetching and state management
-- **Component Composition:** Modular UI components with clear separation of concerns
+- **Component Composition:** Modular UI components with a clear division of responsibilities
 - **Protected Routes:** Authentication-aware routing with redirect handling
 - **Form Validation:** Client-side validation with error handling
-- **Responsive Design:** Mobile-first approach using CSS and modern layout techniques
+- **Responsive Design:** Mobile-first strategy using CSS and contemporary layout techniques.
 
-#### 6. DevOps and Deployment
+#### 6. Deployment and DevOps
 
-- **Docker Containerization:** Multi-service setup with `docker-compose. yml` for development and `docker-compose. prod.yml` for production
+- **Docker Containerization:** Multi-service setup with `docker-compose.yml`
 - **PostgreSQL Database:** Production-grade database with persistent volumes
-- **Environment Configuration:** Separate `. env` files for development and production
-- **Render Deployment:** `render.yaml` for cloud deployment configuration
+- **Environment Configuration:** `.env` files for sensitive settings
+- **Render Deployment:** `render.yaml` for cloud deployment
 - **CI/CD Pipeline:** GitHub Actions workflow for automated testing
-
-### Feature Comparison with Course Projects
-
-| Feature           | Project 2 (Commerce) | Project 4 (Network) | Jelajah                       |
-| ----------------- | -------------------- | ------------------- | ----------------------------- |
-| Models            | 3-4                  | 3-4                 | 12+                           |
-| Authentication    | Session-based        | Session-based       | JWT + Cookies                 |
-| API Design        | Django Views         | Basic API           | Full REST API                 |
-| Frontend          | Django Templates     | Vanilla JS          | React SPA                     |
-| State Management  | None                 | None                | Context API                   |
-| Email Integration | None                 | None                | SendGrid                      |
-| Containerization  | None                 | None                | Docker                        |
-| Real-time Stats   | None                 | None                | Aggregated Statistics         |
-| Role-based Access | None                 | None                | Organizer/Co-Organizer/Member |
 
 ---
 
@@ -116,47 +102,52 @@ The frontend demonstrates advanced React patterns:
 ```
 backend/
 ├── backend/                    # Main Django project settings
-│   ├── settings. py            # Django configuration (database, JWT, CORS, email)
+│   ├── settings.py            # Django configuration (database, JWT, CORS, email)
 │   ├── urls.py                # Root URL routing
 │   ├── models.py              # BaseModel with UUID and timestamps
 │   ├── permissions.py         # Shared permission classes
 │   └── services.py            # Email service utilities
 ├── users/                      # User authentication app
-│   ├── models. py              # Custom User model with UserManager
+│   ├── models.py              # Custom User model with UserManager
 │   ├── views.py               # Registration, login, profile, password views
 │   ├── serializers.py         # User data serialization
 │   ├── urls.py                # Auth endpoints
-│   └── tests/                 # Unit and API tests
+│   └── tests.py               # User app tests
 ├── trips/                      # Core trip management app
-│   ├── models. py              # Trip, TripMember, Tag models
-│   ├── views. py               # Trip CRUD, join requests, statistics
+│   ├── models.py              # Trip, TripMember, Tag models
+│   ├── views.py               # Trip CRUD, join requests, statistics
 │   ├── serializers.py         # Trip data serialization
 │   ├── permissions.py         # Trip access control
-│   └── urls.py                # Trip endpoints
+│   ├── urls.py                # Trip endpoints
+│   └── tests.py               # Trip app tests
 ├── itineraries/                # Itinerary planning app
 │   ├── models.py              # ItineraryItem, ItineraryType models
 │   ├── views.py               # Itinerary CRUD and statistics
 │   ├── serializers.py         # Itinerary serialization
 │   ├── permissions.py         # Itinerary access control
-│   └── urls.py                # Itinerary endpoints
+│   ├── urls.py                # Itinerary endpoints
+│   └── tests.py               # Itinerary app tests
 ├── expenses/                   # Expense tracking app
 │   ├── models.py              # Expense, ExpenseCategory, ExpenseSplit models
 │   ├── views.py               # Expense CRUD and statistics
 │   ├── serializers.py         # Expense serialization
 │   ├── permissions.py         # Expense access control
-│   └── urls.py                # Expense endpoints
+│   ├── urls.py                # Expense endpoints
+│   └── tests.py               # Expense app tests
 ├── packing/                    # Packing list app
 │   ├── models.py              # PackingItem, PackingCategory models
 │   ├── views.py               # Packing CRUD and statistics
 │   ├── serializers.py         # Packing serialization
 │   ├── permissions.py         # Packing access control
-│   └── urls.py                # Packing endpoints
+│   ├── urls.py                # Packing endpoints
+│   └── tests.py               # Packing app tests
 ├── checklist/                  # Checklist management app
 │   ├── models.py              # ChecklistItem model with priorities
-│   ├── views. py               # Checklist CRUD and statistics
+│   ├── views.py               # Checklist CRUD and statistics
 │   ├── serializers.py         # Checklist serialization
 │   ├── permissions.py         # Checklist access control
-│   └── urls.py                # Checklist endpoints
+│   ├── urls.py                # Checklist endpoints
+│   └── tests.py               # Checklist app tests
 ├── templates/                  # Email HTML templates
 ├── requirements.txt           # Python dependencies
 ├── Dockerfile                 # Backend container configuration
@@ -172,7 +163,7 @@ frontend/
 │   ├── components/            # Reusable UI components
 │   │   ├── ChecklistManager.jsx    # Checklist CRUD interface
 │   │   ├── ExpensesManager.jsx     # Expense tracking interface
-│   │   ├── ItinerariesManager. jsx  # Itinerary planning interface
+│   │   ├── ItinerariesManager.jsx  # Itinerary planning interface
 │   │   ├── MembersManager.jsx      # Member management interface
 │   │   ├── PackingList.jsx         # Packing list interface
 │   │   ├── TripOverview.jsx        # Trip summary dashboard
@@ -188,7 +179,7 @@ frontend/
 │   │   ├── ItinerariesContext.jsx # Itinerary state
 │   │   ├── ExpensesContext.jsx    # Expenses state
 │   │   ├── ChecklistContext.jsx   # Checklist state
-│   │   ├── PackingItemsContext. jsx # Packing items state
+│   │   ├── PackingItemsContext.jsx # Packing items state
 │   │   └── TagsContext.jsx        # Tags state
 │   ├── hooks/                 # Custom React hooks
 │   ├── pages/                 # Page components
@@ -217,13 +208,13 @@ frontend/
 ### Root Directory
 
 ```
-├── . github/
+├── .github/
 │   └── workflows/
-│       └── ci. yml             # GitHub Actions CI/CD pipeline
+│       ├── backend.yml        # GitHub Actions CI/CD workflow
+│       └── frontend.yml       # Frontend CI/CD workflow
 ├── docker-compose.yml         # Development Docker configuration
-├── docker-compose. prod.yml    # Production Docker configuration
 ├── render.yaml                # Render deployment configuration
-├── . gitignore                 # Git ignore rules
+├── .gitignore                 # Git ignore rules
 └── README.md                  # This documentation file
 ```
 
@@ -235,6 +226,7 @@ frontend/
 
 - Python 3.10+
 - Node.js 18+
+- npm or yarn
 - PostgreSQL (or Docker)
 - Git
 
@@ -243,13 +235,13 @@ frontend/
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github. com/gitraya/jelajah.git
+   git clone https://github.com/gitraya/jelajah.git
    cd jelajah
    ```
 
 2. **Create environment files:**
 
-   Create `backend/.env. dev`:
+   Create `backend/.env`:
 
    ```dotenv
    DB_ENGINE=django.db.backends.postgresql
@@ -267,10 +259,11 @@ frontend/
    DEFAULT_FROM_EMAIL=noreply@yourdomain.com
    ```
 
-   Create `frontend/.env.dev`:
+   Create `frontend/.env`:
 
    ```dotenv
-   VITE_API_URL=http://localhost:8000/api
+   VITE_BACKEND_URL=http://localhost:8000/api
+   PORT=5173
    ```
 
 3. **Build and start services:**
@@ -282,7 +275,7 @@ frontend/
 4. **Apply database migrations:**
 
    ```bash
-   docker-compose exec backend python manage. py migrate
+   docker-compose exec backend python manage.py migrate
    ```
 
 5. **Create a superuser (optional):**
@@ -314,7 +307,7 @@ frontend/
    pip install -r requirements.txt
    ```
 
-3. **Set up environment variables** (create `backend/.env.dev` as shown above, adjust DB settings for local PostgreSQL)
+3. **Set up environment variables** (create `backend/.env` as shown above, adjust DB settings for local PostgreSQL)
 
 4. **Run migrations:**
 
@@ -336,7 +329,7 @@ frontend/
    npm install
    ```
 
-2. **Create environment file** (`frontend/.env.dev` as shown above)
+2. **Create environment file** (`frontend/.env` as shown above)
 
 3. **Start the development server:**
    ```bash
@@ -369,15 +362,16 @@ npm run test
 
 ### Authentication
 
-| Method | Endpoint                                    | Description              |
-| ------ | ------------------------------------------- | ------------------------ |
-| POST   | `/api/auth/register/`                       | Register new user        |
-| POST   | `/api/auth/login/`                          | Login (JWT token)        |
-| POST   | `/api/auth/logout/`                         | Logout (blacklist token) |
-| POST   | `/api/auth/refresh/`                        | Refresh access token     |
-| GET    | `/api/auth/me/`                             | Get current user         |
-| PUT    | `/api/auth/me/`                             | Update current user      |
-| POST   | `/api/auth/set-password/<user_id>/<token>/` | Set password             |
+| Method | Endpoint                                    | Description               |
+| ------ | ------------------------------------------- | ------------------------- |
+| POST   | `/api/auth/register/`                       | Register new user         |
+| POST   | `/api/auth/token/`                          | Login (JWT token)         |
+| POST   | `/api/auth/token/blacklist/`                | Logout (blacklist token)  |
+| POST   | `/api/auth/token/refresh/`                  | Refresh access token      |
+| GET    | `/api/auth/me/`                             | Get current user          |
+| PUT    | `/api/auth/profile/<user_id>/`              | Update current user       |
+| POST   | `/api/auth/set-password/<user_id>/<token>/` | Set password              |
+| POST   | `/api/auth/resend-set-password-email/`      | Resend set password email |
 
 ### Trips
 
@@ -409,6 +403,7 @@ npm run test
 | POST   | `/api/trips/<trip_id>/itineraries/items/`      | Create itinerary item |
 | PUT    | `/api/trips/<trip_id>/itineraries/items/<id>/` | Update itinerary      |
 | DELETE | `/api/trips/<trip_id>/itineraries/items/<id>/` | Delete itinerary      |
+| GET    | `/api/trips/<trip_id>/itineraries/organized/`  | Organized itineraries |
 | GET    | `/api/trips/<trip_id>/itineraries/statistics/` | Itinerary statistics  |
 | GET    | `/api/itineraries/types/`                      | List itinerary types  |
 
@@ -425,13 +420,14 @@ npm run test
 
 ### Packing
 
-| Method | Endpoint                                   | Description         |
-| ------ | ------------------------------------------ | ------------------- |
-| GET    | `/api/trips/<trip_id>/packing/items/`      | List packing items  |
-| POST   | `/api/trips/<trip_id>/packing/items/`      | Create packing item |
-| PUT    | `/api/trips/<trip_id>/packing/items/<id>/` | Update packing item |
-| DELETE | `/api/trips/<trip_id>/packing/items/<id>/` | Delete packing item |
-| GET    | `/api/trips/<trip_id>/packing/statistics/` | Packing statistics  |
+| Method | Endpoint                                   | Description             |
+| ------ | ------------------------------------------ | ----------------------- |
+| GET    | `/api/trips/<trip_id>/packing/items/`      | List packing items      |
+| POST   | `/api/trips/<trip_id>/packing/items/`      | Create packing item     |
+| PUT    | `/api/trips/<trip_id>/packing/items/<id>/` | Update packing item     |
+| DELETE | `/api/trips/<trip_id>/packing/items/<id>/` | Delete packing item     |
+| GET    | `/api/trips/<trip_id>/packing/statistics/` | Packing statistics      |
+| GET    | `/api/packing/categories/`                 | List packing categories |
 
 ### Checklist
 
@@ -475,23 +471,16 @@ npm run test
 - GitHub Actions (CI/CD)
 - Render (Cloud deployment)
 
-### Security Features
+### Security Elements
 
-- JWT tokens stored in HTTP-only cookies (prevents XSS)
-- CORS configuration for cross-origin requests
-- CSRF protection
-- Password hashing with Django's built-in system
-- Token blacklisting on logout
+- JWT tokens are kept in HTTP-only cookies to stop cross-site scripting attacks.
+- Cross-origin request CORS configuration
 - Rate limiting on authentication endpoints
-- Role-based access control for trip resources
+- Token blacklisting upon logout
+- Password hashing using Django's built-in mechanism
+- Role-based trip resource access control
 
 ### Mobile Responsiveness
-
-The application is fully responsive and optimized for:
-
-- Desktop browsers (1200px+)
-- Tablets (768px - 1199px)
-- Mobile devices (< 768px)
 
 The frontend uses a mobile-first design approach with CSS media queries and flexible layouts.
 
