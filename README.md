@@ -32,7 +32,7 @@ The system Jelajah implements an advanced data model with several interlinked en
 
 - **User Management:** Custom `User` model that inherits from `AbstractUser`, with email-based authentication, and a custom `UserManager`.
 - **Trip System:** `Trip` model with complex fields- Status Tracking: can be planned, ongoing, completed, or cancelled, and can be deleted; Difficulty Level; Budget Management; Public/Private Visibility Settings; Joinability Settings
-- **Member Management:** `TripMember` model; Role-based access: Organizer, Co-Organizer, Member; Status Workflow: Pending, Accepted, Declined, Blocked; Emergency contact information
+- **Member Management:** `TripMember` model; Role-based access: Organizer, Co-Organizer, Member; Status Workflow: Pending, Accepted, Declined, Blocked; Emergency contact information and each role has different permissions such as inviting members, managing expenses, and editing itineraries
 - **Itinerary Planning:** `ItineraryItem` - supports future geolocation (latitude/longitude), the ability to schedule visits, track the status of each visit (Planned, Visited, Skipped), and `ItineraryType` categorization
 - **Expense Tracking:** `Expense` model with `ExpenseCategory`, and `ExpenseSplit` for splitting expenses among trip members with payment status tracking
 - **Packing Management:** `PackingItem` with `PackingCategory`, quantity tracking, packed status, and member assignment
