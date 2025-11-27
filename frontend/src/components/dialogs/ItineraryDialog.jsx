@@ -151,7 +151,7 @@ export default function ItineraryDialog({ triggerClassName }) {
               </p>
             )}
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="estimated_time">Estimated Time</Label>
               <Input
@@ -175,6 +175,7 @@ export default function ItineraryDialog({ triggerClassName }) {
               <Input
                 id="visit_time"
                 type="date"
+                className="!overflow-hidden"
                 aria-invalid={errors.visit_time ? "true" : "false"}
                 {...register("visit_time", {
                   required: validator.required,

@@ -17,13 +17,20 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { CreatableSelectInput } from "@/components/ui/select-input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { DIFFICULTY_LEVELS } from "@/configs/trip";
 import { useApi } from "@/hooks/useApi";
 import { useTags } from "@/hooks/useTags";
 import { calculateDuration, validator } from "@/lib/utils";
-
-import { CreatableSelectInput } from "../ui/select-input";
 
 export default function TripDialog({ trip, onSuccess, trigger }) {
   const isEditMode = Boolean(trip);
@@ -36,6 +43,7 @@ export default function TripDialog({ trip, onSuccess, trigger }) {
     handleSubmit,
     formState: { errors },
     control,
+    setValue,
   } = useForm();
   const [error, setError] = useState("");
   const [open, setOpen] = useState(false);
@@ -45,12 +53,16 @@ export default function TripDialog({ trip, onSuccess, trigger }) {
       data.budget = parseInt(data.budget) || 0;
       data.duration = calculateDuration(data.start_date, data.end_date);
       data.member_spots = parseInt(data.member_spots) || 1;
-      data.new_tag_names = data.tag_ids
-        .filter((tag) => !defaultTags.some((t) => t.id === tag.value))
-        .map((tag) => tag.label);
-      data.tag_ids = data.tag_ids
-        .filter((tag) => defaultTags.some((t) => t.id === tag.value))
-        .map((tag) => tag.value);
+      if (data.tag_ids) {
+        data.new_tag_names = data.tag_ids
+          .filter((tag) => !defaultTags.some((t) => t.id === tag.value))
+          .map((tag) => tag.label);
+        data.tag_ids = data.tag_ids
+          .filter((tag) => defaultTags.some((t) => t.id === tag.value))
+          .map((tag) => tag.value);
+      } else {
+        data.tag_ids = [];
+      }
 
       let response = isEditMode
         ? await patchRequest(`/trips/${trip.id}/`, data)
@@ -148,12 +160,13 @@ export default function TripDialog({ trip, onSuccess, trigger }) {
               </p>
             )}
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="start_date">Start Date</Label>
               <Input
                 id="start_date"
                 type="date"
+                className="!overflow-hidden"
                 aria-invalid={errors.start_date ? "true" : "false"}
                 defaultValue={trip?.start_date || ""}
                 {...register("start_date", { required: validator.required })}
@@ -169,6 +182,7 @@ export default function TripDialog({ trip, onSuccess, trigger }) {
               <Input
                 id="end_date"
                 type="date"
+                className="!overflow-hidden"
                 aria-invalid={errors.end_date ? "true" : "false"}
                 defaultValue={trip?.end_date || ""}
                 {...register("end_date", { required: validator.required })}
@@ -240,11 +254,40 @@ export default function TripDialog({ trip, onSuccess, trigger }) {
             )}
           </div>
           <div className="space-y-2">
+            <Label htmlFor="difficulty">Difficulty</Label>
+            <Select
+              id="difficulty"
+              onValueChange={(value) =>
+                setValue("difficulty", value, { shouldValidate: true })
+              }
+              {...register("difficulty", { required: validator.required })}
+            >
+              <SelectTrigger
+                aria-invalid={errors.difficulty ? "true" : "false"}
+              >
+                <SelectValue placeholder="Select difficulty" />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(DIFFICULTY_LEVELS).map(
+                  ([difficulty, label]) => (
+                    <SelectItem key={difficulty} value={difficulty}>
+                      {label}
+                    </SelectItem>
+                  )
+                )}
+              </SelectContent>
+            </Select>
+            {errors.difficulty && (
+              <p className="text-xs text-destructive">
+                {errors.difficulty.message}
+              </p>
+            )}
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="tag_ids">Tags (comma-separated)</Label>
             <Controller
               control={control}
               name="tag_ids"
-              rules={{ required: validator.required }}
               defaultValue={trip?.tags?.map((i) => ({
                 value: i.id,
                 label: i.name,

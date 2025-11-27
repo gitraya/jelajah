@@ -220,7 +220,7 @@ export default function ExpenseDialog() {
             <Input
               id="date"
               type="date"
-              className="mb-0"
+              className="mb-0 !overflow-hidden"
               aria-invalid={errors.date ? "true" : "false"}
               {...register("date")}
             />

@@ -185,12 +185,13 @@ export default function ChecklistDialog() {
               )}
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="due_date">Due Date</Label>
               <Input
                 id="due_date"
                 type="date"
+                className="!overflow-hidden"
                 aria-invalid={errors.due_date ? "true" : "false"}
                 {...register("due_date", { required: validator.required })}
               />

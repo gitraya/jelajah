@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.db import models
 from django.utils import timezone
 from django.utils.dateparse import parse_date
+from django.utils.text import slugify
 from django.contrib.auth import get_user_model
 from .models import Trip, TripMember, MemberStatus, MemberRole, TripStatus, Tag
 from expenses.models import ExpenseSplit, Expense
@@ -210,7 +211,7 @@ class TripSerializer(serializers.ModelSerializer):
         for tag_name in new_tag_names:
             tag, _ = Tag.objects.get_or_create(
                 name=tag_name,
-                defaults={'slug': self._generate_slug(tag_name)}
+                defaults={'slug': slugify(tag_name)}
             )
             tags.append(tag)
         
