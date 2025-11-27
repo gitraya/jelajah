@@ -255,8 +255,15 @@ class TripStatisticsView(generics.RetrieveAPIView):
     def get(self, request):
         tripObjects = Trip.objects.filter(is_public=True).exclude(status=TripStatus.DELETED).exclude(status=TripStatus.CANCELLED)
         total = tripObjects.count()
-        joinable = tripObjects.filter(is_joinable=True).count()
         average_budget = tripObjects.aggregate(models.Avg('budget'))['budget__avg'] or 0
+        
+        joinable = 0
+        joinableTrips = tripObjects.filter(is_joinable=True)
+        for trip in joinableTrips:
+            accepted_members_count = TripMember.objects.filter(trip=trip, status=MemberStatus.ACCEPTED).count()
+            if accepted_members_count < trip.member_spots:
+                joinable += 1
+        
         destinations = set()
         for destination in tripObjects.values_list('destination', flat=True).distinct():
             if ',' in destination:

@@ -488,6 +488,7 @@ The frontend uses a mobile-first design approach with CSS media queries and flex
 
 ## Future Improvements
 
+- Pagination for list endpoints
 - Real-time collaboration using WebSockets
 - Trip photo galleries
 - Integration with maps API for itinerary visualization

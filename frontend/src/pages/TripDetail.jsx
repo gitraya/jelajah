@@ -27,6 +27,7 @@ import { ItinerariesProvider } from "@/contexts/ItinerariesContext";
 import { PackingItemsProvider } from "@/contexts/PackingItemsContext";
 import { TripProvider } from "@/contexts/TripContext";
 import { useApi } from "@/hooks/useApi";
+import { useAuth } from "@/hooks/useAuth";
 import { useItineraries } from "@/hooks/useItineraries";
 import { usePackingItems } from "@/hooks/usePackingItems";
 import { useTrip } from "@/hooks/useTrip";
@@ -51,6 +52,7 @@ export default function TripDetail() {
 const TripDetailContent = () => {
   const navigate = useNavigate();
   const { postRequest } = useApi();
+  const { user } = useAuth();
   const { trip, isLoading, itinerarySummary } = useTrip();
   const { itineraries } = useItineraries();
   const { packingItems } = usePackingItems();
@@ -73,6 +75,12 @@ const TripDetailContent = () => {
   const spotsLeft = trip.member_spots - trip.members_count;
 
   const handleJoinTrip = async () => {
+    if (!user) {
+      navigate("/login?redirect=/trips/" + trip.id);
+      toast.info("Please log in to join the trip.");
+      return;
+    }
+
     try {
       setIsJoining(true);
       await postRequest(`/trips/${trip.id}/join/`);
