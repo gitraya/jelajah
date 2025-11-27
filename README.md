@@ -225,7 +225,7 @@ frontend/
 ### Prerequisites
 
 - Python 3.10+
-- Node.js 18+
+- Node.js 22+
 - npm or yarn
 - PostgreSQL (or Docker)
 - Git
