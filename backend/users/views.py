@@ -129,10 +129,12 @@ class CookieTokenBlacklistView(TokenBlacklistView):
             response.delete_cookie(
                 key=settings.SIMPLE_JWT['AUTH_COOKIE'],
                 samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
+                domain=settings.SIMPLE_JWT['AUTH_COOKIE_DOMAIN'],
             )
             response.delete_cookie(
                 key=settings.SIMPLE_JWT['AUTH_COOKIE_REFRESH'],
                 samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
+                domain=settings.SIMPLE_JWT['AUTH_COOKIE_DOMAIN'],
             )
             response.data = {'message': 'Successfully logged out'}
 
