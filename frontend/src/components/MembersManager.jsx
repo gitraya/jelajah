@@ -308,6 +308,12 @@ export function MembersManager() {
                     </div>
                   );
                 })}
+
+                {filteredMembers.length === 0 && (
+                  <div className="text-center text-muted-foreground">
+                    No members found.
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

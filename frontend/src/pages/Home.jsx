@@ -347,9 +347,11 @@ const HomeContent = () => {
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-sm text-muted-foreground mb-4 break-all max-h-20 text-ellipsis">
-                        {trip.description}
-                      </p>
+                      <div className="max-h-20 overflow-hidden mb-4">
+                        <p className="text-sm text-muted-foreground break-all line-clamp-3">
+                          {trip.description}
+                        </p>
+                      </div>
 
                       {/* Organizer */}
                       <div className="flex items-center gap-2 mb-3">
