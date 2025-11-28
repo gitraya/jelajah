@@ -16,7 +16,7 @@ class ChecklistItem(BaseModel):
     """Model representing a checklist item for a trip."""
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name='checklist_items')
     title = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
+    description = models.TextField(blank=True, max_length=2000)
     category = models.CharField(max_length=20, choices=ChecklistCategory.choices, default=ChecklistCategory.PRE_TRIP)
     priority = models.CharField(max_length=10, choices=ChecklistPriority.choices, default=ChecklistPriority.MEDIUM)
     due_date = models.DateField(null=True, blank=True)

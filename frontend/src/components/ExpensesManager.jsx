@@ -67,7 +67,7 @@ export function ExpensesManager() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold break-all">
               {formatCurrency(trip_budget)}
             </div>
           </CardContent>
@@ -79,7 +79,7 @@ export function ExpensesManager() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold break-all">
               {formatCurrency(amount_spent)}
             </div>
           </CardContent>
@@ -91,7 +91,7 @@ export function ExpensesManager() {
             <TrendingDown className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold break-all">
               {formatCurrency(budget_remaining)}
             </div>
           </CardContent>

@@ -92,7 +92,7 @@ export function ItinerariesManager() {
             <MapPin className="h-4 w-4 text-muted-foreground shrink-0" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{total}</div>
+            <div className="text-2xl font-bold break-all">{total}</div>
           </CardContent>
         </Card>
 
@@ -102,7 +102,7 @@ export function ItinerariesManager() {
             <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{planned}</div>
+            <div className="text-2xl font-bold break-all">{planned}</div>
           </CardContent>
         </Card>
 
@@ -112,7 +112,7 @@ export function ItinerariesManager() {
             <Star className="h-4 w-4 text-muted-foreground shrink-0" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{visited}</div>
+            <div className="text-2xl font-bold break-all">{visited}</div>
           </CardContent>
         </Card>
 
@@ -122,7 +122,7 @@ export function ItinerariesManager() {
             <Navigation className="h-4 w-4 text-muted-foreground shrink-0" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{skipped}</div>
+            <div className="text-2xl font-bold break-all">{skipped}</div>
           </CardContent>
         </Card>
       </div>
@@ -205,7 +205,7 @@ export function ItinerariesManager() {
                             {location.address}
                           </p>
                           {location.description && (
-                            <p className="text-sm mb-2">
+                            <p className="text-sm mb-2 break-all">
                               {location.description}
                             </p>
                           )}
@@ -227,7 +227,7 @@ export function ItinerariesManager() {
                             </span>
                           </div>
                           {location.notes && (
-                            <p className="text-sm text-muted-foreground mt-2 italic">
+                            <p className="text-sm text-muted-foreground mt-2 italic break-all">
                               Note: {location.notes}
                             </p>
                           )}

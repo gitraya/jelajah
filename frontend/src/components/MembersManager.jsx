@@ -109,7 +109,7 @@ export function MembersManager() {
             <Users className="h-4 w-4 text-muted-foreground shrink-0" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{total}</div>
+            <div className="text-2xl font-bold break-all">{total}</div>
           </CardContent>
         </Card>
 
@@ -119,7 +119,9 @@ export function MembersManager() {
             <Users className="h-4 w-4 text-green-600 shrink-0" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{accepted}</div>
+            <div className="text-2xl font-bold text-green-600 break-all">
+              {accepted}
+            </div>
           </CardContent>
         </Card>
 
@@ -129,7 +131,9 @@ export function MembersManager() {
             <AlertCircle className="h-4 w-4 text-yellow-600 shrink-0" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{pending}</div>
+            <div className="text-2xl font-bold text-yellow-600 break-all">
+              {pending}
+            </div>
           </CardContent>
         </Card>
 

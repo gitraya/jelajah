@@ -81,7 +81,9 @@ export function TripOverview() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{trip?.duration_label}</div>
+            <div className="text-2xl font-bold break-all">
+              {trip?.duration_label}
+            </div>
             <p className="text-xs text-muted-foreground">{trip?.dates}</p>
           </CardContent>
         </Card>

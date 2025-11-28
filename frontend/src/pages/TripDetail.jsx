@@ -165,7 +165,9 @@ const TripDetailContent = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground mb-6">{trip.description}</p>
+            <p className="text-muted-foreground mb-6 break-all">
+              {trip.description}
+            </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Organizer */}
@@ -356,7 +358,7 @@ const TripDetailContent = () => {
                   </ul>
                 )}
               </div>
-              <div>
+              <div className="break-all">
                 <h4 className="mb-3">Important Notes</h4>
                 {trip.notes ? (
                   trip.notes

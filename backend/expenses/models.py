@@ -20,7 +20,7 @@ class Expense(BaseModel):
     amount = models.DecimalField(max_digits=14, decimal_places=2)
     date = models.DateField(default=date.today)
     paid_by = models.ForeignKey(TripMember, on_delete=models.CASCADE, related_name='expenses_paid')
-    notes = models.TextField(blank=True)
+    notes = models.TextField(blank=True, max_length=2000)
     category = models.ForeignKey(ExpenseCategory, on_delete=models.SET_NULL, null=True)
     
     def __str__(self):

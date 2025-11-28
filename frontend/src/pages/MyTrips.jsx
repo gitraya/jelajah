@@ -234,7 +234,7 @@ const MyTripsContent = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-muted-foreground mb-4">
+                    <p className="text-sm text-muted-foreground mb-4 break-all max-h-20 text-ellipsis">
                       {trip.description}
                     </p>
 
