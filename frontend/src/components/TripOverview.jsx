@@ -38,8 +38,11 @@ export function TripOverview() {
   const { trip_budget, amount_spent } = expenseStatistics;
   const { total_items: total_tasks, completed_items: completed_tasks } =
     checklistStatistics;
-  const { total: total_locations, visited: visited_locations } =
-    itineraryStatistics;
+  const {
+    total: total_locations,
+    planned: planned_locations,
+    visited: visited_locations,
+  } = itineraryStatistics;
 
   const budgetPercentage = (amount_spent / trip_budget) * 100;
 
@@ -198,7 +201,7 @@ export function TripOverview() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-blue-600">
-                    {`${total_locations - visited_locations}`}
+                    {`${planned_locations}`}
                   </p>
                   <p className="text-xs text-muted-foreground">Planned</p>
                 </div>
