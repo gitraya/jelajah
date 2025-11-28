@@ -65,13 +65,14 @@ const MyTripsContent = () => {
       )
     );
     setEditTrip(null);
+    fetchTripsStatistics();
   };
 
   const deleteTrip = (id) => {
     const deletedTrip = myTrips.find((trip) => trip.id === id);
     toast.success(`Trip "${deletedTrip.title}" deleted.`);
     setMyTrips((prevTrips) => prevTrips.filter((trip) => trip.id !== id));
-    deleteRequest(`/trips/${id}/`);
+    deleteRequest(`/trips/${id}/`).then(() => fetchTripsStatistics());
   };
 
   const togglePublic = (id, is_public) => {

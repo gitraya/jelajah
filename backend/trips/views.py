@@ -313,6 +313,8 @@ class JoinTripView(generics.CreateAPIView):
             return Response({"detail": "Trip not found or not joinable."}, status=status.HTTP_404_NOT_FOUND)
         
         existing_member = TripMember.objects.filter(trip=trip, user=user).first()
+        if existing_member and existing_member.status == MemberStatus.ACCEPTED:
+            return Response({"detail": "You are already a member of this trip."}, status=status.HTTP_400_BAD_REQUEST)
         if existing_member:
             return Response({"detail": "You have already requested to join this trip."}, status=status.HTTP_400_BAD_REQUEST)
         

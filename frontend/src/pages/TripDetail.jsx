@@ -73,6 +73,7 @@ const TripDetailContent = () => {
   const name = `${trip.owner.first_name} ${trip.owner.last_name}`;
   const isFull = trip.members_count >= trip.member_spots;
   const spotsLeft = trip.member_spots - trip.members_count;
+  const isDisplayJoinButton = trip.is_joinable && !isFull && !trip.is_member;
 
   const handleJoinTrip = async () => {
     if (!user) {
@@ -154,7 +155,7 @@ const TripDetailContent = () => {
                 <Map className="w-5 h-5" />
                 About This Trip
               </div>
-              {trip.is_joinable && !isFull && (
+              {isDisplayJoinButton && (
                 <Button onClick={handleJoinTrip} disabled={isJoining}>
                   {isJoining
                     ? "Joining..."

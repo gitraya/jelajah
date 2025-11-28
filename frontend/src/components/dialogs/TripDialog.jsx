@@ -257,6 +257,7 @@ export default function TripDialog({ trip, onSuccess, trigger }) {
             <Label htmlFor="difficulty">Difficulty</Label>
             <Select
               id="difficulty"
+              defaultValue={trip?.difficulty || ""}
               onValueChange={(value) =>
                 setValue("difficulty", value, { shouldValidate: true })
               }
