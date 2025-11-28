@@ -11,6 +11,7 @@ import { Alert, AlertDescription } from "../ui/alert";
 import { Button } from "../ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -218,9 +219,11 @@ export default function MemberDialog({ triggerClassName }) {
             )}
           </div>
           <div className="flex justify-end space-x-2">
-            <Button variant="outline" type="button">
-              Cancel
-            </Button>
+            <DialogClose asChild>
+              <Button variant="outline" type="button">
+                Cancel
+              </Button>
+            </DialogClose>
             <Button type="submit">Add Member</Button>
           </div>
         </form>

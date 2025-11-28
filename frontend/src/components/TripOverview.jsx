@@ -295,6 +295,12 @@ export function TripOverview() {
                           </span>
                         </div>
                       )}
+
+                      {day.tasks === 0 && day.itineraries.length === 0 && (
+                        <p className="text-sm text-muted-foreground">
+                          No activities planned for this day.
+                        </p>
+                      )}
                     </div>
                   </div>
                 );

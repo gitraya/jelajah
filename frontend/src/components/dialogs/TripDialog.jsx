@@ -30,7 +30,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { DIFFICULTY_LEVELS } from "@/configs/trip";
 import { useApi } from "@/hooks/useApi";
 import { useTags } from "@/hooks/useTags";
-import { calculateDuration, validator } from "@/lib/utils";
+import { calculateDuration, getErrorMessage, validator } from "@/lib/utils";
 
 export default function TripDialog({ trip, onSuccess, trigger }) {
   const isEditMode = Boolean(trip);
@@ -88,9 +88,7 @@ export default function TripDialog({ trip, onSuccess, trigger }) {
     } catch (error) {
       setError(
         error.status !== 500
-          ? error?.response?.data?.[
-              Object.keys(error?.response?.data)?.[0]
-            ]?.[0]
+          ? getErrorMessage(error)
           : "An error occurred while creating the trip. Please try again later."
       );
     }
