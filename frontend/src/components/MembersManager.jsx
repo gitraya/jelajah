@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TRIP_MEMBER_ROLES, TRIP_MEMBER_STATUSES } from "@/configs/trip";
+import { useAuth } from "@/hooks/useAuth";
 import { useMembers } from "@/hooks/useMembers";
 import { useTrip } from "@/hooks/useTrip";
 import { getMemberRoleColor, getMemberStatusColor } from "@/lib/colors";
@@ -39,6 +40,7 @@ const getFullName = (user) => {
 };
 
 export function MembersManager() {
+  const { user } = useAuth();
   const { trip } = useTrip();
   const {
     statistics,
@@ -49,6 +51,7 @@ export function MembersManager() {
     setSelectedStatus,
     updateMemberStatus,
     deleteMember,
+    updateMemberRole,
   } = useMembers();
 
   if (isLoading) {
@@ -89,6 +92,11 @@ export function MembersManager() {
   const handleUpdateMemberStatus = (memberId, status) => {
     updateMemberStatus(memberId, status);
     toast.success("Member status updated successfully");
+  };
+
+  const handleUpdateMemberRole = (memberId, role) => {
+    updateMemberRole(memberId, role);
+    toast.success("Member role updated successfully");
   };
 
   return (
@@ -182,8 +190,9 @@ export function MembersManager() {
               <div className="space-y-4">
                 {filteredMembers.map((member) => {
                   const isMemberEditable =
-                    member.role !== TRIP_MEMBER_ROLES.ORGANIZER[0] &&
-                    trip.user_role === TRIP_MEMBER_ROLES.ORGANIZER[0];
+                    trip.user_role === TRIP_MEMBER_ROLES.ORGANIZER[0] &&
+                    trip.owner.id !== member.user.id &&
+                    user.id !== member.user.id;
                   return (
                     <div
                       key={member.id}
@@ -243,6 +252,25 @@ export function MembersManager() {
                         </div>
                         {isMemberEditable && (
                           <>
+                            <Select
+                              value={member.role}
+                              onValueChange={(value) =>
+                                handleUpdateMemberRole(member.id, value)
+                              }
+                            >
+                              <SelectTrigger className="w-24">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {Object.entries(TRIP_MEMBER_ROLES).map(
+                                  ([key, [, label]]) => (
+                                    <SelectItem key={key} value={key}>
+                                      {label}
+                                    </SelectItem>
+                                  )
+                                )}
+                              </SelectContent>
+                            </Select>
                             <Select
                               value={member.status}
                               onValueChange={(value) =>

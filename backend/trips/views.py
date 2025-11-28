@@ -102,7 +102,7 @@ class TripMemberViewSet(ModelViewSet):
                     'user': instance.user,
                     'trip': instance.trip,
                     'login_url': settings.FRONTEND_URL + '/login?redirect=/trips/' + str(instance.trip.id),
-                    'set_password_url': settings.FRONTEND_URL + '/set-password/' + instance.user.id + '/' + token,
+                    'set_password_url': settings.FRONTEND_URL + '/set-password/' + str(instance.user.id) + '/' + token,
                 }
             )
         else:

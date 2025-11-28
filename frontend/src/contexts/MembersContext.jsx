@@ -136,6 +136,20 @@ export const MembersProvider = ({ children }) => {
     [members]
   );
 
+  const updateMemberRole = useCallback(
+    (id, role, tripId = defaultTripId) => {
+      const member = members.find((m) => m.id === id);
+      if (!member || member.role === role) return;
+
+      setMembers((prev) => prev.map((m) => (m.id === id ? { ...m, role } : m)));
+      setFilteredMembers((prev) =>
+        prev.map((m) => (m.id === id ? { ...m, role } : m))
+      );
+      patchRequest(`/trips/${tripId}/members/items/${id}/`, { role });
+    },
+    [members]
+  );
+
   useEffect(() => {
     if (!defaultTripId) return;
     fetchFilteredMembers(defaultTripId);
@@ -162,6 +176,7 @@ export const MembersProvider = ({ children }) => {
         createMember,
         deleteMember,
         updateMemberStatus,
+        updateMemberRole,
         setSelectedStatus,
         setError,
       }}

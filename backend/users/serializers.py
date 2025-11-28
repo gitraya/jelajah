@@ -19,6 +19,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
     password2 = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
     first_name = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True)
 
     class Meta:
         model = User
@@ -28,12 +29,14 @@ class RegisterSerializer(serializers.ModelSerializer):
         if attrs['password'] != attrs['password2']:
             raise serializers.ValidationError({"password": "Password fields didn't match."})
         
-        email = attrs.get('email', '')
-        user = User.objects.filter(email=email).first()
-        if user and user.has_usable_password() == False:
-            raise serializers.ValidationError({"email": "User with this email already exists. Please set your password to activate your account."})
-        
         return attrs
+    
+    def validate_email(self, value):
+        user = User.objects.filter(email=value).first()
+        if user and user.has_usable_password() == False:
+            raise serializers.ValidationError("User with this email already exists. Please set your password to activate your account.")
+        return value
+        
     
     def validate_password(self, value):
         if len(value) < 8:

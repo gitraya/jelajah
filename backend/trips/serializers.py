@@ -195,6 +195,17 @@ class TripSerializer(serializers.ModelSerializer):
         if end_date <= start_date:
             raise serializers.ValidationError("End date must be after start date")
         return end_date
+
+    def validate_member_spots(self, member_spots):
+        """Validate that member_spots is at least 1"""        
+        if member_spots < 1:
+            raise serializers.ValidationError("Member spots must be at least 1.")
+        
+        members_count = self.instance.trip_members.filter(status=MemberStatus.ACCEPTED).count() if self.instance else 0
+        if member_spots < members_count:
+            raise serializers.ValidationError(f"Member spots cannot be less than current accepted members count ({members_count}).")
+        
+        return member_spots
     
     def create(self, validated_data):
         request = self.context['request']

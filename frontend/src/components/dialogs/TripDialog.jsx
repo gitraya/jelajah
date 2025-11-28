@@ -44,7 +44,11 @@ export default function TripDialog({ trip, onSuccess, trigger }) {
     formState: { errors },
     control,
     setValue,
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      difficulty: trip?.difficulty || "",
+    },
+  });
   const [error, setError] = useState("");
   const [open, setOpen] = useState(false);
 
@@ -98,6 +102,12 @@ export default function TripDialog({ trip, onSuccess, trigger }) {
       setError("");
     }
   }, [open]);
+
+  useEffect(() => {
+    if (trip) {
+      setValue("difficulty", trip.difficulty);
+    }
+  }, [trip]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
