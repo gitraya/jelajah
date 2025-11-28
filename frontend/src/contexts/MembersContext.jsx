@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
+import { TRIP_MEMBER_STATUSES } from "@/configs/trip";
 import { useApi } from "@/hooks/useApi";
 import { MembersContext } from "@/hooks/useMembers";
 import { getErrorMessage } from "@/lib/utils";
@@ -11,6 +12,7 @@ export const MembersProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [members, setMembers] = useState([]);
+  const [acceptedMembers, setAcceptedMembers] = useState([]);
   const [filteredMembers, setFilteredMembers] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [statistics, setStatistics] = useState({});
@@ -19,6 +21,11 @@ export const MembersProvider = ({ children }) => {
     try {
       const response = await getRequest(`/trips/${tripId}/members/items/`);
       setMembers(response.data || []);
+      setAcceptedMembers(
+        (response.data || []).filter(
+          (member) => member.status === Object.keys(TRIP_MEMBER_STATUSES)[0]
+        )
+      );
       return response.data;
     } catch (error) {
       console.error("Failed to fetch trip members:", getErrorMessage(error));
@@ -170,6 +177,7 @@ export const MembersProvider = ({ children }) => {
         isLoading,
         error,
         members,
+        acceptedMembers,
         filteredMembers,
         selectedStatus,
         statistics,

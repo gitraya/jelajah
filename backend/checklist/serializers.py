@@ -1,7 +1,6 @@
-from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from .models import ChecklistItem
-from trips.models import TripMember
+from trips.models import TripMember, MemberStatus
 from trips.serializers import TripMemberSerializer
 
 class ChecklistItemSerializer(serializers.ModelSerializer):
@@ -14,10 +13,14 @@ class ChecklistItemSerializer(serializers.ModelSerializer):
 
     def validate_assigned_to_id(self, value):
         if not value:
-            return value
+            return value    
+        
         trip_id = self.context['trip_id']
-        if not TripMember.objects.filter(id=value.id, trip_id=trip_id).exists():
+        trip_member = TripMember.objects.get(id=value.id)
+        if trip_member.trip_id != trip_id:
             raise serializers.ValidationError("Assigned member does not belong to this trip.")
+        if trip_member.status != MemberStatus.ACCEPTED:
+            raise serializers.ValidationError("Assigned member is not an accepted member of the trip.")
         return value
 
     def create(self, validated_data):

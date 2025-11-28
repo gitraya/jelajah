@@ -56,7 +56,7 @@ export default function PackingDialog() {
   const { id: tripId } = useParams();
   const { trip } = useTrip();
   const { user } = useAuth();
-  const { members } = useMembers();
+  const { acceptedMembers } = useMembers();
   const { categories, error, setError, createPacking } = usePackingItems();
   const [open, setOpen] = useState(false);
 
@@ -80,8 +80,8 @@ export default function PackingDialog() {
 
   const assignedToOptions =
     trip.user_role !== TRIP_MEMBER_ROLES.MEMBER[0]
-      ? [{ id: "shared" }, ...members]
-      : members.filter((member) => member.user?.id === user?.id);
+      ? [{ id: "shared" }, ...acceptedMembers]
+      : acceptedMembers.filter((member) => member.user?.id === user?.id);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

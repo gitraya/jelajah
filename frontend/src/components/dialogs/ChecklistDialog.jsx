@@ -47,7 +47,7 @@ export default function ChecklistDialog() {
   } = useForm();
   const { user } = useAuth();
   const { trip } = useTrip();
-  const { members } = useMembers();
+  const { acceptedMembers } = useMembers();
   const { createChecklist, error, setError } = useChecklist();
   const [open, setOpen] = useState(false);
 
@@ -67,8 +67,8 @@ export default function ChecklistDialog() {
 
   const assignedToOptions =
     trip.user_role !== TRIP_MEMBER_ROLES.MEMBER[0]
-      ? members
-      : members.filter((member) => member.user?.id === user?.id);
+      ? acceptedMembers
+      : acceptedMembers.filter((member) => member.user?.id === user?.id);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

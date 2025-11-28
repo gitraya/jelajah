@@ -80,7 +80,7 @@ export default function ExpenseDialog() {
     watch,
   } = useForm();
   const { user } = useAuth();
-  const { members } = useMembers();
+  const { acceptedMembers } = useMembers();
   const { categories, createExpense, error, setError } = useExpenses();
   const [open, setOpen] = useState(false);
 
@@ -241,7 +241,9 @@ export default function ExpenseDialog() {
                 if (!newSplitBetween?.some((o) => o.value === value)) {
                   newSplitBetween.push({
                     value,
-                    label: getPaidByLabel(members.find((m) => m.id === value)),
+                    label: getPaidByLabel(
+                      acceptedMembers.find((m) => m.id === value)
+                    ),
                   });
                 }
                 setValue("paid_by_id", value, { shouldValidate: true });
@@ -257,7 +259,7 @@ export default function ExpenseDialog() {
                 <SelectValue placeholder="Select who paid this" />
               </SelectTrigger>
               <SelectContent>
-                {members.map((option) => (
+                {acceptedMembers.map((option) => (
                   <SelectItem key={option.id} value={option.id}>
                     {getPaidByLabel(option, user)}
                   </SelectItem>
@@ -311,7 +313,7 @@ export default function ExpenseDialog() {
                 <SelectInput
                   id="split_between"
                   isMulti
-                  options={members.map((member) => ({
+                  options={acceptedMembers.map((member) => ({
                     value: member.id,
                     label: getPaidByLabel(member),
                   }))}

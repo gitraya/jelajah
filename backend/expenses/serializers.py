@@ -4,7 +4,7 @@ from .models import Expense, ExpenseSplit, ExpenseCategory
 from django.db import transaction
 from django.contrib.auth import get_user_model
 from trips.serializers import TripMemberSerializer
-from trips.models import TripMember
+from trips.models import TripMember, MemberStatus
 
 User = get_user_model()
 
@@ -29,8 +29,14 @@ class ExpenseSplitSerializer(serializers.ModelSerializer):
             if expense_id:
                 expense = Expense.objects.get(id=expense_id)
                 trip_id = expense.trip_id
-                if not TripMember.objects.filter(id=value.id, trip_id=trip_id).exists():
+                trip_member = TripMember.objects.get(id=value.id)
+                if trip_member.trip_id != trip_id:
                     raise serializers.ValidationError("Member does not belong to the trip associated with this expense.")
+                if trip_member.status != MemberStatus.ACCEPTED:
+                    raise serializers.ValidationError("Member is not an accepted member of the trip.")
+            else:
+                raise serializers.ValidationError("Trip context is missing for validation.")
+
         return value
     
     def create(self, validated_data):
@@ -102,8 +108,11 @@ class ExpenseSerializer(serializers.ModelSerializer):
     
     def validate_paid_by_id(self, value):
         trip_id = self.context['trip_id']
-        if not TripMember.objects.filter(id=value.id, trip_id=trip_id).exists():
+        trip_member = TripMember.objects.get(id=value.id)
+        if trip_member.trip_id != trip_id:
             raise serializers.ValidationError("Assigned member does not belong to this trip.")
+        if trip_member.status != MemberStatus.ACCEPTED:
+            raise serializers.ValidationError("Assigned member is not an accepted member of the trip.")
         return value
     
     @transaction.atomic
