@@ -30,7 +30,7 @@ import { TRIP_MEMBER_ROLES } from "@/configs/trip";
 import { useItineraries } from "@/hooks/useItineraries";
 import { useTrip } from "@/hooks/useTrip";
 import { getMapStatusColor, getMapTypeColor } from "@/lib/colors";
-import { formatDate } from "@/lib/utils";
+import { formatDateTime } from "@/lib/utils";
 
 import ItineraryDialog from "./dialogs/ItineraryDialog";
 
@@ -223,7 +223,7 @@ export function ItinerariesManager() {
                               </div>
                             )}
                             <span>
-                              Visit: {formatDate(location.visit_time)}
+                              Visit: {formatDateTime(location.visit_time)}
                             </span>
                           </div>
                           {location.notes && (
@@ -307,7 +307,7 @@ export function ItinerariesManager() {
                     >
                       <div className="flex-shrink-0 w-16 text-center">
                         <div className="text-sm font-medium">
-                          {formatDate(location.visit_time)}
+                          {formatDateTime(location.visit_time)}
                         </div>
                       </div>
                       <div className="flex-1">

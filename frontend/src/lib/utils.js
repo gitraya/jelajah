@@ -162,6 +162,17 @@ export const formatDate = (dateString) => {
   });
 };
 
+export const formatDateTime = (dateString) => {
+  if (!dateString) return "Not scheduled";
+  return new Date(dateString).toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
 export const getInitials = (name) => {
   return name
     .split(" ")
