@@ -174,7 +174,7 @@ export default function ItineraryDialog({ triggerClassName }) {
               <Label htmlFor="visit_time">Visit Date</Label>
               <Input
                 id="visit_time"
-                type="date"
+                type="datetime-local"
                 className="!overflow-hidden"
                 aria-invalid={errors.visit_time ? "true" : "false"}
                 {...register("visit_time", {
