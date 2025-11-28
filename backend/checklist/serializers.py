@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import ChecklistItem
-from trips.models import TripMember, MemberStatus
+from trips.models import TripMember, MemberStatus, Trip
 from trips.serializers import TripMemberSerializer
 
 class ChecklistItemSerializer(serializers.ModelSerializer):
@@ -21,6 +21,13 @@ class ChecklistItemSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Assigned member does not belong to this trip.")
         if trip_member.status != MemberStatus.ACCEPTED:
             raise serializers.ValidationError("Assigned member is not an accepted member of the trip.")
+        return value
+    
+    def validate_due_date(self, value):
+        trip_id = self.context['trip_id']
+        trip = Trip.objects.get(id=trip_id)
+        if value and (value < trip.start_date or value > trip.end_date):
+            raise serializers.ValidationError("Due date must be within the trip dates.")
         return value
 
     def create(self, validated_data):

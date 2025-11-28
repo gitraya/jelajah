@@ -4,7 +4,7 @@ from .models import Expense, ExpenseSplit, ExpenseCategory
 from django.db import transaction
 from django.contrib.auth import get_user_model
 from trips.serializers import TripMemberSerializer
-from trips.models import TripMember, MemberStatus
+from trips.models import TripMember, MemberStatus, Trip
 
 User = get_user_model()
 
@@ -113,6 +113,13 @@ class ExpenseSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Assigned member does not belong to this trip.")
         if trip_member.status != MemberStatus.ACCEPTED:
             raise serializers.ValidationError("Assigned member is not an accepted member of the trip.")
+        return value
+    
+    def validate_date(self, value):
+        trip_id = self.context['trip_id']
+        trip = Trip.objects.get(id=trip_id)
+        if value and (value < trip.start_date or value > trip.end_date):
+            raise serializers.ValidationError("Expense date must be within the trip dates.")
         return value
     
     @transaction.atomic

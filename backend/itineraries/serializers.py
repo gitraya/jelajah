@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import  ItineraryItem, ItineraryType
+from trips.models import Trip
 
 class ItineraryTypeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -26,6 +27,13 @@ class ItineraryItemSerializer(serializers.ModelSerializer):
             'status',
             'type_id'
         ]
+    
+    def validate_visit_time(self, value):
+        trip_id = self.context['trip_id']
+        trip = Trip.objects.get(id=trip_id)
+        if value and (value.date() < trip.start_date or value.date() > trip.end_date):
+            raise serializers.ValidationError("Visit time must be within the trip's start and end dates.")
+        return value
     
     def create(self, validated_data):
         trip_id = self.context['trip_id']
