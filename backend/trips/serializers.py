@@ -154,15 +154,14 @@ class TripSerializer(serializers.ModelSerializer):
     is_member = serializers.SerializerMethodField()
     highlights = serializers.ListField(child=serializers.CharField(), read_only=True)
     tags = TagSerializer(many=True, read_only=True)
-    tag_ids = serializers.PrimaryKeyRelatedField(
-        queryset=Tag.objects.all(),
-        source='tags',
-        many=True,
+    new_tag_names = serializers.ListField(
+        child=serializers.CharField(),
         write_only=True,
         required=False
     )
-    new_tag_names = serializers.ListField(
-        child=serializers.CharField(),
+    new_tag_ids = serializers.PrimaryKeyRelatedField(
+        queryset=Tag.objects.all(),
+        many=True,
         write_only=True,
         required=False
     )
@@ -188,7 +187,7 @@ class TripSerializer(serializers.ModelSerializer):
             
         if start_date >= end_date:
             raise serializers.ValidationError("Start date must be before end date")
-        elif start_date < timezone.now().date():
+        elif not self.instance and start_date < timezone.now().date():
             raise serializers.ValidationError("Start date cannot be in the past.")
         return start_date
     
@@ -217,8 +216,8 @@ class TripSerializer(serializers.ModelSerializer):
         request = self.context['request']
         owner = request.user
         
-        # Handle update usage count for existing tags
-        tags = validated_data.pop('tags', [])
+        # Handle new tag ids
+        tags = validated_data.pop('new_tag_ids', [])
         for tag in tags:
             tag.usage_count = models.F('usage_count') + 1
             tag.save()
@@ -242,27 +241,31 @@ class TripSerializer(serializers.ModelSerializer):
         """Remove owner because we don't want to update it"""
         validated_data.pop('owner', None)
         
-        # Handle update usage count for new tags
-        tags = validated_data.pop('tags', [])
-        existing_tags = instance.tags.all()
-        for tag in tags:
-            if tag not in existing_tags:
+        # Handle new tag ids
+        tags = list(instance.tags.all())
+        new_tag_ids = validated_data.pop('new_tag_ids', [])
+        for tag in new_tag_ids:
+            if tag not in tags:
                 tag.usage_count = models.F('usage_count') + 1
                 tag.save()
+                tags.append(tag)
         
         # Handle new tags creation
         new_tag_names = validated_data.pop('new_tag_names', [])
         for tag_name in new_tag_names:
-            tag, _ = Tag.objects.get_or_create(name=tag_name)
+            tag, _ = Tag.objects.get_or_create(
+                name=tag_name,
+                defaults={'slug': slugify(tag_name)}
+            )
             tags.append(tag)
             
         # Handle tags removal usage count decrement
         remove_tags = validated_data.pop('remove_tag_ids', [])
         for tag in remove_tags:
-            if tag in instance.tags.all():
+            if tag in tags:
                 tag.usage_count = models.F('usage_count') - 1
                 tag.save()
-                tags = [t for t in tags if t != tag]
+                tags.remove(tag)
 
         instance = super().update(instance, validated_data)
         instance.tags.set(tags)
