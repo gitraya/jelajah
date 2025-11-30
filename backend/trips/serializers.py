@@ -166,6 +166,12 @@ class TripSerializer(serializers.ModelSerializer):
         write_only=True,
         required=False
     )
+    remove_tag_ids = serializers.PrimaryKeyRelatedField(
+        queryset=Tag.objects.all(),
+        many=True,
+        write_only=True,
+        required=False
+    )
     spent_budget = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     user_role = serializers.CharField(read_only=True)
 
@@ -236,12 +242,14 @@ class TripSerializer(serializers.ModelSerializer):
         """Remove owner because we don't want to update it"""
         validated_data.pop('owner', None)
         
-        # Handle update usage count for existing tags
+        # Handle update usage count for new tags
         tags = validated_data.pop('tags', [])
+        existing_tags = instance.tags.all()
         for tag in tags:
-            tag.usage_count = models.F('usage_count') + 1
-            tag.save()
-
+            if tag not in existing_tags:
+                tag.usage_count = models.F('usage_count') + 1
+                tag.save()
+        
         # Handle new tags creation
         new_tag_names = validated_data.pop('new_tag_names', [])
         for tag_name in new_tag_names:
@@ -249,11 +257,12 @@ class TripSerializer(serializers.ModelSerializer):
             tags.append(tag)
             
         # Handle tags removal usage count decrement
-        existing_tags = instance.tags.all()
-        for tag in existing_tags:
-            if tag not in tags:
+        remove_tags = validated_data.pop('remove_tag_ids', [])
+        for tag in remove_tags:
+            if tag in instance.tags.all():
                 tag.usage_count = models.F('usage_count') - 1
                 tag.save()
+                tags = [t for t in tags if t != tag]
 
         instance = super().update(instance, validated_data)
         instance.tags.set(tags)

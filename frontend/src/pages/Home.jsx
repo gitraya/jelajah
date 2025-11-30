@@ -175,7 +175,7 @@ const HomeContent = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold break-all">
-                {tripsStatistics.total}
+                {tripsStatistics.total || 0}
               </div>
             </CardContent>
           </Card>
@@ -189,7 +189,7 @@ const HomeContent = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-600 break-all">
-                {tripsStatistics.joinable}
+                {tripsStatistics.joinable || 0}
               </div>
             </CardContent>
           </Card>

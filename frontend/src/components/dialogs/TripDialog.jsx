@@ -57,6 +57,7 @@ export default function TripDialog({ trip, onSuccess, trigger }) {
       data.budget = parseInt(data.budget) || 0;
       data.duration = calculateDuration(data.start_date, data.end_date);
       data.member_spots = parseInt(data.member_spots) || 1;
+
       if (data.tag_ids) {
         data.new_tag_names = data.tag_ids
           .filter((tag) => !defaultTags.some((t) => t.id === tag.value))
@@ -66,6 +67,16 @@ export default function TripDialog({ trip, onSuccess, trigger }) {
           .map((tag) => tag.value);
       } else {
         data.tag_ids = [];
+      }
+
+      if (isEditMode) {
+        const existingTagIds = trip?.tags?.map((tag) => tag.id) || [];
+        const removedTagIds = existingTagIds.filter(
+          (id) => !data.tag_ids.includes(id)
+        );
+        if (removedTagIds.length > 0) {
+          data.remove_tag_ids = removedTagIds;
+        }
       }
 
       let response = isEditMode

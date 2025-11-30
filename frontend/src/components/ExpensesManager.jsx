@@ -178,7 +178,7 @@ export function ExpensesManager() {
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-2 ml-auto md:ml-0">
-                    <span className="font-medium">
+                    <span className="font-medium break-all">
                       {formatCurrency(expense.amount)}
                     </span>
                     <Button
@@ -228,11 +228,11 @@ export function ExpensesManager() {
             <DialogDescription>{viewingSplitExpense?.title}</DialogDescription>
           </DialogHeader>
           {viewingSplitExpense && (
-            <div className="space-y-4">
+            <div className="space-y-4 overflow-hidden">
               <div className="flex justify-between items-center p-4 bg-muted rounded-lg">
                 <div>
                   <p className="text-sm text-muted-foreground">Total Amount</p>
-                  <p className="text-2xl font-bold">
+                  <p className="text-2xl font-bold break-all">
                     {formatCurrency(viewingSplitExpense.amount)}
                   </p>
                 </div>
@@ -240,7 +240,7 @@ export function ExpensesManager() {
 
               <div>
                 <h4 className="font-medium mb-2">Paid by</h4>
-                <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg flex-wrap">
                   <Badge
                     variant="outline"
                     className="bg-green-100 text-green-800"
@@ -248,7 +248,7 @@ export function ExpensesManager() {
                     Payer
                   </Badge>
                   <span>{getPaidByName(viewingSplitExpense.paid_by)}</span>
-                  <span className="text-sm text-muted-foreground ml-auto">
+                  <span className="text-sm text-muted-foreground ml-auto break-all">
                     Paid {formatCurrency(viewingSplitExpense.amount)}
                   </span>
                 </div>
@@ -263,11 +263,11 @@ export function ExpensesManager() {
                     return (
                       <div
                         key={split.id}
-                        className="flex items-center justify-between p-3 border rounded-lg"
+                        className="flex items-center justify-between p-3 border rounded-lg gap-1 flex-wrap"
                       >
                         <span>{getPaidByName(split.member)}</span>
                         <div className="text-right">
-                          <span className="font-medium">
+                          <span className="font-medium break-all">
                             {formatCurrency(split.amount)}
                           </span>
                           {split.paid === true ? (
