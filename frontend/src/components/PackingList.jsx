@@ -29,7 +29,7 @@ import { getPackingCategoryColor } from "@/lib/colors";
 
 const getAssignedName = (assigned_to, user) => {
   if (assigned_to?.user?.id === user?.id) {
-    return "Personal";
+    return "You";
   }
 
   return assigned_to?.user?.first_name || "Shared";

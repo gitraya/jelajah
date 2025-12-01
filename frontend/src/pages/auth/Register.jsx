@@ -140,6 +140,7 @@ export default function Register() {
                   placeholder="Enter your last name"
                   aria-invalid={errors.last_name ? "true" : "false"}
                   {...register("last_name", {
+                    required: validator.required,
                     minLength: validator.minLength(2),
                     maxLength: validator.maxLength(50),
                   })}
