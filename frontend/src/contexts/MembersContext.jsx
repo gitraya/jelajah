@@ -6,6 +6,8 @@ import { useApi } from "@/hooks/useApi";
 import { MembersContext } from "@/hooks/useMembers";
 import { getErrorMessage } from "@/lib/utils";
 
+const ACCEPTED_STATUS = Object.keys(TRIP_MEMBER_STATUSES)[0];
+
 export const MembersProvider = ({ children }) => {
   const { id: defaultTripId } = useParams();
   const { getRequest, patchRequest, deleteRequest, postRequest } = useApi();
@@ -22,9 +24,7 @@ export const MembersProvider = ({ children }) => {
       const response = await getRequest(`/trips/${tripId}/members/items/`);
       setMembers(response.data || []);
       setAcceptedMembers(
-        (response.data || []).filter(
-          (member) => member.status === Object.keys(TRIP_MEMBER_STATUSES)[0]
-        )
+        (response.data || []).filter((m) => m.status === ACCEPTED_STATUS)
       );
       return response.data;
     } catch (error) {
@@ -74,7 +74,10 @@ export const MembersProvider = ({ children }) => {
           data
         );
 
-        setMembers((prev) => [...prev, response.data]);
+        setMembers((prev) => [response.data, ...prev]);
+        if (response.data.status === ACCEPTED_STATUS) {
+          setAcceptedMembers((prev) => [response.data, ...prev]);
+        }
         setStatistics((prev) => ({
           ...prev,
           total: prev.total + 1,
@@ -86,7 +89,7 @@ export const MembersProvider = ({ children }) => {
           selectedStatus === "all" ||
           selectedStatus === response.data.status
         ) {
-          setFilteredMembers((prev) => [...prev, response.data]);
+          setFilteredMembers((prev) => [response.data, ...prev]);
         }
 
         return response.data;
@@ -109,6 +112,7 @@ export const MembersProvider = ({ children }) => {
       if (!member) return;
 
       setMembers((prev) => prev.filter((m) => m.id !== id));
+      setAcceptedMembers((prev) => prev.filter((m) => m.id !== id));
       setFilteredMembers((prev) => prev.filter((m) => m.id !== id));
       setStatistics((prev) => ({
         ...prev,
@@ -128,9 +132,23 @@ export const MembersProvider = ({ children }) => {
         if (!member || Object.keys(data).length === 0) return;
         setError("");
 
-        setMembers((prev) =>
-          prev.map((m) => (m.id === id ? { ...m, ...data } : m))
+        const newMembers = members.map((m) =>
+          m.id === id ? { ...m, ...data } : m
         );
+        setMembers(newMembers);
+        if (
+          member.status === ACCEPTED_STATUS &&
+          data.status !== ACCEPTED_STATUS
+        ) {
+          setAcceptedMembers((prev) => prev.filter((m) => m.id !== id));
+        } else if (
+          member.status !== ACCEPTED_STATUS &&
+          data.status === ACCEPTED_STATUS
+        ) {
+          setAcceptedMembers(
+            newMembers.filter((m) => m.status === ACCEPTED_STATUS)
+          );
+        }
         setFilteredMembers((prev) =>
           prev.map((m) => (m.id === id ? { ...m, ...data } : m))
         );

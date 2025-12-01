@@ -37,6 +37,9 @@ class TripMember(BaseModel):
     
     def __str__(self):
         return f"{self.user.email} - {self.trip.title} ({self.role})"
+    
+    class Meta:
+        ordering = ['-joined_at']
 
 class Tag(BaseModel):
     name = models.CharField(max_length=50, unique=True)
