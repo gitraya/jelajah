@@ -18,6 +18,7 @@ export const MembersProvider = ({ children }) => {
   const [filteredMembers, setFilteredMembers] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [statistics, setStatistics] = useState({});
+  const [isDataMustRefreshed, setIsDataMustRefreshed] = useState(null);
 
   const fetchMembers = useCallback(async (tripId) => {
     try {
@@ -175,6 +176,10 @@ export const MembersProvider = ({ children }) => {
     [members]
   );
 
+  const refreshData = useCallback(() => {
+    setIsDataMustRefreshed(Math.random());
+  }, []);
+
   useEffect(() => {
     if (!defaultTripId) return;
     fetchFilteredMembers(defaultTripId);
@@ -187,7 +192,7 @@ export const MembersProvider = ({ children }) => {
       fetchStatistics(defaultTripId),
       fetchMembers(defaultTripId),
     ]).finally(() => setIsLoading(false));
-  }, []);
+  }, [isDataMustRefreshed]);
 
   return (
     <MembersContext.Provider
@@ -204,6 +209,7 @@ export const MembersProvider = ({ children }) => {
         updateMember,
         setSelectedStatus,
         setError,
+        refreshData,
       }}
     >
       {children}

@@ -20,6 +20,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { TRIP_MEMBER_ROLES } from "@/configs/trip";
 import { useExpenses } from "@/hooks/useExpenses";
+import { useMembers } from "@/hooks/useMembers";
 import { useTrip } from "@/hooks/useTrip";
 import { getExpenseCategoryColor } from "@/lib/colors";
 import { formatCurrency } from "@/lib/utils";
@@ -41,6 +42,7 @@ const getPaidByName = (paid_by) => {
 export function ExpensesManager() {
   const { trip } = useTrip();
   const { statistics, isLoading, expenses, deleteExpense } = useExpenses();
+  const { refreshData: refreshMembersData } = useMembers();
   const [viewingSplitExpense, setViewingSplitExpense] = useState(null);
 
   if (isLoading) {
@@ -55,6 +57,7 @@ export function ExpensesManager() {
   const handleDeleteExpense = (expenseId) => {
     deleteExpense(expenseId);
     toast.success("Expense deleted successfully");
+    refreshMembersData();
   };
 
   return (

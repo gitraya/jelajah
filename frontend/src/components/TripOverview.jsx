@@ -23,17 +23,23 @@ import { useItineraries } from "@/hooks/useItineraries";
 import { useTrip } from "@/hooks/useTrip";
 import { formatCurrency } from "@/lib/utils";
 
-export function TripOverview() {
+export function TripOverview({ currentTab }) {
   const { itinerarySummary, trip, fetchItinerarySummary } = useTrip();
-  const { statistics: checklistStatistics } = useChecklist();
-  const { statistics: expenseStatistics } = useExpenses();
-  const { statistics: itineraryStatistics } = useItineraries();
+  const { statistics: checklistStatistics, refreshData: refreshChecklistData } =
+    useChecklist();
+  const { statistics: expenseStatistics, refreshData: refreshExpenseData } =
+    useExpenses();
+  const { statistics: itineraryStatistics, refreshData: refreshItineraryData } =
+    useItineraries();
 
   useEffect(() => {
-    if (trip?.id) {
+    if (trip?.id && currentTab === "overview") {
       fetchItinerarySummary(trip.id);
+      refreshChecklistData();
+      refreshExpenseData();
+      refreshItineraryData();
     }
-  }, [trip?.id]);
+  }, [trip?.id, currentTab]);
 
   const { trip_budget, amount_spent } = expenseStatistics;
   const { total_items: total_tasks, completed_items: completed_tasks } =

@@ -80,7 +80,7 @@ export default function ExpenseDialog() {
     watch,
   } = useForm();
   const { user } = useAuth();
-  const { acceptedMembers } = useMembers();
+  const { acceptedMembers, refreshData: refreshMembersData } = useMembers();
   const { categories, createExpense, error, setError } = useExpenses();
   const [open, setOpen] = useState(false);
 
@@ -94,6 +94,7 @@ export default function ExpenseDialog() {
     createExpense(data).then(() => {
       toast.success("Expense added successfully");
       setOpen(false);
+      refreshMembersData();
     });
   };
 

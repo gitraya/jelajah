@@ -19,6 +19,7 @@ export const ItinerariesProvider = ({ children }) => {
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [types, setTypes] = useState([]);
   const [statistics, setStatistics] = useState({});
+  const [isDataMustRefreshed, setIsDataMustRefreshed] = useState(null);
 
   const fetchTypes = useCallback(async () => {
     try {
@@ -167,6 +168,10 @@ export const ItinerariesProvider = ({ children }) => {
     [locations]
   );
 
+  const refreshData = useCallback(() => {
+    setIsDataMustRefreshed(Math.random());
+  }, []);
+
   useEffect(() => {
     fetchTypes();
   }, []);
@@ -179,7 +184,7 @@ export const ItinerariesProvider = ({ children }) => {
       fetchItineraries(defaultTripId),
       fetchLocations(defaultTripId),
     ]).finally(() => setIsLoading(false));
-  }, [selectedType, selectedStatus]);
+  }, [selectedType, selectedStatus, isDataMustRefreshed]);
 
   return (
     <ItinerariesContext.Provider
@@ -198,6 +203,7 @@ export const ItinerariesProvider = ({ children }) => {
         createItinerary,
         deleteLocation,
         updateStatus,
+        refreshData,
       }}
     >
       {children}

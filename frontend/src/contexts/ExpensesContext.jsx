@@ -38,6 +38,7 @@ export const ExpensesProvider = ({ children }) => {
   const [expenses, setExpenses] = useState([]);
   const [categories, setCategories] = useState([]);
   const [statistics, setStatistics] = useState({});
+  const [isDataMustRefreshed, setIsDataMustRefreshed] = useState(null);
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -130,6 +131,10 @@ export const ExpensesProvider = ({ children }) => {
     [expenses]
   );
 
+  const refreshData = useCallback(() => {
+    setIsDataMustRefreshed(Math.random());
+  }, []);
+
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -141,7 +146,7 @@ export const ExpensesProvider = ({ children }) => {
       fetchStatistics(defaultTripId),
       fetchExpenses(defaultTripId),
     ]).finally(() => setIsLoading(false));
-  }, []);
+  }, [isDataMustRefreshed]);
 
   return (
     <ExpensesContext.Provider
@@ -154,6 +159,7 @@ export const ExpensesProvider = ({ children }) => {
         setError,
         createExpense,
         deleteExpense,
+        refreshData,
       }}
     >
       {children}

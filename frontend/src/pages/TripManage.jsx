@@ -111,7 +111,7 @@ export default function TripManage() {
                           </TabsList>
 
                           <TabsContent value="overview" className="mt-6">
-                            <TripOverview />
+                            <TripOverview currentTab={activeTab} />
                           </TabsContent>
 
                           <TabsContent value="expenses" className="mt-6">
@@ -191,16 +191,18 @@ const Header = () => {
               <div className="flex items-center gap-3 mb-2">
                 <h1 className="font-semibold shrink-0">{trip.title}</h1>
 
-                <TripDialog
-                  trip={trip}
-                  onSuccess={onSuccessEditTrip}
-                  trigger={
-                    <Button variant="outline" size="sm">
-                      <Edit className="w-4 h-4 mr-2" />
-                      Edit Trip
-                    </Button>
-                  }
-                />
+                {trip.is_editable && (
+                  <TripDialog
+                    trip={trip}
+                    onSuccess={onSuccessEditTrip}
+                    trigger={
+                      <Button variant="outline" size="sm">
+                        <Edit className="w-4 h-4 mr-2" />
+                        Edit Trip
+                      </Button>
+                    }
+                  />
+                )}
               </div>
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-muted-foreground">
                 <div className="flex items-center gap-1">

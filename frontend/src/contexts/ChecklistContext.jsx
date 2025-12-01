@@ -44,6 +44,7 @@ export const ChecklistProvider = ({ children }) => {
   const [upcomingChecklistItems, setUpcomingChecklistItems] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [statistics, setStatistics] = useState({});
+  const [isDataMustRefreshed, setIsDataMustRefreshed] = useState(null);
 
   const fetchStatistics = useCallback(async (tripId) => {
     try {
@@ -190,6 +191,10 @@ export const ChecklistProvider = ({ children }) => {
     [checklistItems]
   );
 
+  const refreshData = useCallback(() => {
+    setIsDataMustRefreshed(Math.random());
+  }, []);
+
   useEffect(() => {
     if (!defaultTripId) return;
     setIsLoading(true);
@@ -198,7 +203,7 @@ export const ChecklistProvider = ({ children }) => {
       fetchUpcomingChecklistItems(defaultTripId),
       fetchChecklistItems(defaultTripId),
     ]).finally(() => setIsLoading(false));
-  }, [selectedCategory]);
+  }, [selectedCategory, isDataMustRefreshed]);
 
   return (
     <ChecklistContext.Provider
@@ -214,6 +219,7 @@ export const ChecklistProvider = ({ children }) => {
         createChecklist,
         deleteItem,
         toggleCompleted,
+        refreshData,
       }}
     >
       {children}
