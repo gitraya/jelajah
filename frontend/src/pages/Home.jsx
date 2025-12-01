@@ -298,10 +298,21 @@ const HomeContent = () => {
           </div>
         </div>
 
-        {isLoading && (
+        {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <div className="text-lg">Loading trips...</div>
           </div>
+        ) : (
+          publicTrips.length === 0 && (
+            <div className="text-center py-12">
+              <div className="text-muted-foreground mb-4">
+                No trips found matching your criteria.
+              </div>
+              <Button variant="outline" onClick={handleClearFilters}>
+                Clear Filters
+              </Button>
+            </div>
+          )
         )}
 
         {/* Trips Grid */}
@@ -461,17 +472,6 @@ const HomeContent = () => {
             })}
           </Masonry>
         </ResponsiveMasonry>
-
-        {publicTrips.length === 0 && (
-          <div className="text-center py-12">
-            <div className="text-muted-foreground mb-4">
-              No trips found matching your criteria.
-            </div>
-            <Button variant="outline" onClick={handleClearFilters}>
-              Clear Filters
-            </Button>
-          </div>
-        )}
 
         {/* Footer CTA */}
         <div className="text-center py-12 mt-12 border-t">

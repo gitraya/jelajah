@@ -186,10 +186,18 @@ const MyTripsContent = () => {
           </Card>
         </div>
 
-        {isLoading && (
+        {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <div className="text-lg">Loading trips...</div>
           </div>
+        ) : (
+          myTrips.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-12">
+              <p className="text-lg text-muted-foreground text-center">
+                You have no trips yet. Start by creating a new trip!
+              </p>
+            </div>
+          )
         )}
 
         {/* Trips Grid */}
@@ -367,14 +375,6 @@ const MyTripsContent = () => {
             })}
           </Masonry>
         </ResponsiveMasonry>
-
-        {!isLoading && myTrips.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-12">
-            <p className="text-lg text-muted-foreground text-center">
-              You have no trips yet. Start by creating a new trip!
-            </p>
-          </div>
-        )}
       </div>
     </>
   );
