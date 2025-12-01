@@ -109,7 +109,7 @@ export const ChecklistProvider = ({ children }) => {
 
       setChecklistItems((prev) =>
         [response.data, ...prev].sort(
-          (a, b) => new Date(b.created_at) - new Date(a.created_at)
+          (a, b) => new Date(b.due_date) - new Date(a.due_date)
         )
       );
       setStatistics((prev) => ({

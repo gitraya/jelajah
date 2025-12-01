@@ -28,4 +28,4 @@ class ChecklistItem(BaseModel):
         return self.title
     
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['-due_date', 'position']
