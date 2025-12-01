@@ -269,6 +269,23 @@ export default function TripDialog({ trip, onSuccess, trigger }) {
             )}
           </div>
           <div className="space-y-2">
+            <Label htmlFor="notes">Notes</Label>
+            <Textarea
+              id="notes"
+              placeholder="Describe your trip"
+              rows={3}
+              aria-invalid={errors.notes ? "true" : "false"}
+              defaultValue={trip?.notes || ""}
+              {...register("notes", {
+                required: validator.required,
+                minLength: validator.minLength(2),
+              })}
+            />
+            {errors.notes && (
+              <p className="text-xs text-destructive">{errors.notes.message}</p>
+            )}
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="difficulty">Difficulty</Label>
             <Controller
               name="difficulty"

@@ -48,6 +48,32 @@ export function TripOverview() {
 
   return (
     <div className="space-y-6">
+      {/* Trip description and notes */}
+      <Card>
+        <CardHeader>
+          <CardTitle>About this Trip</CardTitle>
+          <CardDescription>
+            Overview and summary of your trip details
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {trip?.description ? (
+            <p className="whitespace-pre-wrap">{trip.description}</p>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No description provided for this trip.
+            </p>
+          )}
+
+          {trip?.notes && (
+            <div className="mt-4">
+              <h5 className="font-medium mb-2 italic">Additional Notes</h5>
+              <p className="whitespace-pre-wrap">{trip.notes}</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
