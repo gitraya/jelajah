@@ -104,7 +104,7 @@ export default function MemberDialog({ member, trigger, triggerClassName }) {
                   {...register("first_name", {
                     required: validator.required,
                     minLength: 2,
-                    maxLength: 100,
+                    maxLength: 50,
                   })}
                 />
                 {errors.first_name && (
@@ -120,9 +120,8 @@ export default function MemberDialog({ member, trigger, triggerClassName }) {
                   placeholder="Enter last name"
                   aria-invalid={errors.last_name ? "true" : "false"}
                   {...register("last_name", {
-                    required: validator.required,
                     minLength: 2,
-                    maxLength: 100,
+                    maxLength: 50,
                   })}
                 />
                 {errors.last_name && (
