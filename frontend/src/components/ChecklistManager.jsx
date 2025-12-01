@@ -7,6 +7,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import ChecklistDialog from "@/components/dialogs/ChecklistDialog";
+import { ConfirmationDialog } from "@/components/dialogs/ConfirmationDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,8 +34,6 @@ import { useChecklist } from "@/hooks/useChecklist";
 import { useTrip } from "@/hooks/useTrip";
 import { getItineraryPriorityColor } from "@/lib/colors";
 import { formatDate, isOverdue } from "@/lib/utils";
-
-import ChecklistDialog from "./dialogs/ChecklistDialog";
 
 export const ChecklistPriorityIcon = ({ priority }) => {
   switch (priority) {
@@ -297,14 +297,20 @@ export function ChecklistManager() {
                       </div>
                     </div>
                     {getIsEditable(item, user, trip.user_role) && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteItem(item.id)}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <ConfirmationDialog
+                        title="Delete Task"
+                        description="Are you sure you want to delete this task? This action cannot be undone."
+                        onConfirm={() => handleDeleteItem(item.id)}
+                        trigger={
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        }
+                      />
                     )}
                   </div>
                 </div>

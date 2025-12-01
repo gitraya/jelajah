@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useItineraries } from "@/hooks/useItineraries";
 import { validator } from "@/lib/utils";
 
+import { Alert, AlertDescription } from "../ui/alert";
 import { Button } from "../ui/button";
 import {
   Dialog,
@@ -68,11 +69,6 @@ export default function ItineraryDialog({ triggerClassName }) {
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {error && (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
           <div className="space-y-2">
             <Label htmlFor="name">Location Name</Label>
             <Input
@@ -204,6 +200,11 @@ export default function ItineraryDialog({ triggerClassName }) {
               <p className="text-xs text-destructive">{errors.notes.message}</p>
             )}
           </div>
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
           <div className="flex justify-end space-x-2">
             <DialogClose asChild>
               <Button variant="outline" type="button">

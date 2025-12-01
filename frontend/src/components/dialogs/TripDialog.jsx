@@ -136,11 +136,6 @@ export default function TripDialog({ trip, onSuccess, trigger }) {
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {error && (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
           <div className="space-y-2">
             <Label htmlFor="title">Title</Label>
             <Input
@@ -354,6 +349,11 @@ export default function TripDialog({ trip, onSuccess, trigger }) {
             />
             <Label htmlFor="is_joinable">Joinable</Label>
           </div>
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
           <div className="flex justify-end space-x-2">
             <DialogClose asChild>
               <Button variant="outline" type="button">

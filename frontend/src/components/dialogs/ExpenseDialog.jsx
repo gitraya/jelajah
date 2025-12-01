@@ -98,6 +98,7 @@ export default function ExpenseDialog() {
   };
 
   const setAmountsForSplitBetween = () => {
+    console.log(watch("split_between"), getValues("split_between"));
     const splitBetween = getValues("split_between") || [];
     if (!splitBetween?.length) return;
 
@@ -148,11 +149,6 @@ export default function ExpenseDialog() {
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {error && (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
           <div className="space-y-2">
             <Label htmlFor="category_id">Category</Label>
             <Select
@@ -377,6 +373,11 @@ export default function ExpenseDialog() {
             );
           })}
 
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
           <div className="flex justify-end space-x-2">
             <DialogClose asChild>
               <Button variant="outline" type="button">

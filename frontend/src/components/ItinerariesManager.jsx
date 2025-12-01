@@ -8,6 +8,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { ConfirmationDialog } from "@/components/dialogs/ConfirmationDialog";
+import ItineraryDialog from "@/components/dialogs/ItineraryDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,8 +33,6 @@ import { useItineraries } from "@/hooks/useItineraries";
 import { useTrip } from "@/hooks/useTrip";
 import { getMapStatusColor, getMapTypeColor } from "@/lib/colors";
 import { formatDateTime } from "@/lib/utils";
-
-import ItineraryDialog from "./dialogs/ItineraryDialog";
 
 const generateGoogleMapsUrl = (location) => {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
@@ -265,14 +265,22 @@ export function ItinerariesManager() {
                             <ExternalLink className="w-4 h-4" />
                           </Button>
                           {trip.user_role !== TRIP_MEMBER_ROLES.MEMBER[0] && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDeleteLocation(location.id)}
-                              className="text-destructive hover:text-destructive"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                            <ConfirmationDialog
+                              title="Delete Location"
+                              description="Are you sure you want to delete this location? This action cannot be undone."
+                              onConfirm={() =>
+                                handleDeleteLocation(location.id)
+                              }
+                              trigger={
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-destructive hover:text-destructive"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              }
+                            />
                           )}
                         </div>
                       </div>

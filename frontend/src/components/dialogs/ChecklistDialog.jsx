@@ -84,11 +84,6 @@ export default function ChecklistDialog() {
           <DialogDescription>Create a new checklist item</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {error && (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
           <div className="space-y-2">
             <Label htmlFor="title">Task Title</Label>
             <Input
@@ -236,6 +231,11 @@ export default function ChecklistDialog() {
               )}
             </div>
           </div>
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
           <div className="flex justify-end space-x-2">
             <DialogClose asChild>
               <Button variant="outline" type="button">

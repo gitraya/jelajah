@@ -8,6 +8,9 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import AccessRightsDialog from "@/components/dialogs/AccessRightsDialog";
+import { ConfirmationDialog } from "@/components/dialogs/ConfirmationDialog";
+import MemberDialog from "@/components/dialogs/MemberDialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -32,9 +35,6 @@ import { useMembers } from "@/hooks/useMembers";
 import { useTrip } from "@/hooks/useTrip";
 import { getMemberRoleColor, getMemberStatusColor } from "@/lib/colors";
 import { formatCurrency, getInitials } from "@/lib/utils";
-
-import AccessRightsDialog from "./dialogs/AccessRightsDialog";
-import MemberDialog from "./dialogs/MemberDialog";
 
 const getFullName = (user) => {
   return `${user.first_name} ${user.last_name}`;
@@ -296,14 +296,20 @@ export function MembersManager() {
                                 )}
                               </SelectContent>
                             </Select>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDeleteMember(member.id)}
-                              className="text-destructive hover:text-destructive"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                            <ConfirmationDialog
+                              title="Delete Member"
+                              description="Are you sure you want to delete this member? This action cannot be undone."
+                              onConfirm={() => handleDeleteMember(member.id)}
+                              trigger={
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-destructive hover:text-destructive"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              }
+                            />
                           </>
                         )}
                       </div>

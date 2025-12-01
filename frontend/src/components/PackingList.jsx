@@ -1,6 +1,8 @@
 import { CheckCircle, Circle, Package, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
+import { ConfirmationDialog } from "@/components/dialogs/ConfirmationDialog";
+import PackingDialog from "@/components/dialogs/PackingDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,8 +26,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePackingItems } from "@/hooks/usePackingItems";
 import { useTrip } from "@/hooks/useTrip";
 import { getPackingCategoryColor } from "@/lib/colors";
-
-import PackingDialog from "./dialogs/PackingDialog";
 
 const getAssignedName = (assigned_to, user) => {
   if (assigned_to?.user?.id === user?.id) {
@@ -211,14 +211,20 @@ export function PackingList() {
                       {getAssignedName(item.assigned_to, user)}
                     </Badge>
                     {getIsEditable(item, user, trip.user_role) && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeletePacking(item.id)}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <ConfirmationDialog
+                        title="Delete Packing Item"
+                        description="Are you sure you want to delete this packing item? This action cannot be undone."
+                        onConfirm={() => handleDeletePacking(item.id)}
+                        trigger={
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        }
+                      />
                     )}
                   </div>
                 </div>

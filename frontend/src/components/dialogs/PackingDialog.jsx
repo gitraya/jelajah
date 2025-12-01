@@ -99,11 +99,6 @@ export default function PackingDialog() {
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {error && (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
           <div className="space-y-2">
             <Label htmlFor="name">Item Name</Label>
             <Input
@@ -198,6 +193,11 @@ export default function PackingDialog() {
               </p>
             )}
           </div>
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
           <div className="flex justify-end space-x-2">
             <DialogClose asChild>
               <Button variant="outline" type="button">

@@ -115,13 +115,6 @@ class ExpenseSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Assigned member is not an accepted member of the trip.")
         return value
     
-    def validate_date(self, value):
-        trip_id = self.context['trip_id']
-        trip = Trip.objects.get(id=trip_id)
-        if value and (value < trip.start_date or value > trip.end_date):
-            raise serializers.ValidationError("Expense date must be within the trip dates.")
-        return value
-    
     @transaction.atomic
     def create(self, validated_data):
         trip_id = self.context['trip_id']
