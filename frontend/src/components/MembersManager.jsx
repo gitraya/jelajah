@@ -382,7 +382,7 @@ export function MembersManager() {
                           Emergency Contact:
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          {member.emergency_contact_name} -{" "}
+                          {member.emergency_contact_name} |{" "}
                           {member.emergency_contact_phone}
                         </div>
                       </div>
