@@ -59,9 +59,9 @@ class TripViewSet(ModelViewSet):
             if status:
                 qs = qs.filter(status=status.upper())
             
-            title = self.request.query_params.get("title")
-            if title:
-                qs = qs.filter(title__icontains=title)
+            search = self.request.query_params.get("search")
+            if search:
+                qs = qs.filter(Q(title__icontains=search) | Q(destination__icontains=search) | Q(tags__name__icontains=search)).distinct()
 
         return qs
     
@@ -318,6 +318,10 @@ class JoinTripView(generics.CreateAPIView):
         trip = Trip.objects.filter(id=trip_id, is_joinable=True).first()
         if not trip:
             return Response({"detail": "Trip not found or not joinable."}, status=status.HTTP_404_NOT_FOUND)
+        
+        members_count = TripMember.objects.filter(trip=trip, status=MemberStatus.ACCEPTED).count()
+        if members_count >= trip.member_spots:
+            return Response({"detail": "Trip is full."}, status=status.HTTP_400_BAD_REQUEST)
         
         existing_member = TripMember.objects.filter(trip=trip, user=user).first()
         if existing_member and existing_member.status == MemberStatus.ACCEPTED:

@@ -33,6 +33,7 @@ import { useTrip } from "@/hooks/useTrip";
 import { getMemberRoleColor, getMemberStatusColor } from "@/lib/colors";
 import { formatCurrency, getInitials } from "@/lib/utils";
 
+import AccessRightsDialog from "./dialogs/AccessRightsDialog";
 import MemberDialog from "./dialogs/MemberDialog";
 
 const getFullName = (user) => {
@@ -165,9 +166,10 @@ export function MembersManager() {
             <CardHeader className="flex flex-wrap flex-row items-center justify-between">
               <div>
                 <CardTitle>Trip Members</CardTitle>
-                <CardDescription>
+                <CardDescription className="mb-2">
                   Manage your travel group members
                 </CardDescription>
+                <AccessRightsDialog />
               </div>
               <div className="flex flex-wrap gap-2">
                 <Select

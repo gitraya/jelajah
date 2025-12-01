@@ -5,7 +5,7 @@ class IsTripAccessible(BasePermission):
     """
     - Anyone can view public trips
     - Authenticated users can view trips they own or are a member of
-    - Only owners or members with elevated roles can update trips
+    - Only owners or members other than 'MEMBER' can update trips
     - Only owners can delete trips
     """
 

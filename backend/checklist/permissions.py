@@ -5,7 +5,7 @@ class IsChecklistItemAccessible(permissions.BasePermission):
     """
     - Only trip owners or members with accepted status can view checklist items.
     - Trip owners and members with roles other than 'MEMBER' can create, update, and delete checklist items.
-    - Members with 'MEMBER' role can view checklist items and create, update checklist items with assigned_to themselves.
+    - Members with 'MEMBER' role can view checklist items and create, update, delete checklist items with assigned_to themselves.
     """
     
     def has_permission(self, request, view):
@@ -37,9 +37,9 @@ class IsChecklistItemAccessible(permissions.BasePermission):
                 if member.role != MemberRole.MEMBER:
                     return True
                 else:
-                    if view.action in ['update', 'partial_update']:
-                        packing_item = view.get_object()
-                        return packing_item.assigned_to and packing_item.assigned_to.user == user
+                    if view.action in ['update', 'partial_update', 'destroy']:
+                        checklist_item = view.get_object()
+                        return checklist_item.assigned_to and checklist_item.assigned_to.user == user
                     elif view.action == 'create':
                         assigned_to_id = request.data.get('assigned_to')
                         return assigned_to_id == member.id

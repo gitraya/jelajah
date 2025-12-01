@@ -69,7 +69,7 @@ const HomeContent = () => {
 
   const getSearchQueryString = useCallback(() => {
     const params = new URLSearchParams();
-    if (searchQuery) params.append("title", searchQuery);
+    if (searchQuery) params.append("search", searchQuery);
     if (selectedDestination !== "All")
       params.append("destination", selectedDestination);
     if (selectedStatus !== "All") params.append("status", selectedStatus);
@@ -309,12 +309,13 @@ const HomeContent = () => {
           <Masonry itemStyle={{ gap: "24px" }} style={{ gap: "24px" }}>
             {publicTrips.map((trip) => {
               const spotsLeft = trip.member_spots - trip.members_count;
+              const isJoinable = trip.is_joinable && spotsLeft > 0;
 
               return (
                 <Link key={trip.id} to={`/trips/${trip.id}`} className="w-full">
                   <Card className="group hover:shadow-lg transition-shadow cursor-pointer">
                     <CardHeader>
-                      <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <CardTitle className="mb-2 group-hover:text-primary transition-colors">
                             {trip.title}
@@ -335,7 +336,7 @@ const HomeContent = () => {
                           <Badge className={getTripStatusColor(trip.status)}>
                             {TRIP_STATUSES[trip.status]}
                           </Badge>
-                          {trip.is_joinable && spotsLeft > 0 && (
+                          {isJoinable && (
                             <Badge
                               variant="outline"
                               className="text-green-600 border-green-600"
@@ -444,14 +445,14 @@ const HomeContent = () => {
                       {/* Action */}
                       <Button
                         className="w-full"
-                        variant={trip.is_joinable ? "default" : "outline"}
+                        variant={isJoinable ? "default" : "outline"}
                         onClick={(e) => {
                           e.stopPropagation();
                           navigate(`/trips/${trip.id}`);
                         }}
                       >
                         <Eye className="w-4 h-4 mr-2" />
-                        {trip.is_joinable ? "View & Join" : "View Trip"}
+                        {isJoinable ? "View & Join" : "View Trip"}
                       </Button>
                     </CardContent>
                   </Card>

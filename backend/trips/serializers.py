@@ -263,8 +263,10 @@ class TripSerializer(serializers.ModelSerializer):
         remove_tags = validated_data.pop('remove_tag_ids', [])
         for tag in remove_tags:
             if tag in tags:
-                tag.usage_count = models.F('usage_count') - 1
-                tag.save()
+                tag.refresh_from_db()
+                if tag.usage_count > 0:
+                    tag.usage_count = models.F('usage_count') - 1
+                    tag.save()
                 tags.remove(tag)
 
         instance = super().update(instance, validated_data)

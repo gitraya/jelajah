@@ -44,11 +44,7 @@ export default function TripDialog({ trip, onSuccess, trigger }) {
     formState: { errors },
     control,
     setValue,
-  } = useForm({
-    defaultValues: {
-      difficulty: trip?.difficulty || "",
-    },
-  });
+  } = useForm();
   const [error, setError] = useState("");
   const [open, setOpen] = useState(false);
 
@@ -344,6 +340,7 @@ export default function TripDialog({ trip, onSuccess, trigger }) {
             <Switch
               id="is_public"
               defaultChecked={isEditMode ? trip.is_public : true}
+              onCheckedChange={(checked) => setValue("is_public", checked)}
               {...register("is_public")}
             />
             <Label htmlFor="is_public">Public</Label>
@@ -352,6 +349,7 @@ export default function TripDialog({ trip, onSuccess, trigger }) {
             <Switch
               id="is_joinable"
               defaultChecked={isEditMode ? trip.is_joinable : true}
+              onCheckedChange={(checked) => setValue("is_joinable", checked)}
               {...register("is_joinable")}
             />
             <Label htmlFor="is_joinable">Joinable</Label>

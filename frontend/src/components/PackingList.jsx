@@ -210,7 +210,7 @@ export function PackingList() {
                     <Badge variant="outline">
                       {getAssignedName(item.assigned_to, user)}
                     </Badge>
-                    {trip.user_role !== TRIP_MEMBER_ROLES.MEMBER[0] && (
+                    {getIsEditable(item, user, trip.user_role) && (
                       <Button
                         variant="ghost"
                         size="sm"

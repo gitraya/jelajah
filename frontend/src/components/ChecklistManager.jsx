@@ -296,7 +296,7 @@ export function ChecklistManager() {
                         </div>
                       </div>
                     </div>
-                    {trip.user_role !== TRIP_MEMBER_ROLES.MEMBER[0] && (
+                    {getIsEditable(item, user, trip.user_role) && (
                       <Button
                         variant="ghost"
                         size="sm"

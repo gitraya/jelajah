@@ -172,8 +172,8 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.ScopedRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
-        "anon": "30/hour",
-        "user": "1000/day",
+        "anon": "500/hour",
+        "user": "500/hour",
         "resend_set_password_email": "3/hour",
     },
 }

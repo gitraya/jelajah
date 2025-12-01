@@ -5,7 +5,7 @@ class IsPackingItemAccessible(permissions.BasePermission):
     """
     - Only trip owners or members with accepted status or is_public can view packing items.
     - Trip owners and members with roles other than 'MEMBER' can create, update, and delete packing items.
-    - Members with 'MEMBER' role can view packing items and create, update packing items with assigned_to themselves.
+    - Members with 'MEMBER' role can view packing items and create, update, delete packing items with assigned_to themselves.
     """
     
     def has_permission(self, request, view):
@@ -37,11 +37,12 @@ class IsPackingItemAccessible(permissions.BasePermission):
                 if member.role != MemberRole.MEMBER:
                     return True
                 else:
-                    if view.action in ['update', 'partial_update']:
+                    if view.action in ['update', 'partial_update', 'destroy']:
                         packing_item = view.get_object()
                         return packing_item.assigned_to and packing_item.assigned_to.user == user
                     elif view.action == 'create':
                         assigned_to_id = request.data.get('assigned_to')
                         return assigned_to_id == member.id
+                    
         
         return False
