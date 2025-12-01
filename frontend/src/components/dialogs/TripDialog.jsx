@@ -272,12 +272,11 @@ export default function TripDialog({ trip, onSuccess, trigger }) {
             <Label htmlFor="notes">Notes</Label>
             <Textarea
               id="notes"
-              placeholder="Describe your trip"
+              placeholder="Additional notes about your trip"
               rows={3}
               aria-invalid={errors.notes ? "true" : "false"}
               defaultValue={trip?.notes || ""}
               {...register("notes", {
-                required: validator.required,
                 minLength: validator.minLength(2),
               })}
             />

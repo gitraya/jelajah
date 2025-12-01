@@ -71,6 +71,19 @@ export function TripOverview() {
               <p className="whitespace-pre-wrap">{trip.notes}</p>
             </div>
           )}
+
+          {trip?.tags?.length > 0 && (
+            <div className="mt-4">
+              <h5 className="font-medium mb-2">Tags</h5>
+              <div className="flex flex-wrap gap-2">
+                {trip.tags.map((tag) => (
+                  <Badge key={tag.id} variant="secondary" className="text-sm">
+                    {tag.name}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
