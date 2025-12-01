@@ -1,6 +1,6 @@
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { useItineraries } from "@/hooks/useItineraries";
@@ -32,9 +32,9 @@ export default function ItineraryDialog({ triggerClassName }) {
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors },
     reset,
+    control,
   } = useForm();
   const { createItinerary, types, setError, error } = useItineraries();
   const [open, setOpen] = useState(false);
@@ -105,24 +105,27 @@ export default function ItineraryDialog({ triggerClassName }) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="type_id">Type</Label>
-            <Select
-              id="type_id"
-              onValueChange={(value) =>
-                setValue("type_id", value, { shouldValidate: true })
-              }
-              {...register("type_id", { required: validator.required })}
-            >
-              <SelectTrigger aria-invalid={errors.type_id ? "true" : "false"}>
-                <SelectValue placeholder="Select type" />
-              </SelectTrigger>
-              <SelectContent>
-                {types.slice(1).map((type) => (
-                  <SelectItem key={type.id} value={type.id}>
-                    {type.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Controller
+              name="type_id"
+              control={control}
+              rules={{ required: validator.required }}
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger
+                    aria-invalid={errors.type_id ? "true" : "false"}
+                  >
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {types.slice(1).map((type) => (
+                      <SelectItem key={type.id} value={type.id}>
+                        {type.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
             {errors.type_id && (
               <p className="text-xs text-destructive">
                 {errors.type_id.message}

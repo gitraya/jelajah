@@ -98,7 +98,6 @@ export default function ExpenseDialog() {
   };
 
   const setAmountsForSplitBetween = () => {
-    console.log(watch("split_between"), getValues("split_between"));
     const splitBetween = getValues("split_between") || [];
     if (!splitBetween?.length) return;
 
@@ -151,26 +150,27 @@ export default function ExpenseDialog() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="category_id">Category</Label>
-            <Select
-              id="category_id"
-              onValueChange={(value) =>
-                setValue("category_id", value, { shouldValidate: true })
-              }
-              {...register("category_id", { required: validator.required })}
-            >
-              <SelectTrigger
-                aria-invalid={errors.category_id ? "true" : "false"}
-              >
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.slice(1).map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Controller
+              name="category_id"
+              control={control}
+              rules={{ required: validator.required }}
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger
+                    aria-invalid={errors.category_id ? "true" : "false"}
+                  >
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.slice(1).map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
             {errors.category_id && (
               <p className="text-xs text-destructive">
                 {errors.category_id.message}
@@ -229,39 +229,45 @@ export default function ExpenseDialog() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="paid_by_id">Paid by</Label>
-            <Select
-              id="paid_by_id"
-              onValueChange={(value) => {
-                const oldSplitBetween = getValues("split_between");
-                const newSplitBetween = oldSplitBetween || [];
-                if (!newSplitBetween?.some((o) => o.value === value)) {
-                  newSplitBetween.push({
-                    value,
-                    label: getPaidByLabel(
-                      acceptedMembers.find((m) => m.id === value)
-                    ),
-                  });
-                }
-                setValue("paid_by_id", value, { shouldValidate: true });
-                setValue("split_between", newSplitBetween, {
-                  shouldValidate: true,
-                });
-              }}
-              {...register("paid_by_id", { required: validator.required })}
-            >
-              <SelectTrigger
-                aria-invalid={errors.paid_by_id ? "true" : "false"}
-              >
-                <SelectValue placeholder="Select who paid this" />
-              </SelectTrigger>
-              <SelectContent>
-                {acceptedMembers.map((option) => (
-                  <SelectItem key={option.id} value={option.id}>
-                    {getPaidByLabel(option, user)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Controller
+              name="paid_by_id"
+              control={control}
+              rules={{ required: validator.required }}
+              render={({ field }) => (
+                <Select
+                  value={field.value}
+                  onValueChange={(value) => {
+                    const oldSplitBetween = getValues("split_between");
+                    const newSplitBetween = oldSplitBetween || [];
+                    if (!newSplitBetween?.some((o) => o.value === value)) {
+                      newSplitBetween.push({
+                        value,
+                        label: getPaidByLabel(
+                          acceptedMembers.find((m) => m.id === value)
+                        ),
+                      });
+                    }
+                    field.onChange(value);
+                    setValue("split_between", newSplitBetween, {
+                      shouldValidate: true,
+                    });
+                  }}
+                >
+                  <SelectTrigger
+                    aria-invalid={errors.paid_by_id ? "true" : "false"}
+                  >
+                    <SelectValue placeholder="Select who paid this" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {acceptedMembers.map((option) => (
+                      <SelectItem key={option.id} value={option.id}>
+                        {getPaidByLabel(option, user)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
             {errors.paid_by_id && (
               <p className="text-xs text-destructive">
                 {errors.paid_by_id.message}
@@ -273,26 +279,27 @@ export default function ExpenseDialog() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="split_type">Split Type</Label>
-            <Select
-              id="split_type"
-              onValueChange={(value) =>
-                setValue("split_type", value, { shouldValidate: true })
-              }
-              {...register("split_type", { required: validator.required })}
-            >
-              <SelectTrigger
-                aria-invalid={errors.split_type ? "true" : "false"}
-              >
-                <SelectValue placeholder="Select split type" />
-              </SelectTrigger>
-              <SelectContent>
-                {EXPENSE_SPLIT_TYPES.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Controller
+              name="split_type"
+              control={control}
+              rules={{ required: validator.required }}
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger
+                    aria-invalid={errors.split_type ? "true" : "false"}
+                  >
+                    <SelectValue placeholder="Select split type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {EXPENSE_SPLIT_TYPES.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
             {errors.split_type && (
               <p className="text-xs text-destructive">
                 {errors.split_type.message}
@@ -316,9 +323,7 @@ export default function ExpenseDialog() {
                   placeholder="Select members to split with"
                   aria-invalid={errors.split_between ? "true" : "false"}
                   value={field.value}
-                  onChange={(selectedOptions) =>
-                    field.onChange(selectedOptions)
-                  }
+                  onChange={field.onChange}
                 />
               )}
             />

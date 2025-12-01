@@ -1,6 +1,6 @@
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -49,9 +49,9 @@ export default function PackingDialog() {
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors },
     reset,
+    control,
   } = useForm();
   const { id: tripId } = useParams();
   const { trip } = useTrip();
@@ -117,26 +117,27 @@ export default function PackingDialog() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="category_id">Category</Label>
-            <Select
-              id="category_id"
-              onValueChange={(value) =>
-                setValue("category_id", value, { shouldValidate: true })
-              }
-              {...register("category_id", { required: validator.required })}
-            >
-              <SelectTrigger
-                aria-invalid={errors.category_id ? "true" : "false"}
-              >
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.slice(1).map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Controller
+              name="category_id"
+              control={control}
+              rules={{ required: validator.required }}
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger
+                    aria-invalid={errors.category_id ? "true" : "false"}
+                  >
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.slice(1).map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
             {errors.category_id && (
               <p className="text-xs text-destructive">
                 {errors.category_id.message}
@@ -164,29 +165,32 @@ export default function PackingDialog() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="assigned_to_id">Assigned to</Label>
-            <Select
-              id="assigned_to_id"
-              onValueChange={(value) =>
-                setValue("assigned_to_id", value, { shouldValidate: true })
+            <Controller
+              name="assigned_to_id"
+              control={control}
+              rules={{ required: validator.required }}
+              defaultValue={
+                trip.user_role === TRIP_MEMBER_ROLES.MEMBER[0]
+                  ? assignedToOptions[0]?.id
+                  : ""
               }
-              {...register("assigned_to_id", { required: validator.required })}
-              {...(trip.user_role === TRIP_MEMBER_ROLES.MEMBER[0] && {
-                defaultValue: assignedToOptions[0]?.id,
-              })}
-            >
-              <SelectTrigger
-                aria-invalid={errors.assigned_to_id ? "true" : "false"}
-              >
-                <SelectValue placeholder="Select who packs this" />
-              </SelectTrigger>
-              <SelectContent>
-                {assignedToOptions.map((option) => (
-                  <SelectItem key={option.id} value={option.id}>
-                    {getAssignedLabel(option, user)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger
+                    aria-invalid={errors.assigned_to_id ? "true" : "false"}
+                  >
+                    <SelectValue placeholder="Select who packs this" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {assignedToOptions.map((option) => (
+                      <SelectItem key={option.id} value={option.id}>
+                        {getAssignedLabel(option, user)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
             {errors.assigned_to_id && (
               <p className="text-xs text-destructive">
                 {errors.assigned_to_id.message}

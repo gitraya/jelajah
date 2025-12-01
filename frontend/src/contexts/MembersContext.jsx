@@ -121,38 +121,38 @@ export const MembersProvider = ({ children }) => {
     [members]
   );
 
-  const updateMemberStatus = useCallback(
-    (id, status, tripId = defaultTripId) => {
-      const member = members.find((m) => m.id === id);
-      if (!member || member.status === status) return;
+  const updateMember = useCallback(
+    async (id, data, tripId = defaultTripId) => {
+      try {
+        const member = members.find((m) => m.id === id);
+        if (!member || Object.keys(data).length === 0) return;
+        setError("");
 
-      setMembers((prev) =>
-        prev.map((m) => (m.id === id ? { ...m, status } : m))
-      );
-      setFilteredMembers((prev) =>
-        prev.map((m) => (m.id === id ? { ...m, status } : m))
-      );
-      setStatistics((prev) => ({
-        ...prev,
-        [member.status.toLowerCase()]:
-          (prev[member.status.toLowerCase()] || 0) - 1,
-        [status.toLowerCase()]: (prev[status.toLowerCase()] || 0) + 1,
-      }));
-      patchRequest(`/trips/${tripId}/members/items/${id}/`, { status });
-    },
-    [members]
-  );
-
-  const updateMemberRole = useCallback(
-    (id, role, tripId = defaultTripId) => {
-      const member = members.find((m) => m.id === id);
-      if (!member || member.role === role) return;
-
-      setMembers((prev) => prev.map((m) => (m.id === id ? { ...m, role } : m)));
-      setFilteredMembers((prev) =>
-        prev.map((m) => (m.id === id ? { ...m, role } : m))
-      );
-      patchRequest(`/trips/${tripId}/members/items/${id}/`, { role });
+        setMembers((prev) =>
+          prev.map((m) => (m.id === id ? { ...m, ...data } : m))
+        );
+        setFilteredMembers((prev) =>
+          prev.map((m) => (m.id === id ? { ...m, ...data } : m))
+        );
+        if (data.status && data.status !== member.status) {
+          setStatistics((prev) => ({
+            ...prev,
+            [member.status.toLowerCase()]:
+              (prev[member.status.toLowerCase()] || 0) - 1,
+            [data.status.toLowerCase()]:
+              (prev[data.status.toLowerCase()] || 0) + 1,
+          }));
+        }
+        await patchRequest(`/trips/${tripId}/members/items/${id}/`, data);
+      } catch (error) {
+        setError(
+          getErrorMessage(
+            error,
+            "An error occurred while updating the member. Please try again later."
+          )
+        );
+        throw error;
+      }
     },
     [members]
   );
@@ -183,8 +183,7 @@ export const MembersProvider = ({ children }) => {
         statistics,
         createMember,
         deleteMember,
-        updateMemberStatus,
-        updateMemberRole,
+        updateMember,
         setSelectedStatus,
         setError,
       }}

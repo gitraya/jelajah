@@ -1,6 +1,7 @@
 import {
   AlertCircle,
   CreditCard,
+  Edit,
   Mail,
   Phone,
   Trash2,
@@ -50,9 +51,7 @@ export function MembersManager() {
     members,
     selectedStatus,
     setSelectedStatus,
-    updateMemberStatus,
     deleteMember,
-    updateMemberRole,
   } = useMembers();
 
   if (isLoading) {
@@ -88,16 +87,6 @@ export function MembersManager() {
   const handleDeleteMember = (memberId) => {
     deleteMember(memberId);
     toast.success("Member deleted successfully");
-  };
-
-  const handleUpdateMemberStatus = (memberId, status) => {
-    updateMemberStatus(memberId, status);
-    toast.success("Member status updated successfully");
-  };
-
-  const handleUpdateMemberRole = (memberId, role) => {
-    updateMemberRole(memberId, role);
-    toast.success("Member role updated successfully");
   };
 
   return (
@@ -258,44 +247,14 @@ export function MembersManager() {
                         </div>
                         {isMemberEditable && (
                           <>
-                            <Select
-                              value={member.role}
-                              onValueChange={(value) =>
-                                handleUpdateMemberRole(member.id, value)
+                            <MemberDialog
+                              member={member}
+                              trigger={
+                                <Button variant="ghost" size="sm">
+                                  <Edit className="w-4 h-4" />
+                                </Button>
                               }
-                            >
-                              <SelectTrigger className="w-24">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {Object.entries(TRIP_MEMBER_ROLES).map(
-                                  ([key, [, label]]) => (
-                                    <SelectItem key={key} value={key}>
-                                      {label}
-                                    </SelectItem>
-                                  )
-                                )}
-                              </SelectContent>
-                            </Select>
-                            <Select
-                              value={member.status}
-                              onValueChange={(value) =>
-                                handleUpdateMemberStatus(member.id, value)
-                              }
-                            >
-                              <SelectTrigger className="w-24">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {Object.entries(TRIP_MEMBER_STATUSES).map(
-                                  ([key, label]) => (
-                                    <SelectItem key={key} value={key}>
-                                      {label}
-                                    </SelectItem>
-                                  )
-                                )}
-                              </SelectContent>
-                            </Select>
+                            />
                             <ConfirmationDialog
                               title="Delete Member"
                               description="Are you sure you want to delete this member? This action cannot be undone."

@@ -1,6 +1,6 @@
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { CHECKLIST_CATEGORIES, CHECKLIST_PRIORITY } from "@/configs/checklist";
@@ -41,9 +41,9 @@ export default function ChecklistDialog() {
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors },
     reset,
+    control,
   } = useForm();
   const { user } = useAuth();
   const { trip } = useTrip();
@@ -122,28 +122,29 @@ export default function ChecklistDialog() {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="category">Category</Label>
-              <Select
-                id="category"
-                onValueChange={(value) =>
-                  setValue("category", value, { shouldValidate: true })
-                }
-                {...register("category", { required: validator.required })}
-              >
-                <SelectTrigger
-                  aria-invalid={errors.category ? "true" : "false"}
-                >
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(CHECKLIST_CATEGORIES).map(
-                    ([category, label]) => (
-                      <SelectItem key={category} value={category}>
-                        {label}
-                      </SelectItem>
-                    )
-                  )}
-                </SelectContent>
-              </Select>
+              <Controller
+                name="category"
+                control={control}
+                rules={{ required: validator.required }}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger
+                      aria-invalid={errors.category ? "true" : "false"}
+                    >
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(CHECKLIST_CATEGORIES).map(
+                        ([category, label]) => (
+                          <SelectItem key={category} value={category}>
+                            {label}
+                          </SelectItem>
+                        )
+                      )}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
               {errors.category && (
                 <p className="text-xs text-destructive">
                   {errors.category.message}
@@ -152,28 +153,29 @@ export default function ChecklistDialog() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="priority">Priority</Label>
-              <Select
-                id="priority"
-                onValueChange={(value) =>
-                  setValue("priority", value, { shouldValidate: true })
-                }
-                {...register("priority", { required: validator.required })}
-              >
-                <SelectTrigger
-                  aria-invalid={errors.priority ? "true" : "false"}
-                >
-                  <SelectValue placeholder="Select priority" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(CHECKLIST_PRIORITY).map(
-                    ([priority, label]) => (
-                      <SelectItem key={priority} value={priority}>
-                        {label}
-                      </SelectItem>
-                    )
-                  )}
-                </SelectContent>
-              </Select>
+              <Controller
+                name="priority"
+                control={control}
+                rules={{ required: validator.required }}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger
+                      aria-invalid={errors.priority ? "true" : "false"}
+                    >
+                      <SelectValue placeholder="Select priority" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(CHECKLIST_PRIORITY).map(
+                        ([priority, label]) => (
+                          <SelectItem key={priority} value={priority}>
+                            {label}
+                          </SelectItem>
+                        )
+                      )}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
               {errors.priority && (
                 <p className="text-xs text-destructive">
                   {errors.priority.message}
@@ -199,31 +201,32 @@ export default function ChecklistDialog() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="assigned_to_id">Assigned to</Label>
-              <Select
-                id="assigned_to_id"
-                onValueChange={(value) =>
-                  setValue("assigned_to_id", value, { shouldValidate: true })
+              <Controller
+                name="assigned_to_id"
+                control={control}
+                rules={{ required: validator.required }}
+                defaultValue={
+                  trip.user_role === TRIP_MEMBER_ROLES.MEMBER[0]
+                    ? assignedToOptions[0]?.id
+                    : ""
                 }
-                {...register("assigned_to_id", {
-                  required: validator.required,
-                })}
-                {...(trip.user_role === TRIP_MEMBER_ROLES.MEMBER[0] && {
-                  defaultValue: assignedToOptions[0]?.id,
-                })}
-              >
-                <SelectTrigger
-                  aria-invalid={errors.assigned_to_id ? "true" : "false"}
-                >
-                  <SelectValue placeholder="Select member" />
-                </SelectTrigger>
-                <SelectContent>
-                  {assignedToOptions.map((option) => (
-                    <SelectItem key={option.id} value={option.id}>
-                      {getAssignedToLabel(option)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger
+                      aria-invalid={errors.assigned_to_id ? "true" : "false"}
+                    >
+                      <SelectValue placeholder="Select member" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {assignedToOptions.map((option) => (
+                        <SelectItem key={option.id} value={option.id}>
+                          {getAssignedToLabel(option)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
               {errors.assigned_to_id && (
                 <p className="text-xs text-destructive">
                   {errors.assigned_to_id.message}

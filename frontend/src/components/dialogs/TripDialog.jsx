@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { Edit, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -110,19 +110,22 @@ export default function TripDialog({ trip, onSuccess, trigger }) {
     }
   }, [open]);
 
-  useEffect(() => {
-    if (trip) {
-      setValue("difficulty", trip.difficulty);
-    }
-  }, [trip]);
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
           <Button className="w-full sm:w-auto mt-4 sm:mt-0">
-            <Plus className="w-4 h-4 mr-2" />
-            Create New Trip
+            {isEditMode ? (
+              <>
+                <Edit className="w-4 h-4 mr-2" />
+                Edit Trip
+              </>
+            ) : (
+              <>
+                <Plus className="w-4 h-4 mr-2" />
+                Create New Trip
+              </>
+            )}
           </Button>
         )}
       </DialogTrigger>
@@ -267,29 +270,30 @@ export default function TripDialog({ trip, onSuccess, trigger }) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="difficulty">Difficulty</Label>
-            <Select
-              id="difficulty"
+            <Controller
+              name="difficulty"
+              control={control}
               defaultValue={trip?.difficulty || ""}
-              onValueChange={(value) =>
-                setValue("difficulty", value, { shouldValidate: true })
-              }
-              {...register("difficulty", { required: validator.required })}
-            >
-              <SelectTrigger
-                aria-invalid={errors.difficulty ? "true" : "false"}
-              >
-                <SelectValue placeholder="Select difficulty" />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(DIFFICULTY_LEVELS).map(
-                  ([difficulty, label]) => (
-                    <SelectItem key={difficulty} value={difficulty}>
-                      {label}
-                    </SelectItem>
-                  )
-                )}
-              </SelectContent>
-            </Select>
+              rules={{ required: validator.required }}
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger
+                    aria-invalid={errors.difficulty ? "true" : "false"}
+                  >
+                    <SelectValue placeholder="Select difficulty" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(DIFFICULTY_LEVELS).map(
+                      ([difficulty, label]) => (
+                        <SelectItem key={difficulty} value={difficulty}>
+                          {label}
+                        </SelectItem>
+                      )
+                    )}
+                  </SelectContent>
+                </Select>
+              )}
+            />
             {errors.difficulty && (
               <p className="text-xs text-destructive">
                 {errors.difficulty.message}
@@ -316,9 +320,7 @@ export default function TripDialog({ trip, onSuccess, trigger }) {
                   placeholder="Select tags or type to create"
                   aria-invalid={errors.tag_ids ? "true" : "false"}
                   value={field.value}
-                  onChange={(selectedOptions) =>
-                    field.onChange(selectedOptions)
-                  }
+                  onChange={field.onChange}
                 />
               )}
             />
