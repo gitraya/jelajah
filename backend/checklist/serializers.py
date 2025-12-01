@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ChecklistItem
+from .models import ChecklistItem, ChecklistCategory
 from trips.models import TripMember, MemberStatus, Trip
 from trips.serializers import TripMemberSerializer
 
@@ -10,6 +10,7 @@ class ChecklistItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChecklistItem
         fields = ['id', 'title', 'description', 'priority', 'due_date', 'position', 'is_completed', 'category', 'assigned_to', 'assigned_to_id', 'created_at', 'updated_at']
+        read_only_fields = ['id','category', 'created_at', 'updated_at']
 
     def validate_assigned_to_id(self, value):
         if not value:
@@ -26,4 +27,16 @@ class ChecklistItemSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         trip_id = self.context['trip_id']
         validated_data['trip_id'] = trip_id
+        
+        # Determine category based on due_date
+        trip = Trip.objects.get(id=trip_id)
+        due_date = validated_data.get('due_date')
+        category = ChecklistCategory.DURING_TRIP
+        if due_date:
+            if due_date < trip.start_date:
+                category = ChecklistCategory.PRE_TRIP
+            elif due_date > trip.end_date:
+                category = ChecklistCategory.POST_TRIP
+        validated_data['category'] = category
+        
         return super().create(validated_data)

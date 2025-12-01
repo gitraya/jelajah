@@ -21,7 +21,7 @@ class ExpenseSplitSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExpenseSplit
         fields = ['id', 'member', 'amount', 'paid', 'member_id']
-        read_only_fields = ['expense']
+        read_only_fields = ['id', 'expense']
         
     def validate_member_id(self, value):
         if 'trip_id' not in self.context:

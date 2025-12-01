@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-import { CHECKLIST_CATEGORIES, CHECKLIST_PRIORITY } from "@/configs/checklist";
+import { CHECKLIST_PRIORITY } from "@/configs/checklist";
 import { TRIP_MEMBER_ROLES } from "@/configs/trip";
 import { useAuth } from "@/hooks/useAuth";
 import { useChecklist } from "@/hooks/useChecklist";
@@ -119,69 +119,36 @@ export default function ChecklistDialog() {
               </p>
             )}
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
-              <Controller
-                name="category"
-                control={control}
-                rules={{ required: validator.required }}
-                render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger
-                      aria-invalid={errors.category ? "true" : "false"}
-                    >
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(CHECKLIST_CATEGORIES).map(
-                        ([category, label]) => (
-                          <SelectItem key={category} value={category}>
-                            {label}
-                          </SelectItem>
-                        )
-                      )}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {errors.category && (
-                <p className="text-xs text-destructive">
-                  {errors.category.message}
-                </p>
+          <div className="space-y-2">
+            <Label htmlFor="priority">Priority</Label>
+            <Controller
+              name="priority"
+              control={control}
+              rules={{ required: validator.required }}
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger
+                    aria-invalid={errors.priority ? "true" : "false"}
+                  >
+                    <SelectValue placeholder="Select priority" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(CHECKLIST_PRIORITY).map(
+                      ([priority, label]) => (
+                        <SelectItem key={priority} value={priority}>
+                          {label}
+                        </SelectItem>
+                      )
+                    )}
+                  </SelectContent>
+                </Select>
               )}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="priority">Priority</Label>
-              <Controller
-                name="priority"
-                control={control}
-                rules={{ required: validator.required }}
-                render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger
-                      aria-invalid={errors.priority ? "true" : "false"}
-                    >
-                      <SelectValue placeholder="Select priority" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(CHECKLIST_PRIORITY).map(
-                        ([priority, label]) => (
-                          <SelectItem key={priority} value={priority}>
-                            {label}
-                          </SelectItem>
-                        )
-                      )}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {errors.priority && (
-                <p className="text-xs text-destructive">
-                  {errors.priority.message}
-                </p>
-              )}
-            </div>
+            />
+            {errors.priority && (
+              <p className="text-xs text-destructive">
+                {errors.priority.message}
+              </p>
+            )}
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
             <div className="space-y-2">
