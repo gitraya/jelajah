@@ -110,7 +110,7 @@ export function ExpensesManager() {
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span>Spent</span>
-              <span>{Math.round(budgetPercentage)}%</span>
+              <span>{Math.ceil(budgetPercentage)}%</span>
             </div>
             <Progress value={budgetPercentage} className="w-full" />
           </div>
