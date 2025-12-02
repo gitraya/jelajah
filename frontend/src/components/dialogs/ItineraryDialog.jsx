@@ -159,7 +159,6 @@ export default function ItineraryDialog({ triggerClassName }) {
                 placeholder="e.g., 2-3 hours"
                 aria-invalid={errors.estimated_time ? "true" : "false"}
                 {...register("estimated_time", {
-                  required: validator.required,
                   minLength: validator.minLength(2),
                   maxLength: validator.maxLength(50),
                 })}
