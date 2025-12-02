@@ -250,7 +250,7 @@ frontend/
    DB_PORT=5432
    DEBUG=True
    SECRET_KEY=your-secret-key-here
-   ALLOWED_HOSTS=localhost,127. 0.0.1
+   ALLOWED_HOSTS=localhost,127.0.0.1
    CORS_ALLOWED_ORIGINS=http://localhost:5173
    FRONTEND_URL=http://localhost:5173
    SENDGRID_API_KEY=your-sendgrid-api-key
@@ -263,6 +263,8 @@ frontend/
    VITE_BACKEND_URL=http://localhost:8000/api
    PORT=5173
    ```
+
+   Note: Leave empty SENDGRID_API_KEY if you don't have one for local testing.
 
 3. **Build and start services:**
 
@@ -305,7 +307,21 @@ frontend/
    pip install -r requirements.txt
    ```
 
-3. **Set up environment variables** (create `backend/.env` as shown above, adjust DB settings for local PostgreSQL)
+3. **Set up environment variables**
+
+   Create `backend/.env`
+
+   ```dotenv
+   DEBUG=True
+   SECRET_KEY=your-secret-key-here
+   ALLOWED_HOSTS=localhost,127.0.0.1
+   CORS_ALLOWED_ORIGINS=http://localhost:5173
+   FRONTEND_URL=http://localhost:5173
+   SENDGRID_API_KEY=your-sendgrid-api-key
+   DEFAULT_FROM_EMAIL=noreply@yourdomain.com
+   ```
+
+   Note: Leave empty SENDGRID_API_KEY if you don't have one for local testing.
 
 4. **Run migrations:**
 
@@ -327,7 +343,14 @@ frontend/
    npm install
    ```
 
-2. **Create environment file** (`frontend/.env` as shown above)
+2. **Create environment file**
+
+   Create `frontend/.env`:
+
+   ```dotenv
+   VITE_BACKEND_URL=http://localhost:8000/api
+   PORT=5173
+   ```
 
 3. **Start the development server:**
    ```bash

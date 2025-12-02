@@ -35,6 +35,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         user = User.objects.filter(email=value).first()
         if user and user.has_usable_password() == False:
             raise serializers.ValidationError("User with this email already exists. Please set your password to activate your account.")
+        elif user:
+            raise serializers.ValidationError("User with this email already exists.")
         return value
         
     

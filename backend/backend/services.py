@@ -12,6 +12,9 @@ def send_templated_email(recipient_email, subject, template_name, context):
         template_name: Name of the template to use (without .html extension)
         context: Dictionary of variables to pass to the template
     """
+    if not settings.SENDGRID_API_KEY:
+        return  # Email sending is disabled
+    
     from_email = settings.DEFAULT_FROM_EMAIL
     to = [recipient_email]
     text_content = render_to_string(f'{template_name}.txt', context)
