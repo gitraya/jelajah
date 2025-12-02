@@ -6,8 +6,6 @@ Jelajah is an integrated travel planning platform that assists travelers in orga
 
 **Live Demo:** [https://jelajah.raya.bio](https://jelajah.raya.bio)
 
-**Screencast:** [Add your YouTube video link here]
-
 ---
 
 ## Distinctiveness and Complexity
