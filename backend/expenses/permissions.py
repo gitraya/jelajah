@@ -14,11 +14,14 @@ class IsExpenseAccessible(permissions.BasePermission):
         if not trip_id:
             return False
         
-        user = request.user
+        if not request.user.is_authenticated:
+            return False
+
         trip = Trip.objects.filter(id=trip_id).first()
         if not trip:
             return False
         
+        user = request.user
         is_member = trip.trip_members.filter(
             user=user,
             status=MemberStatus.ACCEPTED

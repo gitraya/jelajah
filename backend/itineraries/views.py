@@ -14,7 +14,7 @@ class ItineraryTypeViewSet(viewsets.ReadOnlyModelViewSet):
 class ItineraryItemViewSet(viewsets.ModelViewSet):
     """Itinerary items for a specific trip."""
     serializer_class = ItineraryItemSerializer
-    permission_classes = [permissions.IsAuthenticated, IsItineraryItemAccessible]
+    permission_classes = [IsItineraryItemAccessible]
     
     def get_queryset(self):
         type_id = self.request.query_params.get("type_id")
@@ -34,7 +34,7 @@ class ItineraryItemViewSet(viewsets.ModelViewSet):
     
 class ItineraryOrganizedListViewSet(viewsets.ViewSet):
     """Itinerary items desc sorted by visit_time & only not skipped items."""
-    permission_classes = [permissions.IsAuthenticated, IsItineraryItemAccessible]
+    permission_classes = [IsItineraryItemAccessible]
 
     def list(self, request, trip_id=None):
         items = ItineraryItem.objects.filter(trip_id=trip_id).exclude(status='SKIPPED').order_by('-visit_time')

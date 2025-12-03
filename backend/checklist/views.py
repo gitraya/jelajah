@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions, generics
+from rest_framework import viewsets, generics
 from .models import ChecklistItem
 from .serializers import ChecklistItemSerializer
 from backend.permissions import IsStatisticAccessible
@@ -10,7 +10,7 @@ from .permissions import IsChecklistItemAccessible
 class ChecklistItemViewSet(viewsets.ModelViewSet):
     """Checklist items for a specific trip."""
     serializer_class = ChecklistItemSerializer
-    permission_classes = [permissions.IsAuthenticated, IsChecklistItemAccessible]
+    permission_classes = [IsChecklistItemAccessible]
     
     def get_queryset(self):
         category = self.request.query_params.get("category")

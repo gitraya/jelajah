@@ -15,7 +15,7 @@ class PackingCategoryViewSet(viewsets.ReadOnlyModelViewSet):
 class PackingItemViewSet(viewsets.ModelViewSet):
     """Packing items for a specific trip."""
     serializer_class = PackingItemSerializer
-    permission_classes = [permissions.IsAuthenticated, IsPackingItemAccessible]
+    permission_classes = [IsPackingItemAccessible]
     
     def get_queryset(self):
         category_id = self.request.query_params.get("category_id")

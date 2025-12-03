@@ -13,20 +13,28 @@ class IsPackingItemAccessible(permissions.BasePermission):
         if not trip_id:
             return False
         
-        user = request.user
         trip = Trip.objects.filter(id=trip_id).first()
         if not trip:
             return False
         
+        is_read_action = view.action in ['list', 'retrieve']
+        
+        if trip.is_public and is_read_action:
+            return True
+
+        if not request.user.is_authenticated:
+            return False
+        
+        user = request.user
         is_member = trip.trip_members.filter(
             user=user,
             status=MemberStatus.ACCEPTED
         ).exists()
 
-        if view.action in ['list', 'retrieve']:
-            return trip.owner == user or is_member or trip.is_public
+        if is_read_action:
+            return trip.owner == user or is_member
 
-        if view.action in ['create', 'update', 'partial_update', 'destroy']:
+        if not is_read_action:
             if trip.owner == user:
                 return True
             member = trip.trip_members.filter(

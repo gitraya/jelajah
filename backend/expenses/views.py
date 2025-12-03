@@ -16,7 +16,7 @@ class ExpenseCategoryViewSet(viewsets.ReadOnlyModelViewSet):
 class ExpenseViewSet(viewsets.ModelViewSet):
     """Expenses for a specific trip."""
     serializer_class = ExpenseSerializer
-    permission_classes = [permissions.IsAuthenticated, IsExpenseAccessible]
+    permission_classes = [IsExpenseAccessible]
     
     def get_queryset(self):
         trip_id = self.kwargs.get('trip_id')
