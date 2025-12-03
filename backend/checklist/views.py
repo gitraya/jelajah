@@ -31,7 +31,7 @@ class ChecklistItemViewSet(viewsets.ModelViewSet):
 
 class ChecklistStatisticsView(generics.RetrieveAPIView):
     """Statistics for checklist items in a trip."""
-    permission_classes = [permissions.IsAuthenticated, IsStatisticAccessible]
+    permission_classes = [IsStatisticAccessible]
 
     def get(self, request, trip_id=None):
         total_items = ChecklistItem.objects.filter(trip_id=trip_id).count()

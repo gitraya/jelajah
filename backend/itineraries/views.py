@@ -9,7 +9,7 @@ class ItineraryTypeViewSet(viewsets.ReadOnlyModelViewSet):
     """Itinerary types."""
     queryset = ItineraryType.objects.all()
     serializer_class = ItineraryTypeSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     
 class ItineraryItemViewSet(viewsets.ModelViewSet):
     """Itinerary items for a specific trip."""
@@ -43,7 +43,7 @@ class ItineraryOrganizedListViewSet(viewsets.ViewSet):
 
 class ItineraryItemStatisticsView(generics.RetrieveAPIView):
     """Statistics for itinerary items in a trip."""
-    permission_classes = [permissions.IsAuthenticated, IsStatisticAccessible]
+    permission_classes = [IsStatisticAccessible]
 
     def get(self, request, trip_id=None):
         total = ItineraryItem.objects.filter(trip_id=trip_id).count()

@@ -1,7 +1,7 @@
 from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from django.db.models import Q
 from django.contrib.auth import get_user_model
 from django.db import models
@@ -210,7 +210,7 @@ class TripItinerarySummaryView(generics.RetrieveAPIView):
     """
     View to get itinerary summary for a trip
     """
-    permission_classes = [IsAuthenticated, IsTripAccessible]
+    permission_classes = [IsTripAccessible]
     queryset = Trip.objects.all()
 
     def get(self, request, trip_id=None):
@@ -303,7 +303,7 @@ class TagListView(generics.ListAPIView):
     View to list all unique tags used in trips
     """
     serializer_class = TagSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Tag.objects.all()
 
 

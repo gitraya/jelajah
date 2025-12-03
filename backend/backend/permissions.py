@@ -10,13 +10,17 @@ class IsStatisticAccessible(permissions.BasePermission):
         if not trip_id:
             return False
         
-        user = request.user
         trip = Trip.objects.filter(id=trip_id).first()
         if not trip:
             return False
         
         if trip.is_public:
             return True
+        
+        if not request.user.is_authenticated:
+            return False
+        
+        user = request.user
         
         return Trip.objects.filter(
             id=trip_id

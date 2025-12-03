@@ -11,7 +11,7 @@ class ExpenseCategoryViewSet(viewsets.ReadOnlyModelViewSet):
     """Expense categories."""
     queryset = ExpenseCategory.objects.all()
     serializer_class = ExpenseCategorySerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 class ExpenseViewSet(viewsets.ModelViewSet):
     """Expenses for a specific trip."""
@@ -29,7 +29,7 @@ class ExpenseViewSet(viewsets.ModelViewSet):
 
 class ExpenseStatisticsView(generics.RetrieveAPIView):
     """Statistics for expenses in a trip."""
-    permission_classes = [permissions.IsAuthenticated, IsStatisticAccessible]
+    permission_classes = [IsStatisticAccessible]
 
     def get(self, request, trip_id=None):
         trip = Trip.objects.filter(id=trip_id).first()

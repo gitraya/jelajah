@@ -10,7 +10,7 @@ class PackingCategoryViewSet(viewsets.ReadOnlyModelViewSet):
     """Packing categories."""
     queryset = PackingCategory.objects.all()
     serializer_class = PackingCategorySerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 class PackingItemViewSet(viewsets.ModelViewSet):
     """Packing items for a specific trip."""
@@ -32,7 +32,7 @@ class PackingItemViewSet(viewsets.ModelViewSet):
 
 class PackingItemStatisticsView(generics.RetrieveAPIView):
     """Statistics for packing items in a trip."""
-    permission_classes = [permissions.IsAuthenticated, IsStatisticAccessible]
+    permission_classes = [IsStatisticAccessible]
 
     def get(self, request, trip_id=None):
         total_items = PackingItem.objects.filter(trip_id=trip_id).count()
