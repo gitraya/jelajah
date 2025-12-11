@@ -10,211 +10,46 @@ Jelajah is an integrated travel planning platform that assists travelers in orga
 
 ## Distinctiveness and Complexity
 
-### Why This Project is Distinct
+### Distinctiveness
 
-As a concept and in its implementation, Jelajah is very different from the other projects in CS50W:
+This **Jelajah Trip Planning Web Application** stands out for its integration of collaborative trip management, an expense sharing system, and a multi-domain data architecture. Unlike simpler applications, this project involves several interconnected components, from JWT-based authentication to dynamic itinerary planning, expense tracking with payment splits, and role-based member management.
 
-1. **Not a Social Network (Project 4):** Even though Jelajah implements user accounts and allows multiple users to go on trips together, the core functionality is **trip planning and management**, not social interaction. There are no posts, likes, followers, or feeds. The user relationships exist solely in the context of trip membership, where users collaborate on logistics, rather than social networking activities.
+One of the key differentiators of this project is its custom user authentication model. Many Django applications use the default User model, which typically relies on a username and password combination for authentication. However, in this project, I implemented a custom user model using AbstractUser to enable email-based authentication. This is a more modern approach and better reflects real-world scenarios where email is often the primary identifier for users. Furthermore, the project implements JWT (JSON Web Token) authentication with secure HTTP-only cookies, providing production-grade security against XSS attacks. The system also includes a unique password setup flow for users invited to a trip who don't already have an account, they receive an email invitation with a secure token to create their password.
 
-2. **Not an E-commerce Site (Project 2):** Jelajah is not an e-commerce site; it does not sell products. There are no shopping carts, product listings, payment processing, or order management in it. The expense tracking feature allows **recording and splitting costs among trip members only**, which is far from commercial in nature. The users will track what they spent during the trips, not buying items through the system.
+Another key feature is the expense sharing and management system. Unlike projects where users can only view items or submit simple forms, this project allows users to create expenses, split them among trip members, and provides detailed expense breakdowns for each member. Each expense can be split among multiple members by a specific amount, and the system tracks who has paid their share. This creates an engaging user experience where users can manage shared finances and record expenses. Expenses are linked to specific trip members who have paid, ensuring accurate financial tracking and the ability to calculate balances per member.
 
-3. **Not a Wiki or Mail Application (Projects 1 & 3):** Unlike the Wiki project, Jelajah does not focus on content creation and editing using markdown. Unlike the Mail project, this project is also not about sending and receiving messages. Instead, Jelajah will be a **domain-specific planning tool** with complex relational data models.
+A collaborative trip planning system with role-based access control further adds complexity and specificity to the application. Member management implements three distinct roles: Organizer, Co-Organizer, and Member, each with different permissions that affect the actions they can perform. Members can be invited via email, with both existing and new user registration flows automatically handled. A status workflow (Pending, Accepted, Declined, Blocked) ensures proper member lifecycle management. This level of role-based interactivity and the ability to coordinate group trip planning are key differentiators from basic CRUD applications.
 
-### Technical Complexity
+The inclusion of multiple planning domains—including Itinerary, Expenses, Packing List, and Checklist creates a comprehensive trip management ecosystem. These aren't just separate features, they're interconnected through trip and member relationships, allowing for task assignment to specific members, tracking completion status across categories, and aggregate statistics for a trip overview dashboard.
 
-In several key areas, Jelajah is much more complex when compared to the course projects:
+### Complexity
 
-#### 1. Multi-Domain Data Architecture (11+ Django Models)
+This project was complex to build for several reasons, each of which stems from the need to integrate multiple interconnected systems, manage data dynamically, and enforce business rules through code.
 
-The system Jelajah implements an advanced data model with several interlinked entities:
+1. **Custom User Model with Email Authentication and JWT**:
+   To support modern authentication patterns, I replaced Django’s default username-based user system with a custom user model using `AbstractUser` and `UserManager`, making email the primary login identifier. This change required updating the `USERNAME_FIELD` and ensuring all authentication flows worked smoothly with email-based logins. For secure authentication, I integrated JWT tokens using `djangorestframework-simplejwt`, storing tokens in HTTP-only cookies rather than localStorage to prevent XSS attacks. Custom token views (`CookieTokenObtainPairView`, `CookieTokenRefreshView`, `CookieTokenBlacklistView`) handle cookie management automatically, including secure logout via token blacklisting. Additionally, rate limiting is enforced on authentication endpoints to protect against brute-force attempts.
 
-- **User Management:** Custom `User` model that inherits from `AbstractUser`, with email-based authentication, and a custom `UserManager`.
-- **Trip System:** `Trip` model with complex fields- Status Tracking: can be planned, ongoing, completed, or cancelled, and can be deleted; Difficulty Level; Budget Management; Public/Private Visibility Settings; Joinability Settings
-- **Member Management:** `TripMember` model; Role-based access: Organizer, Co-Organizer, Member; Status Workflow: Pending, Accepted, Declined, Blocked; Emergency contact information and each role has different permissions such as inviting members, managing expenses, and editing itineraries
-- **Itinerary Planning:** `ItineraryItem` - supports future geolocation (latitude/longitude), the ability to schedule visits, track the status of each visit (Planned, Visited, Skipped), and `ItineraryType` categorization
-- **Expense Tracking:** `Expense` model with `ExpenseCategory`, and `ExpenseSplit` for splitting expenses among trip members with payment status tracking
-- **Packing Management:** `PackingItem` with `PackingCategory`, quantity tracking, packed status, and member assignment
-- **Checklist System:** `ChecklistItem` with category phases (Pre-Trip, During Trip, Post-Trip), priority levels (Low, Medium, High), due dates, and completion tracking
-- **Tag System:** Trip categorization model `Tag` with Usage Counter
+2. **Multi-Domain Data Architecture**:
+   Managing multiple interconnected domains adds significant complexity to the application. Jelajah is organized into six dedicated Django apps, each responsible for a specific area: user management, trips and members, itineraries, expenses (with splitting), packing, and checklists. These apps are tightly integrated through the use of `ForeignKey`, `ManyToManyField`, and custom "through" models like `TripMember` and `ExpenseSplit`, allowing for rich relationships between data. The Trip model serves as the central hub, linking all other domains except for users. Each app also exposes its own statistics endpoint, which often requires aggregating and analyzing data across related models and the core Trip, enabling the generation of meaningful insights and overviews for users.
 
-These models have complicated relationships through `ForeignKey`, `ManyToManyField`, and `through` tables, necessitating a high degree of diligence in maintaining data integrity and optimizing queries with `select_related()` and `prefetch_related()`.
+3. **Expense Splitting System**:
+   The expense tracking system in Jelajah aims to provide more than just basic forms by supporting expense splitting among trip members. Each expense is associated with multiple members using the `ExpenseSplit` model, which keeps track of how much each person owes and whether they have paid. This approach helps users view individual balances, total spending by category, and outstanding payments. The backend serializer handles nested split data, including member details, and checks that the sum of all splits matches the total expense amount. It also summarizes payment status for each member. To help maintain accurate financial records, expense creation uses atomic transactions if any part of the process fails, the entire expense is rolled back and an error is returned, helping to ensure data integrity.
 
-#### 2. Authentication System
+4. **RESTful API and Custom Permissions**:
+   The backend exposes a REST API with nested resource routing where specific trip resources are accessed via a hierarchical URL pattern (e.g., `/api/trips/<trip_id>/itineraries/items/`, `/api/trips/<trip_id>/expenses/items/`). Access control is custom enforced to meet each endpoint's different needs, especially since each role member has different access rights and only certain data can be accessed publicly & only if `is_public` is enabled for that trip data.
 
-Unlike the simple session-based authentication in course projects, Jelajah uses:
+5. **React Frontend with Multiple Context Providers**:
+   This frontend demonstrates React patterns through the use of the Context API for global state management, implemented across nine different contexts: `AuthContext`, `TripsContext`, `TripContext`, `MembersContext`, `ItinerariesContext`, `ExpensesContext`, `ChecklistContext`, `PackingItemsContext`, and `TagsContext`. This separation of responsibilities ensures maintainable and scalable state management. Custom hooks abstract reusable logic for data fetching, authentication state, and form handling. Protected routes implement authentication aware routing with redirect handling using `react-router-dom`.
 
-- **JWT (JSON Web Token) Authentication** with `djangorestframework-simplejwt`
-- **HTTP-Only Secure Cookies** to store tokens and protect against XSS attacks
-- **Custom Token Views** (`CookieTokenObtainPairView`, `CookieTokenRefreshView`, `CookieTokenBlacklistView`) that manage cookies automatically
-- **Token Blacklisting** for secure logout
-- **Set Password Flow** for users invited to trips who do not have accounts yet
-- **Rate Limiting** on sensitive endpoints using `ScopedRateThrottle`
+6. **Email Notification System**:
+   Jelajah integrates with **SendGrid** for sending transactional emails using professionally designed HTML templates. The email system handles welcome messages upon registration, trip invitation emails with separate flows for existing users and new users requiring account creation, status change notifications, join request notifications to organizers, and password reset emails. Each email uses an HTML template stored in `backend/templates/` for consistency.
 
-#### 3. REST API Design
+7. **DevOps and Deployment Configuration**:
+   This project utilizes the DevOps practices taught in the course through Docker containerization with a multi-service `docker-compose.yml` that orchestrates frontend, backend, and PostgreSQL services. A GitHub Actions workflow automates testing on push and pull request events, while a `render.yaml` configuration enables efficient deployment to the Render cloud platform.
 
-The backend provides a complete RESTful API with:
+### Conclusion
 
-- **Nested Resource Routing:** Trip-specific resources accessed via nested URLs (e.g., `/api/trips/<trip_id>/itineraries/items/`)
-- **Custom Permission Classes:** `IsTripAccessible`, `IsMemberAccessible`, `IsExpenseAccessible`, `IsItineraryItemAccessible`, `IsChecklistItemAccessible` for precise access control
-- **Statistics Endpoints:** Combined data for expenses, itineraries, checklists, and members using Django ORM aggregation functions
-- **Filtering:** Query parameter-based filtering for status, category, destination, difficulty, and more
-- **ViewSets with Custom Actions:** Full CRUD operations plus specialized endpoints
-
-#### 4. Notification System via Email
-
-For transactional emails, Jelajah is integrated with **SendGrid**:
-
-- Welcome emails on registration
-- Invitations to join a trip (with distinct processes for new and existing users)
-- Notifications of status changes (accepted, declined, blocked)
-- Notifying trip owners of join requests
-- Reset passwords and set emails
-
-Every email is professionally formatted using **HTML templates** that are kept in the backend.
-
-#### 5. Frontend Architecture with React
-
-Advanced React patterns are displayed on the frontend:
-
-- **Context API for State Management:** Distinct contexts for Auth, Trips, Trip, Members, Itineraries, Expenses, Checklist, PackingItems, and Tags
-- **Custom Hooks:** Reusable logic extraction for data fetching and state management
-- **Component Composition:** Modular UI components with a clear division of responsibilities
-- **Protected Routes:** Authentication-aware routing with redirect handling
-- **Form Validation:** Client-side validation with error handling
-- **Responsive Design:** Mobile-first strategy using CSS and contemporary layout techniques.
-
-#### 6. Deployment and DevOps
-
-- **Docker Containerization:** Multi-service setup with `docker-compose.yml`
-- **PostgreSQL Database:** Production-grade database with persistent volumes
-- **Environment Configuration:** `.env` files for sensitive settings
-- **Render Deployment:** `render.yaml` for cloud deployment
-- **CI/CD Pipeline:** GitHub Actions workflow for automated testing
-
----
-
-## File Structure
-
-### Backend (`backend/`)
-
-```
-backend/
-├── backend/                    # Main Django project settings
-│   ├── settings.py            # Django configuration (database, JWT, CORS, email)
-│   ├── urls.py                # Root URL routing
-│   ├── models.py              # BaseModel with UUID and timestamps
-│   ├── permissions.py         # Shared permission classes
-│   └── services.py            # Email service utilities
-├── users/                      # User authentication app
-│   ├── models.py              # Custom User model with UserManager
-│   ├── views.py               # Registration, login, profile, password views
-│   ├── serializers.py         # User data serialization
-│   ├── urls.py                # Auth endpoints
-│   └── tests.py               # User app tests
-├── trips/                      # Core trip management app
-│   ├── models.py              # Trip, TripMember, Tag models
-│   ├── views.py               # Trip CRUD, join requests, statistics
-│   ├── serializers.py         # Trip data serialization
-│   ├── permissions.py         # Trip access control
-│   ├── urls.py                # Trip endpoints
-│   └── tests.py               # Trip app tests
-├── itineraries/                # Itinerary planning app
-│   ├── models.py              # ItineraryItem, ItineraryType models
-│   ├── views.py               # Itinerary CRUD and statistics
-│   ├── serializers.py         # Itinerary serialization
-│   ├── permissions.py         # Itinerary access control
-│   ├── urls.py                # Itinerary endpoints
-│   └── tests.py               # Itinerary app tests
-├── expenses/                   # Expense tracking app
-│   ├── models.py              # Expense, ExpenseCategory, ExpenseSplit models
-│   ├── views.py               # Expense CRUD and statistics
-│   ├── serializers.py         # Expense serialization
-│   ├── permissions.py         # Expense access control
-│   ├── urls.py                # Expense endpoints
-│   └── tests.py               # Expense app tests
-├── packing/                    # Packing list app
-│   ├── models.py              # PackingItem, PackingCategory models
-│   ├── views.py               # Packing CRUD and statistics
-│   ├── serializers.py         # Packing serialization
-│   ├── permissions.py         # Packing access control
-│   ├── urls.py                # Packing endpoints
-│   └── tests.py               # Packing app tests
-├── checklist/                  # Checklist management app
-│   ├── models.py              # ChecklistItem model with priorities
-│   ├── views.py               # Checklist CRUD and statistics
-│   ├── serializers.py         # Checklist serialization
-│   ├── permissions.py         # Checklist access control
-│   ├── urls.py                # Checklist endpoints
-│   └── tests.py               # Checklist app tests
-├── templates/                  # Email HTML templates
-├── requirements.txt           # Python dependencies
-├── Dockerfile                 # Backend container configuration
-├── build.sh                   # Build script for deployment
-└── manage.py                  # Django management script
-```
-
-### Frontend (`frontend/`)
-
-```
-frontend/
-├── src/
-│   ├── components/            # Reusable UI components
-│   │   ├── ChecklistManager.jsx    # Checklist CRUD interface
-│   │   ├── ExpensesManager.jsx     # Expense tracking interface
-│   │   ├── ItinerariesManager.jsx  # Itinerary planning interface
-│   │   ├── MembersManager.jsx      # Member management interface
-│   │   ├── PackingList.jsx         # Packing list interface
-│   │   ├── TripOverview.jsx        # Trip summary dashboard
-│   │   ├── UserAvatar.jsx          # User profile avatar
-│   │   ├── dialogs/               # Modal dialog components
-│   │   ├── layouts/               # Page layout components
-│   │   └── ui/                    # Base UI components
-│   ├── contexts/              # React Context providers
-│   │   ├── AuthContext.jsx        # Authentication state
-│   │   ├── TripContext.jsx        # Single trip state
-│   │   ├── TripsContext.jsx       # Trip list state
-│   │   ├── MembersContext.jsx     # Trip members state
-│   │   ├── ItinerariesContext.jsx # Itinerary state
-│   │   ├── ExpensesContext.jsx    # Expenses state
-│   │   ├── ChecklistContext.jsx   # Checklist state
-│   │   ├── PackingItemsContext.jsx # Packing items state
-│   │   └── TagsContext.jsx        # Tags state
-│   ├── hooks/                 # Custom React hooks
-│   ├── pages/                 # Page components
-│   │   ├── Home.jsx              # Landing page with trip discovery
-│   │   ├── MyTrips.jsx           # User's trips list
-│   │   ├── TripDetail.jsx        # Public trip view
-│   │   ├── TripManage.jsx        # Trip management dashboard
-│   │   ├── NotFound.jsx          # 404 page
-│   │   └── auth/                 # Authentication pages
-│   │       ├── Login.jsx
-│   │       ├── Register.jsx
-│   │       ├── SetPassword.jsx
-│   │       └── ResendSetPasswordEmail.jsx
-│   ├── configs/               # Configuration files
-│   ├── lib/                   # Utility functions
-│   ├── assets/                # Static assets (images, icons)
-│   ├── App.jsx                # Main application component
-│   ├── main.jsx               # Application entry point
-│   └── index.css              # Global styles
-├── package.json               # Node.js dependencies
-├── vite.config.js             # Vite bundler configuration
-├── Dockerfile                 # Frontend container configuration
-└── README.md                  # Vite template documentation
-```
-
-### Root Directory
-
-```
-├── .github/
-│   └── workflows/
-│       ├── backend.yml        # GitHub Actions CI/CD workflow
-│       └── frontend.yml       # Frontend CI/CD workflow
-├── docker-compose.yml         # Development Docker configuration
-├── render.yaml                # Render deployment configuration
-├── .gitignore                 # Git ignore rules
-└── README.md                  # This documentation file
-```
+In summary, the **Jelajah Travel Planning Web Application** aims to offer a distinctive and robust solution for group travel planning by integrating **JWT-based authentication with HTTP-only cookies**, **role-based member management**, **expense splitting with payment tracking**, and **multi-domain trip planning features**. While developing these features presented a range of challenges—from implementing custom authentication flows to managing complex data relationships the process provided valuable learning opportunities. The result is a web application that strives to go beyond basic CRUD operations, supporting interactive and collaborative trip management with a focus on security and usability.
 
 ---
 
@@ -474,7 +309,6 @@ npm run test
 - django-cors-headers 4.7.0 (CORS handling)
 - psycopg2-binary (PostgreSQL adapter)
 - SendGrid (Email delivery)
-- Pillow (Image processing)
 - Gunicorn (WSGI server)
 - WhiteNoise (Static files)
 
@@ -483,7 +317,7 @@ npm run test
 - React 18+ with Vite
 - React Router (Client-side routing)
 - Context API (State management)
-- CSS3 with responsive design
+- Tailwind CSS (Utility-first CSS framework)
 
 **DevOps:**
 
@@ -500,10 +334,7 @@ npm run test
 - Token blacklisting upon logout
 - Password hashing using Django's built-in mechanism
 - Role-based trip resource access control
-
-### Mobile Responsiveness
-
-The frontend uses a mobile-first design approach with CSS media queries and flexible layouts.
+- Input validation on both frontend and backend
 
 ---
 
